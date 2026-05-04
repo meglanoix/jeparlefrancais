@@ -456,39 +456,51 @@ function renderCards() {
 
 function initDrag() {
   const grid = document.getElementById('card-grid');
-  const cards = [...grid.querySelectorAll('.card')];
   let dragSrc = null;
 
-  cards.forEach((card, i) => {
-    card.setAttribute('draggable', true);
+  grid.querySelectorAll('.card').forEach((card, i) => {
+    // Poignée de déplacement — on utilise le card-body
+    const handle = card.querySelector('.card-body');
+    if (handle) handle.style.cursor = 'grab';
+
+    card.setAttribute('draggable', 'true');
 
     card.addEventListener('dragstart', e => {
       dragSrc = i;
-      setTimeout(() => card.classList.add('dragging'), 0);
       e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', i);
+      card.style.opacity = '0.4';
     });
 
     card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      grid.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
+      card.style.opacity = '1';
+      grid.querySelectorAll('.card').forEach(c => {
+        c.style.outline = '';
+      });
     });
 
     card.addEventListener('dragover', e => {
       e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      grid.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
-      card.classList.add('drag-over');
+      e.stopPropagation();
+      return false;
+    });
+
+    card.addEventListener('dragenter', e => {
+      e.preventDefault();
+      if (dragSrc !== null && dragSrc !== i) {
+        card.style.outline = '3px solid #2a5298';
+      }
     });
 
     card.addEventListener('dragleave', () => {
-      card.classList.remove('drag-over');
+      card.style.outline = '';
     });
 
     card.addEventListener('drop', e => {
       e.preventDefault();
-      card.classList.remove('drag-over');
+      e.stopPropagation();
+      card.style.outline = '';
       if (dragSrc === null || dragSrc === i) return;
-      // Réorganiser le tableau
       const moved = cartes.splice(dragSrc, 1)[0];
       cartes.splice(i, 0, moved);
       dragSrc = null;
