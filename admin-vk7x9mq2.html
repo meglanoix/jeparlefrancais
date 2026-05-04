@@ -457,7 +457,7 @@ function renderCards() {
     </div>`).join('');
 }
 
-function moveCard(e, i, dir) {
+window.moveCard = function(e, i, dir) {
   e.stopPropagation();
   const newIdx = i + dir;
   if (newIdx < 0 || newIdx >= cartes.length) return;
@@ -465,7 +465,7 @@ function moveCard(e, i, dir) {
   cartes.splice(newIdx, 0, moved);
   saveOrder();
   renderCards();
-}
+};
 
 
 window.playCard = function(e, i) {
