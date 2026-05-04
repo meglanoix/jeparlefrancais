@@ -545,8 +545,7 @@ window.saveReRecord = async function() {
 
 window.openQR = function(e, id, mot) {
   e.stopPropagation();
-  const base = window.location.origin + window.location.pathname.replace(/admin-[^/]+\.html$/, '');
-  const url = base + 'carte.html?id=' + id + '&col=vocabulaire-sports';
+  const url = window.location.origin + '/carte.html?id=' + id + '&col=vocabulaire-sports';
   document.getElementById('qr-mot-label').textContent = mot.replace('/', ' / ');
   document.getElementById('qr-url-text').textContent = url;
   document.getElementById('qr-canvas').innerHTML = '';
