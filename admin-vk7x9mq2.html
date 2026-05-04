@@ -580,7 +580,8 @@ window.saveReRecord = async function() {
 };
 
 // --- Sélection et impression ---
-let selectedCards = new Set();
+window.selectedCards = new Set();
+let selectedCards = window.selectedCards;
 
 window.toggleSelect = function(e, i) {
   e.stopPropagation();
