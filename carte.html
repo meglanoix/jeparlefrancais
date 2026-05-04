@@ -85,13 +85,14 @@ const id = params.get('id');
 const col = params.get('col') || 'vocabulaire-sports';
 const content = document.getElementById('content');
 
+async function loadCarte() {
 if (!id) {
   content.innerHTML = '<div class="error"><h2>Carte introuvable</h2><p>Aucun identifiant fourni.</p></div>';
 } else {
   try {
     const snap = await getDoc(doc(db, col, id));
     if (!snap.exists()) {
-      content.innerHTML = '<div class="error"><h2>Carte introuvable</h2><p>Cette carte n'existe plus.</p></div>';
+      content.innerHTML = '<div class="error"><h2>Carte introuvable</h2><p>Cette carte n&#39;existe plus.</p></div>';
     } else {
       const c = snap.data();
       const mot = c.mot.split('/').map(s => s.trim()).join('<br/>');
@@ -147,6 +148,8 @@ if (!id) {
     content.innerHTML = '<div class="error"><h2>Erreur</h2><p>' + e.message + '</p></div>';
   }
 }
+}
+loadCarte();
 </script>
 </body>
 </html>
