@@ -701,14 +701,15 @@ window.printSelected = function() {
       }
     });
 
-    // Télécharger
-    const blob = doc.output('blob');
-    const url = URL.createObjectURL(blob);
+    // Télécharger via dataURI
+    const dataUri = doc.output('datauristring');
     const a = document.createElement('a');
-    a.href = url; a.download = 'cartes-jeparlefrancais.pdf';
-    document.body.appendChild(a); a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    a.href = dataUri;
+    a.download = 'cartes-jeparlefrancais.pdf';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 1000);
   });
 };
 
