@@ -150,6 +150,35 @@ input[type=text]:focus { border-color: var(--bleu); }
 .empty-grid { text-align: center; padding: 4rem 2rem; color: var(--gris); grid-column: 1/-1; }
 .empty-grid p { font-size: 1rem; margin-top: 0.5rem; }
 
+/* SÉLECTION ET IMPRESSION */
+.card.selected { border: 2px solid var(--bleu-clair); box-shadow: 0 0 0 3px rgba(42,82,152,0.2); }
+.card-checkbox {
+  position: absolute; top: 8px; left: 8px; z-index: 20;
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--blanc); border: 2px solid rgba(26,58,92,0.3);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s;
+}
+.card.selected .card-checkbox { background: var(--bleu); border-color: var(--bleu); }
+.card-checkbox::after { content: '✓'; color: var(--blanc); font-size: 13px; font-weight: 700; opacity: 0; }
+.card.selected .card-checkbox::after { opacity: 1; }
+.print-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+  background: var(--bleu); color: var(--blanc);
+  padding: 14px 5vw; display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 -4px 20px rgba(26,58,92,0.3);
+  transform: translateY(100%); transition: transform 0.3s;
+}
+.print-bar.visible { transform: translateY(0); }
+.print-bar-left { font-size: 0.9rem; }
+.print-bar-left strong { font-size: 1.1rem; }
+.print-bar-btns { display: flex; gap: 8px; }
+.print-bar-btn { padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; }
+.print-bar-btn.primary { background: var(--blanc); color: var(--bleu); }
+.print-bar-btn.primary:hover { background: var(--creme); }
+.print-bar-btn.secondary { background: rgba(255,255,255,0.15); color: var(--blanc); }
+.print-bar-btn.secondary:hover { background: rgba(255,255,255,0.25); }
+
 /* DRAG AND DROP */
 .card { cursor: grab; }
 .card.dragging { opacity: 0.4; cursor: grabbing; transform: scale(1.03); box-shadow: 0 8px 32px rgba(26,58,92,0.25); }
@@ -227,10 +256,15 @@ input[type=text]:focus { border-color: var(--bleu); }
     Cartes actuelles
     <span class="card-count" id="card-count"></span>
   </div>
-  <div class="drag-hint">
-    <svg viewBox="0 0 24 24"><path d="M5 9l4-4 4 4M9 5v14M19 15l-4 4-4-4M15 19V5"/></svg>
-    Glissez les cartes pour changer l'ordre
-    <span class="order-saving" id="order-saving" style="display:none">✓ Ordre sauvegardé</span>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:8px">
+    <div class="drag-hint" style="margin-bottom:0">
+      <svg viewBox="0 0 24 24"><path d="M5 9l4-4 4 4M9 5v14M19 15l-4 4-4-4M15 19V5"/></svg>
+      Glissez les cartes pour changer l'ordre
+      <span class="order-saving" id="order-saving" style="display:none">✓ Ordre sauvegardé</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="app-btn" onclick="selectAll()" id="select-all-btn">☐ Tout sélectionner</button>
+    </div>
   </div>
   <div class="grid" id="card-grid">
     <div class="empty-grid"><p>Chargement des cartes...</p></div>
@@ -395,6 +429,7 @@ function renderCards() {
     <div class="card" id="card-${i}">
       <div class="card-img">
         ${c.image ? `<img src="${c.image}" alt="${c.mot}"/>` : `<div class="emoji-placeholder">🏃</div>`}
+        <div class="card-checkbox" onclick="toggleSelect(event, ${i})"></div>
         <div class="card-overlay-btns">
           <button class="overlay-btn play" onclick="playCard(event,${i})">
             <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Écouter
@@ -543,6 +578,168 @@ window.saveReRecord = async function() {
   }
 };
 
+// --- Sélection et impression ---
+let selectedCards = new Set();
+
+window.toggleSelect = function(e, i) {
+  e.stopPropagation();
+  const card = document.getElementById('card-' + i);
+  if (selectedCards.has(i)) {
+    selectedCards.delete(i);
+    card.classList.remove('selected');
+  } else {
+    selectedCards.add(i);
+    card.classList.add('selected');
+  }
+  updatePrintBar();
+};
+
+window.selectAll = function() {
+  const btn = document.getElementById('select-all-btn');
+  if (selectedCards.size === cartes.length) {
+    clearSelection();
+  } else {
+    cartes.forEach((c, i) => {
+      selectedCards.add(i);
+      const card = document.getElementById('card-' + i);
+      if (card) card.classList.add('selected');
+    });
+    btn.textContent = '☑ Tout désélectionner';
+    updatePrintBar();
+  }
+};
+
+window.clearSelection = function() {
+  selectedCards.clear();
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('select-all-btn').textContent = '☐ Tout sélectionner';
+  updatePrintBar();
+};
+
+function updatePrintBar() {
+  const bar = document.getElementById('print-bar');
+  const count = document.getElementById('selected-count');
+  count.textContent = selectedCards.size;
+  bar.classList.toggle('visible', selectedCards.size > 0);
+}
+
+window.printSelected = function() {
+  const selected = [...selectedCards].map(i => cartes[i]);
+  if (!selected.length) return;
+
+  const base = window.location.origin;
+
+  // Générer les QR codes en canvas puis imprimer
+  const tempDiv = document.createElement('div');
+  tempDiv.style.position = 'fixed';
+  tempDiv.style.left = '-9999px';
+  document.body.appendChild(tempDiv);
+
+  const qrPromises = selected.map((c, idx) => {
+    return new Promise(resolve => {
+      const url = base + '/carte.html?id=' + c.id + '&col=vocabulaire-sports';
+      const div = document.createElement('div');
+      tempDiv.appendChild(div);
+      const qr = new QRCode(div, {
+        text: url, width: 200, height: 200,
+        colorDark: '#1a3a5c', colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      setTimeout(() => {
+        const img = div.querySelector('img');
+        resolve({ carte: c, qrSrc: img ? img.src : '', url });
+      }, 300);
+    });
+  });
+
+  Promise.all(qrPromises).then(items => {
+    document.body.removeChild(tempDiv);
+    buildPrintWindow(items);
+  });
+};
+
+function buildPrintWindow(items) {
+  // Grouper par 6
+  const pages = [];
+  for (let i = 0; i < items.length; i += 6) pages.push(items.slice(i, i + 6));
+
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<title>Cartes à imprimer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #fff; }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap');
+  .page {
+    width: 279mm; height: 216mm;
+    display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
+    gap: 4mm; padding: 8mm;
+    page-break-after: always;
+    break-after: page;
+  }
+  .page:last-child { page-break-after: avoid; }
+  .cell {
+    border: 1px solid #ddd; border-radius: 8px;
+    overflow: hidden; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .cell img.card-img { width: 100%; flex: 1; object-fit: cover; display: block; }
+  .cell .mot {
+    font-family: 'Playfair Display', serif; font-size: 14pt;
+    color: #1a3a5c; text-align: center; padding: 6px 4px;
+    line-height: 1.3;
+  }
+  .cell.qr-cell { background: #f9f5ef; }
+  .cell.qr-cell img { width: 140px; height: 140px; }
+  .cell.qr-cell .mot { font-size: 11pt; color: #1a3a5c; }
+  .cell.empty { border: 1px dashed #eee; background: #fafafa; }
+  @media print {
+    @page { size: letter landscape; margin: 0; }
+    body { margin: 0; }
+  }
+</style></head><body>`;
+
+  pages.forEach(group => {
+    // Page recto — images
+    html += '<div class="page">';
+    for (let i = 0; i < 6; i++) {
+      if (group[i]) {
+        const mot = group[i].carte.mot.replace('/', '<br/>');
+        html += `<div class="cell">
+          ${group[i].carte.image ? `<img class="card-img" src="${group[i].carte.image}" alt="${group[i].carte.mot}"/>` : ''}
+          <div class="mot">${mot}</div>
+        </div>`;
+      } else {
+        html += '<div class="cell empty"></div>';
+      }
+    }
+    html += '</div>';
+
+    // Page verso — QR codes (ordre miroir: 3,2,1,6,5,4)
+    const mirror = [2,1,0,5,4,3];
+    html += '<div class="page">';
+    for (let i = 0; i < 6; i++) {
+      const mi = mirror[i];
+      if (group[mi]) {
+        const mot = group[mi].carte.mot.replace('/', ' / ');
+        html += `<div class="cell qr-cell">
+          <img src="${group[mi].qrSrc}" alt="QR"/>
+          <div class="mot">${mot}</div>
+        </div>`;
+      } else {
+        html += '<div class="cell empty"></div>';
+      }
+    }
+    html += '</div>';
+  });
+
+  html += '</body></html>';
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 800);
+}
+
 window.openQR = function(e, id, mot) {
   e.stopPropagation();
   const url = window.location.origin + '/carte.html?id=' + id + '&col=vocabulaire-sports';
@@ -584,6 +781,15 @@ window.deleteCard = async function(e, id) {
 
 loadCards();
 </script>
+<!-- BARRE D'IMPRESSION -->
+<div class="print-bar" id="print-bar">
+  <div class="print-bar-left"><strong id="selected-count">0</strong> carte(s) sélectionnée(s)</div>
+  <div class="print-bar-btns">
+    <button class="print-bar-btn secondary" onclick="clearSelection()">Annuler</button>
+    <button class="print-bar-btn primary" onclick="printSelected()">🖨 Imprimer recto/verso</button>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <!-- MODAL QR CODE -->
