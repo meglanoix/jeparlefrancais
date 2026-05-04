@@ -737,10 +737,12 @@ function buildPrintWindow(items) {
 
   html += '</body></html>';
 
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => w.print(), 800);
+  // Télécharger le HTML comme fichier
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cartes-a-imprimer.html';
+  a.click();
 }
 
 window.openQR = function(e, id, mot) {
