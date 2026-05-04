@@ -458,6 +458,8 @@ function initDrag() {
   const grid = document.getElementById('card-grid');
   let dragSrc = null;
 
+  grid.addEventListener('dragover', e => e.preventDefault());
+
   grid.querySelectorAll('.card').forEach((card, i) => {
     // Poignée de déplacement — on utilise le card-body
     const handle = card.querySelector('.card-body');
@@ -481,8 +483,7 @@ function initDrag() {
 
     card.addEventListener('dragover', e => {
       e.preventDefault();
-      e.stopPropagation();
-      return false;
+      e.dataTransfer.dropEffect = 'move';
     });
 
     card.addEventListener('dragenter', e => {
