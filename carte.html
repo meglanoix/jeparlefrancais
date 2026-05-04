@@ -19,7 +19,7 @@ body {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 2rem;
 }
-.logo { font-family: 'Playfair Display', serif; color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 2rem; letter-spacing: 0.5px; }
+.logo { font-family: 'Playfair Display', serif; color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 2rem; }
 .logo span { color: #e88; }
 .card {
   background: var(--blanc); border-radius: 24px;
@@ -27,37 +27,34 @@ body {
   box-shadow: 0 16px 48px rgba(0,0,0,0.3);
   overflow: hidden;
 }
-.card-img { width: 100%; aspect-ratio: 1/1; position: relative; background: var(--creme); }
+.card-img { width: 100%; aspect-ratio: 1/1; background: var(--creme); }
 .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .card-body { padding: 1.5rem; text-align: center; }
-.card-word {
-  font-family: 'Playfair Display', serif; font-size: 1.8rem;
-  color: var(--bleu); line-height: 1.3; margin-bottom: 1.25rem;
-}
+.card-word { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--bleu); line-height: 1.3; margin-bottom: 1.5rem; }
 .play-btn {
-  width: 64px; height: 64px; border-radius: 50%;
+  width: 72px; height: 72px; border-radius: 50%;
   background: var(--bleu); border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  margin: 0 auto; transition: transform 0.2s, background 0.2s;
-  box-shadow: 0 4px 16px rgba(26,58,92,0.3);
+  margin: 0 auto; transition: transform 0.15s, background 0.2s;
+  box-shadow: 0 4px 20px rgba(26,58,92,0.35);
 }
-.play-btn:hover { transform: scale(1.08); background: #2a5298; }
+.play-btn:active { transform: scale(0.95); }
 .play-btn.playing { background: var(--vert); }
-.play-btn svg { width: 26px; height: 26px; fill: var(--blanc); margin-left: 4px; }
+.play-btn svg { width: 28px; height: 28px; fill: var(--blanc); margin-left: 5px; }
 .play-btn.playing svg { margin-left: 0; }
 .wave {
   display: none; align-items: center; justify-content: center;
-  gap: 4px; height: 20px; margin-top: 1rem;
+  gap: 4px; height: 24px; margin-top: 1rem;
 }
 .wave.active { display: flex; }
 .wave-bar { width: 4px; border-radius: 2px; background: var(--vert); animation: wave 0.8s ease-in-out infinite; }
 .wave-bar:nth-child(1){ height: 8px; animation-delay: 0s; }
-.wave-bar:nth-child(2){ height: 16px; animation-delay: 0.1s; }
-.wave-bar:nth-child(3){ height: 10px; animation-delay: 0.2s; }
-.wave-bar:nth-child(4){ height: 18px; animation-delay: 0.15s; }
+.wave-bar:nth-child(2){ height: 18px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3){ height: 11px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4){ height: 20px; animation-delay: 0.15s; }
 .wave-bar:nth-child(5){ height: 8px; animation-delay: 0.05s; }
 @keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.8)} }
-.hint { color: rgba(255,255,255,0.4); font-size: 0.78rem; margin-top: 1.5rem; }
+.loading { color: rgba(255,255,255,0.6); font-size: 0.9rem; text-align: center; }
 .error { background: var(--blanc); border-radius: 16px; padding: 2rem; text-align: center; max-width: 320px; }
 .error h2 { font-family: 'Playfair Display', serif; color: var(--bleu); margin-bottom: 0.5rem; }
 .error p { color: var(--gris); font-size: 0.9rem; }
@@ -65,12 +62,11 @@ body {
 </head>
 <body>
 <div class="logo">JeParle<span>Français</span>.ca</div>
-<div id="content"></div>
-<p class="hint">Appuyez sur le bouton pour écouter</p>
+<div id="content"><p class="loading">Chargement...</p></div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
@@ -84,11 +80,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Lire l'ID et la collection dans l'URL
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
 const col = params.get('col') || 'vocabulaire-sports';
-
 const content = document.getElementById('content');
 
 if (!id) {
@@ -101,6 +95,7 @@ if (!id) {
     } else {
       const c = snap.data();
       const mot = c.mot.split('/').map(s => s.trim()).join('<br/>');
+
       content.innerHTML = `
         <div class="card">
           <div class="card-img">
@@ -123,30 +118,30 @@ if (!id) {
       let playing = false;
 
       window.togglePlay = function() {
+        const btn = document.getElementById('play-btn');
+        const waveEl = document.getElementById('wave');
         if (playing) {
-          audio.pause(); audio.currentTime = 0;
+          audio.pause();
+          audio.currentTime = 0;
           playing = false;
-          document.getElementById('play-btn').classList.remove('playing');
-          document.getElementById('play-btn').innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-          document.getElementById('wave').classList.remove('active');
+          btn.classList.remove('playing');
+          btn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+          waveEl.classList.remove('active');
         } else {
-          audio = new Audio(c.audio);
+          if (!audio) audio = new Audio(c.audio);
           audio.play();
           playing = true;
-          document.getElementById('play-btn').classList.add('playing');
-          document.getElementById('play-btn').innerHTML = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
-          document.getElementById('wave').classList.add('active');
+          btn.classList.add('playing');
+          btn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+          waveEl.classList.add('active');
           audio.onended = () => {
             playing = false;
-            document.getElementById('play-btn').classList.remove('playing');
-            document.getElementById('play-btn').innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-            document.getElementById('wave').classList.remove('active');
+            btn.classList.remove('playing');
+            btn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+            waveEl.classList.remove('active');
           };
         }
       };
-
-      // Jouer automatiquement après un court délai
-      setTimeout(() => window.togglePlay(), 800);
     }
   } catch(e) {
     content.innerHTML = '<div class="error"><h2>Erreur</h2><p>' + e.message + '</p></div>';
