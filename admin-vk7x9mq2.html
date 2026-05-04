@@ -670,7 +670,7 @@ function buildPrintWindow(items) {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: sans-serif; background: #fff; }
   .page {
-    width: 100vw; height: 100vh;
+    width: 279mm; height: 216mm;
     display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
     gap: 3mm; padding: 6mm;
     page-break-after: always;
@@ -696,8 +696,14 @@ function buildPrintWindow(items) {
   .cell.empty { border: 1px dashed #eee; background: #fafafa; }
   @media print {
     @page { size: letter landscape; margin: 0; }
-    html, body { width: 279mm; height: 216mm; }
-    .page { width: 279mm; height: 216mm; }
+    html, body { margin: 0; padding: 0; }
+    .page {
+      width: 279mm !important;
+      height: 216mm !important;
+      page-break-after: always !important;
+      break-after: page !important;
+      overflow: hidden !important;
+    }
   }
 </style></head><body>`;
 
@@ -723,10 +729,8 @@ function buildPrintWindow(items) {
     for (let i = 0; i < 6; i++) {
       const mi = mirror[i];
       if (group[mi]) {
-        const mot = group[mi].carte.mot.replace('/', ' / ');
         html += `<div class="cell qr-cell">
           <img src="${group[mi].qrSrc}" alt="QR"/>
-          <div class="mot">${mot}</div>
         </div>`;
       } else {
         html += '<div class="cell empty"></div>';
@@ -737,12 +741,20 @@ function buildPrintWindow(items) {
 
   html += '</body></html>';
 
-  // Télécharger le HTML comme fichier
-  const blob = new Blob([html], { type: 'text/html' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'cartes-a-imprimer.html';
-  a.click();
+  // Imprimer via iframe caché
+  let iframe = document.getElementById('print-iframe');
+  if (iframe) iframe.remove();
+  iframe = document.createElement('iframe');
+  iframe.id = 'print-iframe';
+  iframe.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:279mm;height:216mm;border:none;';
+  document.body.appendChild(iframe);
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(html);
+  iframe.contentDocument.close();
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  }, 800);
 }
 
 window.openQR = function(e, id, mot) {
