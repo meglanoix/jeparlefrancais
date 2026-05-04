@@ -626,137 +626,91 @@ function updatePrintBar() {
 }
 
 window.printSelected = function() {
-  const selected = [...selectedCards].map(i => cartes[i]);
+  const selected = [...window.selectedCards].map(i => cartes[i]);
   if (!selected.length) return;
 
   const base = window.location.origin;
-
-  // Générer les QR codes en canvas puis imprimer
   const tempDiv = document.createElement('div');
-  tempDiv.style.position = 'fixed';
-  tempDiv.style.left = '-9999px';
+  tempDiv.style.cssText = 'position:fixed;left:-9999px;top:0;';
   document.body.appendChild(tempDiv);
 
-  const qrPromises = selected.map((c, idx) => {
+  const qrPromises = selected.map((c) => {
     return new Promise(resolve => {
       const url = base + '/carte.html?id=' + c.id + '&col=vocabulaire-sports';
       const div = document.createElement('div');
       tempDiv.appendChild(div);
-      const qr = new QRCode(div, {
-        text: url, width: 200, height: 200,
-        colorDark: '#1a3a5c', colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
-      });
+      new QRCode(div, { text: url, width: 300, height: 300, colorDark: '#1a3a5c', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
       setTimeout(() => {
-        const img = div.querySelector('img');
-        resolve({ carte: c, qrSrc: img ? img.src : '', url });
-      }, 300);
+        const canvas = div.querySelector('canvas');
+        resolve({ carte: c, qrDataUrl: canvas ? canvas.toDataURL('image/png') : '' });
+      }, 600);
     });
   });
 
   Promise.all(qrPromises).then(items => {
     document.body.removeChild(tempDiv);
-    buildPrintWindow(items);
+    const { jsPDF } = window.jspdf;
+    const W = 279, H = 216, pad = 6, gap = 3, cols = 3, rows = 2;
+    const cellW = (W - pad*2 - gap*(cols-1)) / cols;
+    const cellH = (H - pad*2 - gap*(rows-1)) / rows;
+    const imgH = cellH * 0.62;
+
+    const pages = [];
+    for (let i = 0; i < items.length; i += 6) pages.push(items.slice(i, i + 6));
+
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
+
+    pages.forEach((group, pi) => {
+      if (pi > 0) doc.addPage();
+
+      // RECTO
+      for (let i = 0; i < 6; i++) {
+        const col = i % cols, row = Math.floor(i / cols);
+        const x = pad + col * (cellW + gap), y = pad + row * (cellH + gap);
+        doc.setDrawColor(220); doc.setLineWidth(0.3);
+        doc.roundedRect(x, y, cellW, cellH, 2, 2);
+        if (group[i]) {
+          if (group[i].carte.image) {
+            try { doc.addImage(group[i].carte.image, 'JPEG', x, y, cellW, imgH, '', 'FAST'); } catch(e) {}
+          }
+          const mots = group[i].carte.mot.split('/').map(s => s.trim());
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(26, 58, 92);
+          const lineH = 6, totalH = mots.length * lineH;
+          const startY = y + imgH + (cellH - imgH - totalH) / 2 + 5;
+          mots.forEach((m, mi) => doc.text(m, x + cellW/2, startY + mi * lineH, { align: 'center' }));
+        }
+      }
+
+      // VERSO
+      doc.addPage();
+      const mirror = [2,1,0,5,4,3];
+      const qrSize = Math.min(cellW, cellH) * 0.85;
+      for (let i = 0; i < 6; i++) {
+        const mi = mirror[i];
+        const col = i % cols, row = Math.floor(i / cols);
+        const x = pad + col * (cellW + gap), y = pad + row * (cellH + gap);
+        doc.setDrawColor(220); doc.setLineWidth(0.3);
+        doc.setFillColor(249, 245, 239);
+        doc.roundedRect(x, y, cellW, cellH, 2, 2, 'FD');
+        if (group[mi] && group[mi].qrDataUrl) {
+          try {
+            const qrX = x + (cellW - qrSize) / 2, qrY = y + (cellH - qrSize) / 2;
+            doc.addImage(group[mi].qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
+          } catch(e) {}
+        }
+      }
+    });
+
+    // Télécharger
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'cartes-jeparlefrancais.pdf';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   });
 };
-
-function buildPrintWindow(items) {
-  // Grouper par 6
-  const pages = [];
-  for (let i = 0; i < items.length; i += 6) pages.push(items.slice(i, i + 6));
-
-  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<title>Cartes à imprimer</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: sans-serif; background: #fff; }
-  .page {
-    width: 279mm; height: 216mm;
-    display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
-    gap: 3mm; padding: 6mm;
-    page-break-after: always;
-    break-after: page;
-    overflow: hidden;
-  }
-  .page:last-child { page-break-after: avoid; break-after: avoid; }
-  .cell {
-    border: 1px solid #ddd; border-radius: 6px;
-    overflow: hidden; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    min-height: 0;
-  }
-  .cell img.card-img { width: 100%; flex: 1; object-fit: cover; display: block; min-height: 0; }
-  .cell .mot {
-    font-family: serif; font-size: 12pt; font-weight: bold;
-    color: #1a3a5c; text-align: center; padding: 4px;
-    line-height: 1.2; flex-shrink: 0;
-  }
-  .cell.qr-cell { background: #f9f5ef; justify-content: center; gap: 4px; padding: 4px; }
-  .cell.qr-cell img { width: 120px; height: 120px; flex-shrink: 0; }
-  .cell.qr-cell .mot { font-size: 10pt; }
-  .cell.empty { border: 1px dashed #eee; background: #fafafa; }
-  @media print {
-    @page { size: letter landscape; margin: 0; }
-    html, body { margin: 0; padding: 0; }
-    .page {
-      width: 279mm !important;
-      height: 216mm !important;
-      page-break-after: always !important;
-      break-after: page !important;
-      overflow: hidden !important;
-    }
-  }
-</style></head><body>`;
-
-  pages.forEach(group => {
-    // Page recto — images
-    html += '<div class="page">';
-    for (let i = 0; i < 6; i++) {
-      if (group[i]) {
-        const mot = group[i].carte.mot.replace('/', '<br/>');
-        html += `<div class="cell">
-          ${group[i].carte.image ? `<img class="card-img" src="${group[i].carte.image}" alt="${group[i].carte.mot}"/>` : ''}
-          <div class="mot">${mot}</div>
-        </div>`;
-      } else {
-        html += '<div class="cell empty"></div>';
-      }
-    }
-    html += '</div>';
-
-    // Page verso — QR codes (ordre miroir: 3,2,1,6,5,4)
-    const mirror = [2,1,0,5,4,3];
-    html += '<div class="page">';
-    for (let i = 0; i < 6; i++) {
-      const mi = mirror[i];
-      if (group[mi]) {
-        html += `<div class="cell qr-cell">
-          <img src="${group[mi].qrSrc}" alt="QR"/>
-        </div>`;
-      } else {
-        html += '<div class="cell empty"></div>';
-      }
-    }
-    html += '</div>';
-  });
-
-  html += '</body></html>';
-
-  // Imprimer via iframe caché
-  let iframe = document.getElementById('print-iframe');
-  if (iframe) iframe.remove();
-  iframe = document.createElement('iframe');
-  iframe.id = 'print-iframe';
-  iframe.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:279mm;height:216mm;border:none;';
-  document.body.appendChild(iframe);
-  iframe.contentDocument.open();
-  iframe.contentDocument.write(html);
-  iframe.contentDocument.close();
-  setTimeout(() => {
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-  }, 800);
-}
 
 window.openQR = function(e, id, mot) {
   e.stopPropagation();
