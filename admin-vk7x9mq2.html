@@ -668,34 +668,36 @@ function buildPrintWindow(items) {
 <title>Cartes à imprimer</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: #fff; }
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap');
+  body { font-family: sans-serif; background: #fff; }
   .page {
-    width: 279mm; height: 216mm;
+    width: 100vw; height: 100vh;
     display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
-    gap: 4mm; padding: 8mm;
+    gap: 3mm; padding: 6mm;
     page-break-after: always;
     break-after: page;
+    overflow: hidden;
   }
-  .page:last-child { page-break-after: avoid; }
+  .page:last-child { page-break-after: avoid; break-after: avoid; }
   .cell {
-    border: 1px solid #ddd; border-radius: 8px;
+    border: 1px solid #ddd; border-radius: 6px;
     overflow: hidden; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
+    min-height: 0;
   }
-  .cell img.card-img { width: 100%; flex: 1; object-fit: cover; display: block; }
+  .cell img.card-img { width: 100%; flex: 1; object-fit: cover; display: block; min-height: 0; }
   .cell .mot {
-    font-family: 'Playfair Display', serif; font-size: 14pt;
-    color: #1a3a5c; text-align: center; padding: 6px 4px;
-    line-height: 1.3;
+    font-family: serif; font-size: 12pt; font-weight: bold;
+    color: #1a3a5c; text-align: center; padding: 4px;
+    line-height: 1.2; flex-shrink: 0;
   }
-  .cell.qr-cell { background: #f9f5ef; }
-  .cell.qr-cell img { width: 140px; height: 140px; }
-  .cell.qr-cell .mot { font-size: 11pt; color: #1a3a5c; }
+  .cell.qr-cell { background: #f9f5ef; justify-content: center; gap: 4px; padding: 4px; }
+  .cell.qr-cell img { width: 120px; height: 120px; flex-shrink: 0; }
+  .cell.qr-cell .mot { font-size: 10pt; }
   .cell.empty { border: 1px dashed #eee; background: #fafafa; }
   @media print {
     @page { size: letter landscape; margin: 0; }
-    body { margin: 0; }
+    html, body { width: 279mm; height: 216mm; }
+    .page { width: 279mm; height: 216mm; }
   }
 </style></head><body>`;
 
