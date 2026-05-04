@@ -435,13 +435,13 @@ function renderCards() {
           <button class="overlay-btn play" onclick="playCard(event,${i})">
             <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Écouter
           </button>
-          <button class="overlay-btn rec" onclick="openReRecord(event,'${c.id}','${c.mot}')">
+          <button class="overlay-btn rec" onclick="openReRecord(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="10"/></svg> Réenregistrer
           </button>
           <button class="overlay-btn del" onclick="deleteCard(event,'${c.id}')">
             ✕ Supprimer
           </button>
-          <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}','${c.mot}')">
+          <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
             ⬛ QR Code
           </button>
         </div>
