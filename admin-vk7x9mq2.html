@@ -180,13 +180,11 @@ input[type=text]:focus { border-color: var(--bleu); }
 .print-bar-btn.secondary { background: rgba(255,255,255,0.15); color: var(--blanc); }
 .print-bar-btn.secondary:hover { background: rgba(255,255,255,0.25); }
 
-/* DRAG AND DROP */
-.card { cursor: grab; }
-.card.dragging { opacity: 0.4; cursor: grabbing; transform: scale(1.03); box-shadow: 0 8px 32px rgba(26,58,92,0.25); }
-.card.drag-over { border: 2px dashed var(--bleu-clair); background: #f0f4ff; }
-.drag-hint { font-size: 0.78rem; color: var(--gris); text-align: right; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
-.drag-hint svg { width: 14px; height: 14px; fill: none; stroke: var(--gris); stroke-width: 2; }
 .order-saving { font-size: 0.78rem; color: var(--vert); margin-left: 8px; }
+.move-btns { display: flex; gap: 4px; justify-content: center; margin-top: 6px; }
+.move-btn { width: 28px; height: 28px; border-radius: 6px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--creme); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.move-btn:hover { background: var(--bleu); color: white; }
+.move-btn:disabled { opacity: 0.25; cursor: default; }
 
 @media (max-width: 600px) {
   .form-row { grid-template-columns: 1fr; }
@@ -258,9 +256,8 @@ input[type=text]:focus { border-color: var(--bleu); }
     <span class="card-count" id="card-count"></span>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:8px">
-    <div class="drag-hint" style="margin-bottom:0">
-      <svg viewBox="0 0 24 24"><path d="M5 9l4-4 4 4M9 5v14M19 15l-4 4-4-4M15 19V5"/></svg>
-      Glissez les cartes pour changer l'ordre
+    <div style="font-size:0.78rem;color:var(--gris)">
+      Utilisez les flèches ← → pour réordonner les cartes
       <span class="order-saving" id="order-saving" style="display:none">✓ Ordre sauvegardé</span>
     </div>
     <div style="display:flex;gap:8px">
@@ -450,66 +447,26 @@ function renderCards() {
         <div class="card-word">${c.mot.split("/").map(s=>s.trim()).join("<br/>")}</div>
         ${c.date ? `<div class="card-meta">Ajouté le ${c.date}</div>` : ''}
         <div class="card-audio-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
+        <div class="move-btns">
+          <button class="move-btn" onclick="moveCard(event,${i},-3)" ${i<3?'disabled':''}>↑</button>
+          <button class="move-btn" onclick="moveCard(event,${i},-1)" ${i===0?'disabled':''}>←</button>
+          <button class="move-btn" onclick="moveCard(event,${i},1)" ${i===cartes.length-1?'disabled':''}>→</button>
+          <button class="move-btn" onclick="moveCard(event,${i},3)" ${i>=cartes.length-3?'disabled':''}>↓</button>
+        </div>
       </div>
     </div>`).join('');
 }
 
-function initDrag() {
-  const grid = document.getElementById('card-grid');
-  let dragSrc = null;
-
-  grid.addEventListener('dragover', e => e.preventDefault());
-
-  grid.querySelectorAll('.card').forEach((card, i) => {
-    // Poignée de déplacement — on utilise le card-body
-    const handle = card.querySelector('.card-body');
-    if (handle) handle.style.cursor = 'grab';
-
-    card.setAttribute('draggable', 'true');
-
-    card.addEventListener('dragstart', e => {
-      dragSrc = i;
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', i);
-      card.style.opacity = '0.4';
-    });
-
-    card.addEventListener('dragend', () => {
-      card.style.opacity = '1';
-      grid.querySelectorAll('.card').forEach(c => {
-        c.style.outline = '';
-      });
-    });
-
-    card.addEventListener('dragover', e => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-    });
-
-    card.addEventListener('dragenter', e => {
-      e.preventDefault();
-      if (dragSrc !== null && dragSrc !== i) {
-        card.style.outline = '3px solid #2a5298';
-      }
-    });
-
-    card.addEventListener('dragleave', () => {
-      card.style.outline = '';
-    });
-
-    card.addEventListener('drop', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      card.style.outline = '';
-      if (dragSrc === null || dragSrc === i) return;
-      const moved = cartes.splice(dragSrc, 1)[0];
-      cartes.splice(i, 0, moved);
-      dragSrc = null;
-      saveOrder();
-      renderCards();
-    });
-  });
+function moveCard(e, i, dir) {
+  e.stopPropagation();
+  const newIdx = i + dir;
+  if (newIdx < 0 || newIdx >= cartes.length) return;
+  const moved = cartes.splice(i, 1)[0];
+  cartes.splice(newIdx, 0, moved);
+  saveOrder();
+  renderCards();
 }
+
 
 window.playCard = function(e, i) {
   if (e) e.stopPropagation();
