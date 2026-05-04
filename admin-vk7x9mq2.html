@@ -119,6 +119,20 @@ input[type=text]:focus { border-color: var(--bleu); }
 .overlay-btn svg   { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
 .overlay-btn.play svg { margin-left: 2px; }
 .overlay-btn.rec svg  { fill: none; stroke: currentColor; stroke-width: 2; }
+.qr-modal-overlay {
+  position: fixed; inset: 0; background: rgba(26,58,92,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300; backdrop-filter: blur(4px);
+}
+.qr-modal-box {
+  background: var(--blanc); border-radius: 16px; padding: 2rem;
+  width: 100%; max-width: 320px; box-shadow: 0 8px 40px rgba(26,58,92,0.25);
+  text-align: center;
+}
+.qr-modal-box h3 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.2rem; margin-bottom: 0.3rem; }
+.qr-modal-box .qr-mot { color: var(--gris); font-size: 0.85rem; margin-bottom: 1.25rem; }
+#qr-canvas { margin: 0 auto 1.25rem; display: block; }
+.qr-url { font-size: 0.7rem; color: var(--gris); word-break: break-all; margin-bottom: 1.25rem; background: var(--creme); padding: 8px 10px; border-radius: 8px; }
 .rec-modal-overlay {
   position: fixed; inset: 0; background: rgba(26,58,92,0.7);
   display: flex; align-items: center; justify-content: center;
@@ -135,6 +149,14 @@ input[type=text]:focus { border-color: var(--bleu); }
 
 .empty-grid { text-align: center; padding: 4rem 2rem; color: var(--gris); grid-column: 1/-1; }
 .empty-grid p { font-size: 1rem; margin-top: 0.5rem; }
+
+/* DRAG AND DROP */
+.card { cursor: grab; }
+.card.dragging { opacity: 0.4; cursor: grabbing; transform: scale(1.03); box-shadow: 0 8px 32px rgba(26,58,92,0.25); }
+.card.drag-over { border: 2px dashed var(--bleu-clair); background: #f0f4ff; }
+.drag-hint { font-size: 0.78rem; color: var(--gris); text-align: right; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.drag-hint svg { width: 14px; height: 14px; fill: none; stroke: var(--gris); stroke-width: 2; }
+.order-saving { font-size: 0.78rem; color: var(--vert); margin-left: 8px; }
 
 @media (max-width: 600px) {
   .form-row { grid-template-columns: 1fr; }
@@ -204,6 +226,11 @@ input[type=text]:focus { border-color: var(--bleu); }
   <div class="section-title">
     Cartes actuelles
     <span class="card-count" id="card-count"></span>
+  </div>
+  <div class="drag-hint">
+    <svg viewBox="0 0 24 24"><path d="M5 9l4-4 4 4M9 5v14M19 15l-4 4-4-4M15 19V5"/></svg>
+    Glissez les cartes pour changer l'ordre
+    <span class="order-saving" id="order-saving" style="display:none">✓ Ordre sauvegardé</span>
   </div>
   <div class="grid" id="card-grid">
     <div class="empty-grid"><p>Chargement des cartes...</p></div>
@@ -334,12 +361,28 @@ function blobToDataUrl(blob) {
 async function loadCards() {
   try {
     const snap = await getDocs(collection(db, 'vocabulaire-sports'));
-    cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Trier selon l'ordre sauvegardé si présent
+    const savedOrder = JSON.parse(localStorage.getItem('cartes-order') || '[]');
+    if (savedOrder.length) {
+      cartes = savedOrder.map(id => docs.find(d => d.id === id)).filter(Boolean);
+      // Ajouter les nouvelles cartes pas encore dans l'ordre
+      docs.forEach(d => { if (!cartes.find(c => c.id === d.id)) cartes.push(d); });
+    } else {
+      cartes = docs;
+    }
     document.getElementById('card-count').textContent = cartes.length + ' carte' + (cartes.length !== 1 ? 's' : '');
     renderCards();
   } catch(e) {
     document.getElementById('card-grid').innerHTML = '<div class="empty-grid"><p>Erreur de connexion Firebase.</p></div>';
   }
+}
+
+function saveOrder() {
+  localStorage.setItem('cartes-order', JSON.stringify(cartes.map(c => c.id)));
+  const el = document.getElementById('order-saving');
+  el.style.display = 'inline';
+  setTimeout(() => el.style.display = 'none', 2000);
 }
 
 function renderCards() {
@@ -362,14 +405,61 @@ function renderCards() {
           <button class="overlay-btn del" onclick="deleteCard(event,'${c.id}')">
             ✕ Supprimer
           </button>
+          <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}','${c.mot}')">
+            ⬛ QR Code
+          </button>
         </div>
       </div>
       <div class="card-body">
-        <div class="card-word">${c.mot}</div>
+        <div class="card-word">${c.mot.split("/").map(s=>s.trim()).join("<br/>")}</div>
         ${c.date ? `<div class="card-meta">Ajouté le ${c.date}</div>` : ''}
         <div class="card-audio-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
       </div>
     </div>`).join('');
+}
+
+function initDrag() {
+  const grid = document.getElementById('card-grid');
+  const cards = [...grid.querySelectorAll('.card')];
+  let dragSrc = null;
+
+  cards.forEach((card, i) => {
+    card.setAttribute('draggable', true);
+
+    card.addEventListener('dragstart', e => {
+      dragSrc = i;
+      setTimeout(() => card.classList.add('dragging'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      grid.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
+    });
+
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      grid.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
+      card.classList.add('drag-over');
+    });
+
+    card.addEventListener('dragleave', () => {
+      card.classList.remove('drag-over');
+    });
+
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      if (dragSrc === null || dragSrc === i) return;
+      // Réorganiser le tableau
+      const moved = cartes.splice(dragSrc, 1)[0];
+      cartes.splice(i, 0, moved);
+      dragSrc = null;
+      saveOrder();
+      renderCards();
+    });
+  });
 }
 
 window.playCard = function(e, i) {
@@ -453,6 +543,37 @@ window.saveReRecord = async function() {
   }
 };
 
+window.openQR = function(e, id, mot) {
+  e.stopPropagation();
+  const base = window.location.origin + window.location.pathname.replace(/admin-[^/]+\.html$/, '');
+  const url = base + 'carte.html?id=' + id + '&col=vocabulaire-sports';
+  document.getElementById('qr-mot-label').textContent = mot.replace('/', ' / ');
+  document.getElementById('qr-url-text').textContent = url;
+  document.getElementById('qr-canvas').innerHTML = '';
+  new QRCode(document.getElementById('qr-canvas'), {
+    text: url, width: 200, height: 200,
+    colorDark: '#1a3a5c', colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+  document.getElementById('qr-modal').style.display = 'flex';
+};
+
+window.closeQR = function() {
+  document.getElementById('qr-modal').style.display = 'none';
+};
+
+window.printQR = function() {
+  const box = document.getElementById('qr-modal-box');
+  const w = window.open('', '_blank');
+  w.document.write('<html><head><title>QR Code</title><style>body{font-family:sans-serif;text-align:center;padding:2rem}img{max-width:200px}p{margin:0.5rem 0;font-size:0.9rem;color:#555}</style></head><body>');
+  w.document.write('<p style="font-size:1.2rem;font-weight:bold;color:#1a3a5c">' + document.getElementById('qr-mot-label').textContent + '</p>');
+  w.document.write(box.querySelector('#qr-canvas').innerHTML);
+  w.document.write('<p style="font-size:0.65rem;color:#aaa">' + document.getElementById('qr-url-text').textContent + '</p>');
+  w.document.write('</body></html>');
+  w.document.close();
+  w.print();
+};
+
 window.deleteCard = async function(e, id) {
   e.stopPropagation();
   if (!confirm('Supprimer cette carte ?')) return;
@@ -464,6 +585,22 @@ window.deleteCard = async function(e, id) {
 
 loadCards();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- MODAL QR CODE -->
+<div class="qr-modal-overlay" id="qr-modal" style="display:none">
+  <div class="qr-modal-box" id="qr-modal-box">
+    <h3>QR Code</h3>
+    <p class="qr-mot" id="qr-mot-label"></p>
+    <div id="qr-canvas"></div>
+    <div class="qr-url" id="qr-url-text"></div>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="app-btn primary" onclick="printQR()">🖨 Imprimer</button>
+      <button class="app-btn" onclick="closeQR()">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL RÉENREGISTREMENT -->
 <div class="rec-modal-overlay" id="re-modal" style="display:none">
   <div class="rec-modal-box">
