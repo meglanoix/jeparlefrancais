@@ -438,6 +438,9 @@ function renderCards() {
           <button class="overlay-btn del" onclick="deleteCard(event,'${c.id}')">
             ✕ Supprimer
           </button>
+          <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4)" onclick="openRename(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
+            ✏ Renommer
+          </button>
           <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
             ⬛ QR Code
           </button>
@@ -713,6 +716,35 @@ window.printQR = function() {
   w.print();
 };
 
+// --- Renommer le titre d'une carte ---
+window.openRename = function(e, id, mot) {
+  e.stopPropagation();
+  document.getElementById('rename-input').value = mot;
+  document.getElementById('rename-id').value = id;
+  document.getElementById('rename-status').textContent = '';
+  document.getElementById('rename-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('rename-input').focus(), 100);
+};
+
+window.closeRename = function() {
+  document.getElementById('rename-modal').style.display = 'none';
+};
+
+window.saveRename = async function() {
+  const id = document.getElementById('rename-id').value;
+  const newMot = document.getElementById('rename-input').value.trim();
+  if (!newMot) { document.getElementById('rename-status').textContent = 'Le titre ne peut pas être vide.'; return; }
+  document.getElementById('rename-status').textContent = 'Sauvegarde...';
+  try {
+    const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await updateDoc(firestoreDoc(db, 'vocabulaire-sports', id), { mot: newMot });
+    document.getElementById('rename-status').textContent = '✓ Renommé !';
+    setTimeout(() => { closeRename(); loadCards(); }, 900);
+  } catch(err) {
+    document.getElementById('rename-status').textContent = 'Erreur : ' + err.message;
+  }
+};
+
 window.deleteCard = async function(e, id) {
   e.stopPropagation();
   if (!confirm('Supprimer cette carte ?')) return;
@@ -769,5 +801,22 @@ loadCards();
     </div>
   </div>
 </div>
+
+<!-- MODAL RENOMMER -->
+<div class="rec-modal-overlay" id="rename-modal" style="display:none">
+  <div class="rec-modal-box">
+    <h3>Modifier le titre</h3>
+    <p style="color:var(--gris);font-size:0.85rem;margin-bottom:1.25rem">Entrez le nouveau titre de la carte</p>
+    <input type="hidden" id="rename-id"/>
+    <input type="text" id="rename-input" placeholder="Ex : le soccer" style="width:100%;margin-bottom:0.75rem"
+      onkeydown="if(event.key==='Enter') saveRename()"/>
+    <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em;margin-bottom:0.75rem" id="rename-status"></div>
+    <div class="rec-modal-btns">
+      <button class="app-btn" onclick="closeRename()">Annuler</button>
+      <button class="app-btn primary" onclick="saveRename()">✓ Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
