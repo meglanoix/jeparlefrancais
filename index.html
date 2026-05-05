@@ -195,10 +195,10 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
     <li class="nav-dropdown">
       <a href="#">Vocabulaire</a>
       <div class="dropdown-menu">
-        <div class="dropdown-category">📝 Verbes en «er»</div>
-        <a href="vocabulaire-verbes.html?niveau=debutant">Débutant</a>
-        <a href="vocabulaire-verbes.html?niveau=intermediaire">Intermédiaire</a>
-        <a href="vocabulaire-verbes.html?niveau=avance">Avancé</a>
+        <div class="dropdown-category">📝 Verbes du 1er groupe</div>
+        <a href="verbes-er-debutant.html">⭐ Débutant</a>
+        <a href="verbes-er-intermediaire.html">⭐⭐ Intermédiaire</a>
+        <a href="verbes-er-avance.html">⭐⭐⭐ Avancé</a>
         <div class="dropdown-divider"></div>
         <div class="dropdown-category">⚽ Activités de loisirs</div>
         <a href="vocabulaire-sports.html">Les activités de loisirs</a>
@@ -213,10 +213,10 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 <div class="mobile-menu" id="mobile-menu">
   <a href="#accueil" onclick="closeMenu()">Accueil</a>
   <a href="#apropos" onclick="closeMenu()">À propos</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">📝 Verbes en «er»</div>
-  <a href="vocabulaire-verbes.html?niveau=debutant" onclick="closeMenu()" style="padding-left:1rem">Débutant</a>
-  <a href="vocabulaire-verbes.html?niveau=intermediaire" onclick="closeMenu()" style="padding-left:1rem">Intermédiaire</a>
-  <a href="vocabulaire-verbes.html?niveau=avance" onclick="closeMenu()" style="padding-left:1rem">Avancé</a>
+  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">📝 Verbes du 1er groupe</div>
+  <a href="verbes-er-debutant.html" onclick="closeMenu()" style="padding-left:1rem">⭐ Débutant</a>
+  <a href="verbes-er-intermediaire.html" onclick="closeMenu()" style="padding-left:1rem">⭐⭐ Intermédiaire</a>
+  <a href="verbes-er-avance.html" onclick="closeMenu()" style="padding-left:1rem">⭐⭐⭐ Avancé</a>
   <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">⚽ Activités de loisirs</div>
   <a href="vocabulaire-sports.html" onclick="closeMenu()" style="padding-left:1rem">Les activités de loisirs</a>
   <a href="#contact" onclick="closeMenu()">Contact</a>
@@ -307,6 +307,24 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
         <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
       </div>
     </a>
+    <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08)">
+      <div style="font-size:2.5rem;margin-bottom:1rem">📝</div>
+      <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.75rem">Verbes du 1er groupe</h3>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <a href="verbes-er-debutant.html" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--blanc);border-radius:8px;text-decoration:none;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s" onmouseover="this.style.borderColor='var(--bleu)'" onmouseout="this.style.borderColor='rgba(26,58,92,0.08)'">
+          <span style="font-size:0.88rem;color:var(--texte)">⭐ Débutant</span>
+          <span style="font-size:0.78rem;color:var(--rouge);font-weight:500">→</span>
+        </a>
+        <a href="verbes-er-intermediaire.html" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--blanc);border-radius:8px;text-decoration:none;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s" onmouseover="this.style.borderColor='var(--bleu)'" onmouseout="this.style.borderColor='rgba(26,58,92,0.08)'">
+          <span style="font-size:0.88rem;color:var(--texte)">⭐⭐ Intermédiaire</span>
+          <span style="font-size:0.78rem;color:var(--rouge);font-weight:500">→</span>
+        </a>
+        <a href="verbes-er-avance.html" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--blanc);border-radius:8px;text-decoration:none;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s" onmouseover="this.style.borderColor='var(--bleu)'" onmouseout="this.style.borderColor='rgba(26,58,92,0.08)'">
+          <span style="font-size:0.88rem;color:var(--texte)">⭐⭐⭐ Avancé</span>
+          <span style="font-size:0.78rem;color:var(--rouge);font-weight:500">→</span>
+        </a>
+      </div>
+    </div>
   </div>
 </section>
 
