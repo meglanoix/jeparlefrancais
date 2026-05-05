@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Accueil | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b;
+  --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b;
+  --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5vw; height: 64px;
+  background: rgba(26,58,92,0.97); backdrop-filter: blur(8px);
+  border-bottom: 2px solid var(--rouge);
+}
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--blanc); text-decoration: none; }
+.nav-logo span { color: #e88; }
+.nav-badge { background: var(--rouge); color: var(--blanc); font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; }
+.nav-right { display: flex; align-items: center; gap: 1rem; }
+.nav-view-link { color: rgba(255,255,255,0.6); font-size: 0.85rem; text-decoration: none; transition: color 0.2s; }
+.nav-view-link:hover { color: #fff; }
+
+.page-header {
+  background: var(--bleu); padding: 100px 5vw 50px;
+  position: relative; overflow: hidden;
+  border-bottom: 3px solid var(--rouge);
+}
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: #e88; margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 3rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
+.page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.55); font-weight: 300; }
+
+.main { max-width: 900px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
+
+.section-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--rouge); margin-bottom: 0.75rem; margin-top: 2.5rem; }
+.section-label:first-child { margin-top: 0; }
+
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 0.5rem; }
+
+.admin-card {
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--blanc); border-radius: 12px; padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(26,58,92,0.08); text-decoration: none;
+  transition: all 0.2s; box-shadow: var(--ombre);
+}
+.admin-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(26,58,92,0.14); border-color: rgba(26,58,92,0.2); }
+.admin-card-icon { font-size: 1.8rem; flex-shrink: 0; }
+.admin-card-body { flex: 1; }
+.admin-card-title { font-size: 0.95rem; font-weight: 500; color: var(--bleu); margin-bottom: 2px; }
+.admin-card-sub { font-size: 0.78rem; color: var(--gris); }
+.admin-card-arrow { font-size: 0.9rem; color: var(--rouge); flex-shrink: 0; }
+
+.niveau-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.niveau-card {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--blanc); border-radius: 10px; padding: 1rem 1.25rem;
+  border: 1px solid rgba(26,58,92,0.08); text-decoration: none;
+  transition: all 0.2s; flex: 1; min-width: 180px;
+}
+.niveau-card:hover { transform: translateY(-2px); box-shadow: var(--ombre); border-color: rgba(26,58,92,0.2); }
+.niveau-card-icon { font-size: 1.2rem; }
+.niveau-card-title { font-size: 0.88rem; font-weight: 500; color: var(--bleu); }
+.niveau-card-arrow { margin-left: auto; font-size: 0.85rem; color: var(--rouge); }
+
+.sep { border: none; border-top: 1px solid rgba(26,58,92,0.08); margin: 2rem 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <div class="nav-right">
+    <a class="nav-view-link" href="index.html" target="_blank">Voir le site public ↗</a>
+    <span class="nav-badge">⚙ Admin</span>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">⚙ Panneau d'administration</p>
+    <h1>Accueil Admin</h1>
+    <p>Choisissez la section à gérer.</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <p class="section-label">⚽ Activités de loisirs</p>
+  <div class="admin-grid">
+    <a class="admin-card" href="admin-vk7x9mq2.html">
+      <div class="admin-card-icon">⚽</div>
+      <div class="admin-card-body">
+        <div class="admin-card-title">Sports et loisirs</div>
+        <div class="admin-card-sub">Images et audio · tous niveaux</div>
+      </div>
+      <div class="admin-card-arrow">→</div>
+    </a>
+  </div>
+
+  <div class="sep"></div>
+
+  <p class="section-label">📝 Verbes du 1er groupe (en -er)</p>
+  <div class="niveau-row">
+    <a class="niveau-card" href="admin-verbes-er-debutant-vk7x9mq2.html">
+      <div class="niveau-card-icon">⭐</div>
+      <div class="niveau-card-title">Débutant</div>
+      <div class="niveau-card-arrow">→</div>
+    </a>
+    <a class="niveau-card" href="admin-verbes-er-intermediaire-vk7x9mq2.html">
+      <div class="niveau-card-icon">⭐⭐</div>
+      <div class="niveau-card-title">Intermédiaire</div>
+      <div class="niveau-card-arrow">→</div>
+    </a>
+    <a class="niveau-card" href="admin-verbes-er-avance-vk7x9mq2.html">
+      <div class="niveau-card-icon">⭐⭐⭐</div>
+      <div class="niveau-card-title">Avancé</div>
+      <div class="niveau-card-arrow">→</div>
+    </a>
+  </div>
+
+  <div class="sep"></div>
+
+  <p class="section-label">🔀 Verbes irréguliers</p>
+  <div class="admin-grid">
+    <a class="admin-card" href="admin-verbe-faire-vk7x9mq2.html">
+      <div class="admin-card-icon">🛠</div>
+      <div class="admin-card-body">
+        <div class="admin-card-title">Le verbe faire</div>
+        <div class="admin-card-sub">Images et audio</div>
+      </div>
+      <div class="admin-card-arrow">→</div>
+    </a>
+    <a class="admin-card" href="admin-verbe-prendre-vk7x9mq2.html">
+      <div class="admin-card-icon">🤲</div>
+      <div class="admin-card-body">
+        <div class="admin-card-title">Le verbe prendre</div>
+        <div class="admin-card-sub">Images et audio</div>
+      </div>
+      <div class="admin-card-arrow">→</div>
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
