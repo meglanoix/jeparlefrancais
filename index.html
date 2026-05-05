@@ -39,7 +39,7 @@ nav.scrolled { box-shadow: var(--ombre); }
 .nav-dropdown { position: relative; }
 .nav-dropdown > a { cursor: pointer; display: flex; align-items: center; gap: 4px; }
 .nav-dropdown > a::after { content: '▾'; font-size: 0.7rem; }
-.dropdown-menu { display: none; position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%); background: var(--blanc); border-radius: 12px; box-shadow: 0 8px 32px rgba(26,58,92,0.15); padding: 0.75rem; min-width: 240px; z-index: 200; }
+.dropdown-menu { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); background: var(--blanc); border-radius: 12px; box-shadow: 0 8px 32px rgba(26,58,92,0.15); padding: 0.75rem; padding-top: calc(0.75rem + 12px); margin-top: -12px; min-width: 240px; z-index: 200; }
 .nav-dropdown:hover .dropdown-menu { display: block; }
 .dropdown-category { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gris); font-weight: 500; padding: 0.5rem 0.75rem 0.25rem; }
 .dropdown-menu a { display: block; padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.88rem; color: var(--texte); text-decoration: none; transition: background 0.15s; white-space: nowrap; }
@@ -201,8 +201,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
         <a href="vocabulaire-verbes.html?niveau=avance">Avancé</a>
         <div class="dropdown-divider"></div>
         <div class="dropdown-category">⚽ Activités de loisirs</div>
-        <a href="vocabulaire-sports.html?categorie=sports">Les sports</a>
-        <a href="vocabulaire-sports.html?categorie=activites">Les activités</a>
+        <a href="vocabulaire-sports.html">Les activités de loisirs</a>
       </div>
     </li>
     <li><a href="#contact" class="nav-cta">Contact</a></li>
@@ -219,8 +218,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
   <a href="vocabulaire-verbes.html?niveau=intermediaire" onclick="closeMenu()" style="padding-left:1rem">Intermédiaire</a>
   <a href="vocabulaire-verbes.html?niveau=avance" onclick="closeMenu()" style="padding-left:1rem">Avancé</a>
   <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">⚽ Activités de loisirs</div>
-  <a href="vocabulaire-sports.html?categorie=sports" onclick="closeMenu()" style="padding-left:1rem">Les sports</a>
-  <a href="vocabulaire-sports.html?categorie=activites" onclick="closeMenu()" style="padding-left:1rem">Les activités</a>
+  <a href="vocabulaire-sports.html" onclick="closeMenu()" style="padding-left:1rem">Les activités de loisirs</a>
   <a href="#contact" onclick="closeMenu()">Contact</a>
 </div>
 
