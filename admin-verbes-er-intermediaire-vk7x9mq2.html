@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin – Vocabulaire Sports | JeParle Français</title>
+<title>Admin – Verbes er Intermédiaire | JeParle Français</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -197,7 +197,7 @@ input[type=text]:focus { border-color: var(--bleu); }
 <nav>
   <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
   <div class="nav-right">
-    <a class="nav-view-link" href="vocabulaire-sports.html" target="_blank">Voir la page publique ↗</a>
+    <a class="nav-view-link" href="verbes-er-intermediaire.html" target="_blank">Voir la page publique ↗</a>
     <span class="nav-badge">⚙ Admin</span>
   </div>
 </nav>
@@ -205,7 +205,7 @@ input[type=text]:focus { border-color: var(--bleu); }
 <div class="page-header">
   <div class="page-header-inner">
     <p class="page-eyebrow">⚙ Panneau d'administration</p>
-    <h1>Vocabulaire – Sports et loisirs</h1>
+    <h1>Verbes du 1er groupe – Intermédiaire</h1>
     <p>Ajoutez, écoutez et supprimez les cartes. Les modifications sont visibles immédiatement sur le site.</p>
   </div>
 </div>
@@ -357,7 +357,7 @@ window.saveCard = async function() {
   saveMsg.textContent = 'Sauvegarde...'; saveMsg.style.display = 'inline';
   try {
     const audioUrl = await blobToDataUrl(pendingAudio);
-    await addDoc(collection(db, 'vocabulaire-sports'), {
+    await addDoc(collection(db, 'verbes-er-intermediaire'), {
       mot,
 
       image: pendingImage,
@@ -392,7 +392,7 @@ function blobToDataUrl(blob) {
 
 async function loadCards() {
   try {
-    const snap = await getDocs(collection(db, 'vocabulaire-sports'));
+    const snap = await getDocs(collection(db, 'verbes-er-intermediaire'));
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     // Trier selon l'ordre sauvegardé si présent
     const savedOrder = JSON.parse(localStorage.getItem('cartes-order') || '[]');
@@ -544,7 +544,7 @@ window.saveReRecord = async function() {
   const audioUrl = await blobToDataUrl(blob);
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, 'vocabulaire-sports', reRecId), { audio: audioUrl });
+    await updateDoc(firestoreDoc(db, 'verbes-er-intermediaire', reRecId), { audio: audioUrl });
     document.getElementById('re-status').textContent = '✓ Sauvegardé !';
     setTimeout(() => { closeReRecord(); loadCards(); }, 1200);
   } catch(err) {
@@ -609,7 +609,7 @@ window.printSelected = function() {
 
   const qrPromises = selected.map((c) => {
     return new Promise(resolve => {
-      const url = base + '/carte.html?id=' + c.id + '&col=vocabulaire-sports';
+      const url = base + '/carte.html?id=' + c.id + '&col=verbes-er-intermediaire';
       const div = document.createElement('div');
       tempDiv.appendChild(div);
       new QRCode(div, { text: url, width: 300, height: 300, colorDark: '#1a3a5c', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
@@ -656,7 +656,6 @@ window.printSelected = function() {
 
       // VERSO
       doc.addPage();
-      // Retournement côté long (standard paysage) : inverser colonnes
       const mirror = [3,4,5,0,1,2];
       const qrSize = Math.min(cellW, cellH) * 0.85;
       for (let i = 0; i < 6; i++) {
@@ -689,7 +688,7 @@ window.printSelected = function() {
 
 window.openQR = function(e, id, mot) {
   e.stopPropagation();
-  const url = window.location.origin + '/carte.html?id=' + id + '&col=vocabulaire-sports';
+  const url = window.location.origin + '/carte.html?id=' + id + '&col=verbes-er-intermediaire';
   document.getElementById('qr-mot-label').textContent = mot.replace('/', ' / ');
   document.getElementById('qr-url-text').textContent = url;
   document.getElementById('qr-canvas').innerHTML = '';
@@ -738,7 +737,7 @@ window.saveRename = async function() {
   document.getElementById('rename-status').textContent = 'Sauvegarde...';
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, 'vocabulaire-sports', id), { mot: newMot });
+    await updateDoc(firestoreDoc(db, 'verbes-er-intermediaire', id), { mot: newMot });
     document.getElementById('rename-status').textContent = '✓ Renommé !';
     setTimeout(() => { closeRename(); loadCards(); }, 900);
   } catch(err) {
@@ -750,7 +749,7 @@ window.deleteCard = async function(e, id) {
   e.stopPropagation();
   if (!confirm('Supprimer cette carte ?')) return;
   try {
-    await deleteDoc(doc(db, 'vocabulaire-sports', id));
+    await deleteDoc(doc(db, 'verbes-er-intermediaire', id));
     await loadCards();
   } catch(err) { alert('Erreur : ' + err.message); }
 };
