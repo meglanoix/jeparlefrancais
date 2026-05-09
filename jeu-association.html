@@ -264,24 +264,28 @@ window.choisir = function(i, cardId) {
     feedback.className = 'feedback bon';
     document.querySelectorAll('.choice').forEach(c => c.classList.add('disabled'));
 
-    // Jouer l'audio de la bonne réponse
+    // Jouer l'audio de la bonne réponse puis passer à la suite
     const bonneCarteAudio = q.choix.find(c => c.id === q.correctId);
     if (bonneCarteAudio && bonneCarteAudio.audio) {
       if (currentAudio) { currentAudio.pause(); currentAudio = null; }
       const audio = new Audio(bonneCarteAudio.audio);
       currentAudio = audio;
       audio.play();
-      audio.onended = () => { currentAudio = null; };
+      audio.onended = () => {
+        currentAudio = null;
+        setTimeout(() => {
+          qIndex++;
+          if (qIndex >= questions.length) finJeu();
+          else afficherQuestion();
+        }, 600);
+      };
+    } else {
+      setTimeout(() => {
+        qIndex++;
+        if (qIndex >= questions.length) finJeu();
+        else afficherQuestion();
+      }, 1200);
     }
-
-    setTimeout(() => {
-      qIndex++;
-      if (qIndex >= questions.length) {
-        finJeu();
-      } else {
-        afficherQuestion();
-      }
-    }, 1800);
   } else {
     el.classList.add('wrong');
     feedback.textContent = '✗ Essaie encore !';
