@@ -36,7 +36,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .question-label { font-size: 0.78rem; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gris); padding: 1rem 1rem 0; }
 .question-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
 .question-img-placeholder { width: 100%; aspect-ratio: 4/3; background: var(--creme); display: flex; align-items: center; justify-content: center; font-size: 5rem; }
-.question-mot { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--bleu); padding: 0.75rem 1rem 1rem; }
+.question-mot { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--bleu); padding: 0.75rem 1rem 0.5rem; }
+.audio-play-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--bleu); color: var(--blanc); border: none; border-radius: 20px; padding: 7px 16px; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-bottom: 1rem; transition: opacity 0.2s; }
+.audio-play-btn:hover { opacity: 0.85; }
+.audio-play-btn.playing { background: var(--vert); }
+.audio-play-btn svg { width: 14px; height: 14px; fill: white; }
 
 /* Choix */
 .choices-label { font-size: 0.82rem; color: var(--gris); text-align: center; margin-bottom: 0.75rem; }
@@ -100,6 +104,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
       <div class="question-label">Quelle image correspond à...</div>
       <div id="question-img-wrap"></div>
       <div class="question-mot" id="question-mot"></div>
+      <button class="audio-play-btn" id="audio-btn" onclick="jouerAudioQuestion()" style="display:none">
+        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Écouter
+      </button>
     </div>
 
     <div class="choices-label">Choisissez la bonne image</div>
@@ -129,7 +137,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let cartesSports = [], cartesMateriel = [], questions = [], qIndex = 0, score = 0, answered = false;
+let cartesSports = [], cartesMateriel = [], questions = [], qIndex = 0, score = 0, answered = false, currentAudio = null;
 
 async function loadCartes() {
   const [snapSports, snapMateriel] = await Promise.all([
@@ -206,6 +214,15 @@ function afficherQuestion() {
   }
   document.getElementById('question-mot').innerHTML = q.question.mot.split('/').map(s => s.trim()).join('<br/>');
 
+  // Bouton audio
+  const audioBtn = document.getElementById('audio-btn');
+  if (q.question.audio) {
+    audioBtn.style.display = 'inline-flex';
+    audioBtn.classList.remove('playing');
+  } else {
+    audioBtn.style.display = 'none';
+  }
+
   // Choix
   const grid = document.getElementById('choices-grid');
   grid.innerHTML = q.choix.map((c, i) => `
@@ -215,6 +232,23 @@ function afficherQuestion() {
     </div>
   `).join('');
 }
+
+window.jouerAudioQuestion = function() {
+  const q = questions[qIndex];
+  if (!q.question.audio) return;
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const btn = document.getElementById('audio-btn');
+  const audio = new Audio(q.question.audio);
+  currentAudio = audio;
+  btn.classList.add('playing');
+  btn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> En cours...';
+  audio.play();
+  audio.onended = () => {
+    btn.classList.remove('playing');
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Écouter';
+    currentAudio = null;
+  };
+};
 
 window.choisir = function(i, cardId) {
   if (answered) return;
