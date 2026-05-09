@@ -262,8 +262,18 @@ window.choisir = function(i, cardId) {
     score++;
     feedback.textContent = '✓ Bonne réponse !';
     feedback.className = 'feedback bon';
-    // Désactiver les autres
     document.querySelectorAll('.choice').forEach(c => c.classList.add('disabled'));
+
+    // Jouer l'audio de la bonne réponse
+    const bonneCarteAudio = q.choix.find(c => c.id === q.correctId);
+    if (bonneCarteAudio && bonneCarteAudio.audio) {
+      if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+      const audio = new Audio(bonneCarteAudio.audio);
+      currentAudio = audio;
+      audio.play();
+      audio.onended = () => { currentAudio = null; };
+    }
+
     setTimeout(() => {
       qIndex++;
       if (qIndex >= questions.length) {
@@ -271,7 +281,7 @@ window.choisir = function(i, cardId) {
       } else {
         afficherQuestion();
       }
-    }, 1200);
+    }, 1800);
   } else {
     el.classList.add('wrong');
     feedback.textContent = '✗ Essaie encore !';
