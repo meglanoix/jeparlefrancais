@@ -132,8 +132,13 @@ const db = getFirestore(app);
 let toutesCartes = [], questions = [], qIndex = 0, score = 0, answered = false;
 
 async function loadCartes() {
-  const snap = await getDocs(collection(db, 'vocabulaire-sports'));
-  toutesCartes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.categorie && c.image);
+  const [snapSports, snapMateriel] = await Promise.all([
+    getDocs(collection(db, 'vocabulaire-sports')),
+    getDocs(collection(db, 'materiel-equipement'))
+  ]);
+  const docsSports = snapSports.docs.map(d => ({ id: d.id, ...d.data() }));
+  const docsMateriel = snapMateriel.docs.map(d => ({ id: d.id, ...d.data() }));
+  toutesCartes = [...docsSports, ...docsMateriel].filter(c => c.categorie && c.image);
   if (toutesCartes.length < 4) {
     document.getElementById('loading').textContent = 'Pas assez de cartes avec une catégorie. Ajoutez des catégories dans l\'admin.';
     return;
