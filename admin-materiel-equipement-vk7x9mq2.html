@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Le matériel et l'équipement | JeParle Français</title>
+<title>Admin – Le matériel et l'équipement | JeParle Français</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -222,6 +222,10 @@ input[type=text]:focus { border-color: var(--bleu); }
       <label>Mot en français</label>
       <input type="text" id="mot" placeholder="Ex : le soccer"/>
     </div>
+    <div class="form-group" style="margin-bottom:1rem">
+      <label>Catégorie <span style="color:var(--gris);font-weight:300">(pour le jeu d'association)</span></label>
+      <input type="text" id="categorie" placeholder="Ex : soccer, natation, hockey..."/>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label>Image</label>
@@ -359,7 +363,7 @@ window.saveCard = async function() {
     const audioUrl = await blobToDataUrl(pendingAudio);
     await addDoc(collection(db, 'materiel-equipement'), {
       mot,
-
+      categorie: document.getElementById('categorie').value.trim().toLowerCase(),
       image: pendingImage,
       audio: audioUrl,
       date: new Date().toLocaleDateString('fr-CA')
@@ -367,6 +371,7 @@ window.saveCard = async function() {
     await loadCards();
     saveMsg.textContent = '✓ Carte ajoutée !';
     document.getElementById('mot').value = '';
+    document.getElementById('categorie').value = '';
     // Réinitialiser la zone image (recrée l'input pour permettre un 2e upload sans recharger)
     const imgZone = document.getElementById('img-zone');
     imgZone.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
@@ -440,6 +445,9 @@ function renderCards() {
           </button>
           <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4)" onclick="openRename(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
             ✏ Renommer
+          </button>
+          <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4);margin-top:4px" onclick="openCategorie(event,'${c.id}','${(c.categorie||'').replace(/'/g,"\\'")}')">
+            🏷 Catégorie${c.categorie ? ': '+c.categorie : ''}
           </button>
           <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
             ⬛ QR Code
@@ -656,6 +664,7 @@ window.printSelected = function() {
 
       // VERSO
       doc.addPage();
+      // Retournement côté long (standard paysage) : inverser colonnes
       const mirror = [3,4,5,0,1,2];
       const qrSize = Math.min(cellW, cellH) * 0.85;
       for (let i = 0; i < 6; i++) {
@@ -716,7 +725,34 @@ window.printQR = function() {
   w.print();
 };
 
-// --- Renommer le titre d'une carte ---
+// --- Modifier la catégorie ---
+window.openCategorie = function(e, id, cat) {
+  e.stopPropagation();
+  document.getElementById('categorie-input').value = cat;
+  document.getElementById('categorie-id').value = id;
+  document.getElementById('categorie-status').textContent = '';
+  document.getElementById('categorie-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('categorie-input').focus(), 100);
+};
+
+window.closeCategorie = function() {
+  document.getElementById('categorie-modal').style.display = 'none';
+};
+
+window.saveCategorie = async function() {
+  const id = document.getElementById('categorie-id').value;
+  const newCat = document.getElementById('categorie-input').value.trim().toLowerCase();
+  document.getElementById('categorie-status').textContent = 'Sauvegarde...';
+  try {
+    const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await updateDoc(firestoreDoc(db, 'materiel-equipement', id), { categorie: newCat });
+    document.getElementById('categorie-status').textContent = '✓ Catégorie mise à jour !';
+    setTimeout(() => { closeCategorie(); loadCards(); }, 900);
+  } catch(err) {
+    document.getElementById('categorie-status').textContent = 'Erreur : ' + err.message;
+  }
+};
+
 window.openRename = function(e, id, mot) {
   e.stopPropagation();
   document.getElementById('rename-input').value = mot;
@@ -798,6 +834,22 @@ loadCards();
     </div>
     <div class="rec-modal-btns">
       <button class="app-btn" onclick="closeReRecord()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CATÉGORIE -->
+<div class="rec-modal-overlay" id="categorie-modal" style="display:none">
+  <div class="rec-modal-box">
+    <h3>Modifier la catégorie</h3>
+    <p style="color:var(--gris);font-size:0.85rem;margin-bottom:1.25rem">Entrez la catégorie pour le jeu d'association</p>
+    <input type="hidden" id="categorie-id"/>
+    <input type="text" id="categorie-input" placeholder="Ex : soccer, natation, hockey..." style="width:100%;margin-bottom:0.75rem"
+      onkeydown="if(event.key==='Enter') saveCategorie()"/>
+    <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em;margin-bottom:0.75rem" id="categorie-status"></div>
+    <div class="rec-modal-btns">
+      <button class="app-btn" onclick="closeCategorie()">Annuler</button>
+      <button class="app-btn primary" onclick="saveCategorie()">✓ Sauvegarder</button>
     </div>
   </div>
 </div>
