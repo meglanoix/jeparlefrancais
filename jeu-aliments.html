@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Testez vos connaissances – Les aliments | JeParle Français</title>
+<title>Identifiez l'aliment | JeParle Français</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -85,8 +85,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 </nav>
 <div class="page-header">
   <div class="page-header-inner">
-    <p class="page-eyebrow">Les aliments · Jeu</p>
-    <h1>Testez vos connaissances !</h1>
+    <p class="page-eyebrow">Les aliments · Jeu interactif</p>
+    <h1>Identifiez l'aliment !</h1>
     <p>Écoutez l'audio et cliquez sur la bonne image</p>
   </div>
 </div>
@@ -100,8 +100,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
       <button class="niveau-choice" onclick="choisirNiveau('fruits')">🍎 Fruits <span>fruits seulement</span></button>
       <button class="niveau-choice" onclick="choisirNiveau('legumes')">🥦 Légumes <span>légumes seulement</span></button>
       <button class="niveau-choice" onclick="choisirNiveau('fruits-legumes')">🍎🥦 Fruits + Légumes <span>les deux</span></button>
-      <button class="niveau-choice" onclick="choisirNiveau('viandes')">🥩 Viandes, volaille et fruits de mer <span>viandes seulement</span></button>
+      <button class="niveau-choice" onclick="choisirNiveau('viandes')">🥩 Viandes, volailles et fruits de mer <span>viandes seulement</span></button>
       <button class="niveau-choice" onclick="choisirNiveau('autres')">🧀 Autres aliments <span>autres seulement</span></button>
+      <button class="niveau-choice" onclick="choisirNiveau('sauces')">🧂 Sauces et assaisonnements <span>sauces seulement</span></button>
       <button class="niveau-choice" onclick="choisirNiveau('tous')">🍽 Tous les aliments <span>niveau avancé</span></button>
     </div>
   </div>
@@ -150,21 +151,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let cartesParCat = { fruits: [], legumes: [], viandes: [], autres: [] };
+let cartesParCat = { fruits: [], legumes: [], viandes: [], autres: [], sauces: [] };
 let questions = [], qIndex = 0, score = 0, answered = false, currentAudio = null, niveauChoisi = null;
 
 async function loadCartes() {
   try {
-    const [sF, sL, sV, sA] = await Promise.all([
+    const [sF, sL, sV, sA, sS] = await Promise.all([
       getDocs(collection(db, 'aliments-fruits')),
       getDocs(collection(db, 'aliments-legumes')),
       getDocs(collection(db, 'aliments-viandes')),
-      getDocs(collection(db, 'aliments-autres'))
+      getDocs(collection(db, 'aliments-autres')),
+      getDocs(collection(db, 'sauces-assaisonnements'))
     ]);
     cartesParCat.fruits  = sF.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.audio && c.image);
     cartesParCat.legumes = sL.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.audio && c.image);
     cartesParCat.viandes = sV.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.audio && c.image);
     cartesParCat.autres  = sA.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.audio && c.image);
+    cartesParCat.sauces  = sS.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.audio && c.image);
     document.getElementById('loading').style.display = 'none';
     document.getElementById('niveau-select').style.display = 'block';
   } catch(e) {
@@ -185,7 +188,8 @@ function getCartesPourNiveau() {
     case 'fruits-legumes':return [...cartesParCat.fruits, ...cartesParCat.legumes];
     case 'viandes':       return [...cartesParCat.viandes];
     case 'autres':        return [...cartesParCat.autres];
-    case 'tous':          return [...cartesParCat.fruits, ...cartesParCat.legumes, ...cartesParCat.viandes, ...cartesParCat.autres];
+    case 'sauces':        return [...cartesParCat.sauces];
+    case 'tous':          return [...cartesParCat.fruits, ...cartesParCat.legumes, ...cartesParCat.viandes, ...cartesParCat.autres, ...cartesParCat.sauces];
   }
 }
 
