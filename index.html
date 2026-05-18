@@ -79,7 +79,27 @@ nav.scrolled { box-shadow: var(--ombre); }
 .btn-secondary { background: transparent; color: var(--blanc); padding: 14px 28px; border-radius: 8px; font-weight: 400; font-size: 0.95rem; text-decoration: none; border: 1.5px solid rgba(255,255,255,0.35); transition: all 0.2s; }
 .btn-secondary:hover { border-color: var(--blanc); background: rgba(255,255,255,0.07); }
 
-section { padding: 90px 5vw; }
+/* Hero cards */
+.hero-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 1.5rem; cursor: pointer; transition: all 0.2s; position: relative; user-select: none; }
+.hero-card:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.4); }
+.hero-card.active { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
+.hero-card-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+.hero-card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--blanc); font-weight: 700; line-height: 1.3; margin-bottom: 0.3rem; }
+.hero-card-sub { font-size: 0.78rem; color: rgba(255,255,255,0.55); font-weight: 300; }
+.hero-card-arrow { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.6rem; transition: transform 0.2s; }
+.hero-card.active .hero-card-arrow { transform: rotate(180deg); }
+/* Dropdown flottant */
+#hero-dropdown { display: none; position: fixed; background: var(--blanc); border-radius: 14px; box-shadow: 0 16px 48px rgba(26,58,92,0.3); padding: 1rem; z-index: 9999; min-width: 260px; max-width: 320px; max-height: 70vh; overflow-y: auto; }
+#hero-dropdown.visible { display: block; }
+#hero-dropdown a { display: block; padding: 7px 10px; border-radius: 7px; font-size: 0.88rem; color: var(--texte); text-decoration: none; transition: background 0.15s; }
+#hero-dropdown a:hover { background: var(--creme); color: var(--bleu); }
+#hero-dropdown .hcd-cat { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gris); font-weight: 500; padding: 6px 10px 2px; }
+#hero-dropdown .hcd-jeu { color: var(--rouge) !important; font-weight: 500; }
+#hero-dropdown .hcd-divider { height: 1px; background: rgba(26,58,92,0.08); margin: 6px 0; }
+@media (max-width: 700px) {
+  .hero-inner { grid-template-columns: 1fr !important; }
+  #hero-dropdown { max-width: 90vw; }
+}
 .section-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--rouge); margin-bottom: 1rem; }
 .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--bleu); line-height: 1.2; margin-bottom: 1.5rem; }
 .section-sub { font-size: 1rem; color: var(--gris); line-height: 1.8; max-width: 580px; font-weight: 300; }
@@ -303,130 +323,55 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
 <section class="hero" id="accueil">
   <div class="hero-bg"></div>
-  <div class="hero-inner">
-    
-    <h1>Apprendre le français,<br><em>ici, ensemble.</em></h1>
-    <p class="hero-sub">jeparlefrancais.ca a été créé pour aider les nouveaux arrivants avec le vocabulaire, dans une approche interactive et adaptée à leurs besoins.</p>
-    <div class="hero-btns">
-      
+
+  <!-- GAUCHE : texte -->
+  <div class="hero-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:4vw;align-items:center;min-height:100vh;width:100%;max-width:100%">
+    <div>
+      <h1>Apprendre le français,<br><em>ici, ensemble.</em></h1>
+      <p class="hero-sub">jeparlefrancais.ca a été créé pour aider les nouveaux arrivants avec le vocabulaire, dans une approche interactive et adaptée à leurs besoins.</p>
+    </div>
+
+    <!-- DROITE : 4 cases -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative;z-index:1">
+
+      <!-- Les verbes -->
+      <div class="hero-card" onclick="toggleHeroCard(this,'verbes')">
+        <div class="hero-card-icon">📝</div>
+        <div class="hero-card-title">Les verbes</div>
+        <div class="hero-card-sub">Verbes du 1er groupe + irréguliers</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- La routine et les activités -->
+      <div class="hero-card" onclick="toggleHeroCard(this,'routine')">
+        <div class="hero-card-icon">🗓</div>
+        <div class="hero-card-title">La routine et les activités</div>
+        <div class="hero-card-sub">Vie quotidienne</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- Les activités de loisirs -->
+      <div class="hero-card" onclick="toggleHeroCard(this,'loisirs')">
+        <div class="hero-card-icon">⚽</div>
+        <div class="hero-card-title">Les activités de loisirs</div>
+        <div class="hero-card-sub">Sports, matériel, règles</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- Les aliments et le restaurant -->
+      <div class="hero-card" onclick="toggleHeroCard(this,'aliments')">
+        <div class="hero-card-icon">🍎</div>
+        <div class="hero-card-title">Les aliments et le restaurant</div>
+        <div class="hero-card-sub">Nourriture et restauration</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- VOCABULAIRE -->
-<section style="background:var(--blanc);padding:60px 5vw">
-  <div class="fade-in" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
-    <div>
-      <p class="section-label">Ressources pédagogiques</p>
-      <h2 class="section-title" style="margin-bottom:0.5rem">Vocabulaire thématique</h2>
-      <p class="section-sub">Images et audio pour apprendre le vocabulaire par thèmes.</p>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.25rem;margin-top:2rem">
-    <a href="vocabulaire-sports.html" style="text-decoration:none">
-      <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">⚽</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">Sports et loisirs</h3>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
-      </div>
-    </a>
-    <a href="materiel-equipement.html" style="text-decoration:none">
-      <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">🎿</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">Le matériel et l'équipement</h3>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
-      </div>
-    </a>
-    <a href="regles-activites.html" style="text-decoration:none">
-      <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">📋</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">Règles et règlements des activités</h3>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
-      </div>
-    </a>
-    <a href="consignes-loisirs.html" style="text-decoration:none">
-      <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">📣</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">Les consignes des loisirs</h3>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
-      </div>
-    </a>
-    <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08)">
-      <div style="font-size:2.5rem;margin-bottom:1rem">📝</div>
-      <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.75rem">Verbes du 1er groupe</h3>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <a href="verbes-er-debutant.html" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--blanc);border-radius:8px;text-decoration:none;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s" onmouseover="this.style.borderColor='var(--bleu)'" onmouseout="this.style.borderColor='rgba(26,58,92,0.08)'">
-          <span style="font-size:0.88rem;color:var(--texte)">⭐ Débutant</span>
-          <span style="font-size:0.78rem;color:var(--rouge);font-weight:500">→</span>
-        </a>
-        <a href="verbes-er-intermediaire.html" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--blanc);border-radius:8px;text-decoration:none;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s" onmouseover="this.style.borderColor='var(--bleu)'" onmouseout="this.style.borderColor='rgba(26,58,92,0.08)'">
-          <span style="font-size:0.88rem;color:var(--texte)">⭐⭐ Intermédiaire</span>
-          <span style="font-size:0.78rem;color:var(--rouge);font-weight:500">→</span>
-        </a>
-        <a href="verbes-er-avance.html" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--blanc);border-radius:8px;text-decoration:none;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s" onmouseover="this.style.borderColor='var(--bleu)'" onmouseout="this.style.borderColor='rgba(26,58,92,0.08)'">
-          <span style="font-size:0.88rem;color:var(--texte)">⭐⭐⭐ Avancé</span>
-          <span style="font-size:0.78rem;color:var(--rouge);font-weight:500">→</span>
-        </a>
-      </div>
-    </div>
-    <a href="verbe-faire.html" style="text-decoration:none">
-      <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">🛠</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">Le verbe faire</h3>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
-      </div>
-    </a>
-    <a href="verbe-prendre.html" style="text-decoration:none">
-      <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">🤲</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">Le verbe prendre</h3>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
-      </div>
-    </a>
-    <a href="verbe-aller.html" style="text-decoration:none">
-      <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">🚶</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">Le verbe aller</h3>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
-      </div>
-    </a>
-    <a href="activites-habituelles.html" style="text-decoration:none">
-      <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">📅</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">Les activités habituelles au présent</h3>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
-      </div>
-    </a>
-    <a href="routine.html" style="text-decoration:none">
-      <div style="background:var(--creme);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">🌅</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">La routine</h3>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Ouvrir →</p>
-      </div>
-    </a>
-  </div>
-</section>
-
-<!-- ACTIVITÉS -->
-<section style="background:var(--creme);padding:60px 5vw" id="activites">
-  <div class="fade-in" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
-    <div>
-      <p class="section-label">Jeux interactifs</p>
-      <h2 class="section-title" style="margin-bottom:0.5rem">Activités</h2>
-      <p class="section-sub">Mettez vos connaissances à l'épreuve avec des exercices interactifs.</p>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.25rem;margin-top:2rem">
-    <a href="jeu-association.html" style="text-decoration:none">
-      <div style="background:var(--blanc);border-radius:14px;padding:2rem;border:1px solid rgba(26,58,92,0.08);transition:all 0.2s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(26,58,92,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="font-size:2.5rem;margin-bottom:1rem">🎯</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.1rem;color:var(--bleu);margin-bottom:0.4rem">Associez activité et équipement</h3>
-        <p style="font-size:0.85rem;color:var(--gris);font-weight:300">Reliez chaque sport à son équipement</p>
-        <p style="font-size:0.8rem;color:var(--rouge);margin-top:0.75rem;font-weight:500">Jouer →</p>
-      </div>
-    </a>
-  </div>
-</section>
+<!-- Dropdown flottant global -->
+<div id="hero-dropdown"></div>
 
 <section id="contact">
   <div class="contact-inner">
@@ -461,6 +406,36 @@ window.addEventListener('scroll', () => {
 });
 window.toggleMenu = function() { document.getElementById('mobile-menu').classList.toggle('open'); };
 window.closeMenu = function() { document.getElementById('mobile-menu').classList.remove('open'); };
+
+// Hero cards dropdown
+const heroContents = {
+  verbes: `<div class="hcd-cat">📝 Verbes du 1er groupe</div><a href="verbes-er-debutant.html">⭐ Débutant</a><a href="verbes-er-intermediaire.html">⭐⭐ Intermédiaire</a><a href="verbes-er-avance.html">⭐⭐⭐ Avancé</a><a href="jeu-verbes-er.html" class="hcd-jeu">🎯 Testez vos connaissances !</a><div class="hcd-divider"></div><div class="hcd-cat">🔀 Verbes irréguliers</div><a href="verbe-faire.html">Le verbe faire</a><a href="verbe-prendre.html">Le verbe prendre</a><a href="verbe-aller.html">Le verbe aller</a>`,
+  routine: `<a href="activites-habituelles.html">Les activités habituelles au présent</a><a href="routine.html">La routine</a>`,
+  loisirs: `<a href="vocabulaire-sports.html">Les activités de loisirs</a><a href="materiel-equipement.html">Le matériel et l'équipement</a><a href="regles-activites.html">Règles et règlements</a><a href="consignes-loisirs.html">Les consignes des loisirs</a><div class="hcd-divider"></div><a href="jeu-association.html" class="hcd-jeu">🎯 Associez activité et équipement</a>`,
+  aliments: `<div class="hcd-cat">🍎 Les aliments</div><a href="aliments-fruits.html">Les fruits</a><a href="aliments-legumes.html">Les légumes</a><a href="aliments-viandes.html">Les viandes, volailles et fruits de mer</a><a href="aliments-autres.html">Les autres aliments</a><a href="sauces-assaisonnements.html">Les sauces et assaisonnements</a><a href="exprimer-quantite.html">Exprimer une quantité</a><a href="jeu-aliments.html" class="hcd-jeu">🎯 Identifiez l'aliment !</a><div class="hcd-divider"></div><div class="hcd-cat">🍔 Le restaurant</div><a href="restauration-rapide.html">La restauration rapide</a><a href="mets-plats-restaurant.html">Les mets et plats</a><a href="demander-service-restaurant.html">Demander un service</a><a href="le-couvert.html">Le couvert</a>`
+};
+let activeCard = null;
+window.toggleHeroCard = function(card, key) {
+  const dd = document.getElementById('hero-dropdown');
+  if (activeCard === card && dd.classList.contains('visible')) {
+    dd.classList.remove('visible'); card.classList.remove('active'); activeCard = null; return;
+  }
+  if (activeCard) activeCard.classList.remove('active');
+  activeCard = card; card.classList.add('active');
+  dd.innerHTML = heroContents[key]; dd.classList.add('visible');
+  const rect = card.getBoundingClientRect();
+  const ddW = 280;
+  let left = rect.left;
+  if (left + ddW > window.innerWidth - 16) left = window.innerWidth - ddW - 16;
+  dd.style.left = left + 'px'; dd.style.top = (rect.bottom + 8) + 'px'; dd.style.width = ddW + 'px';
+};
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.hero-card') && !e.target.closest('#hero-dropdown')) {
+    const dd = document.getElementById('hero-dropdown');
+    dd.classList.remove('visible');
+    if (activeCard) { activeCard.classList.remove('active'); activeCard = null; }
+  }
+});
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
 }, { threshold: 0.12 });
