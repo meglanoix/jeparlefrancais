@@ -55,7 +55,7 @@ nav.scrolled { box-shadow: var(--ombre); }
 
 .hero {
   min-height: 100vh; display: flex; align-items: center;
-  background: var(--bleu); padding: 80px 5vw 60px;
+  background: rgba(0,0,0,0.35); padding: 80px 5vw 60px;
   position: relative; overflow: hidden;
 }
 .hero-bg {
@@ -66,13 +66,13 @@ nav.scrolled { box-shadow: var(--ombre); }
 }
 .hero::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 70% 50%, rgba(42,82,152,0.6) 0%, transparent 70%);
+  background: transparent;
 }
 .hero-inner { position: relative; z-index: 1; max-width: 680px; }
 .hero-eyebrow { display: inline-block; font-size: 0.8rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 1.5rem; }
 .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 6vw, 4.5rem); color: var(--blanc); line-height: 1.1; margin-bottom: 1.5rem; }
 .hero h1 em { font-style: italic; color: rgba(255,255,255,0.7); }
-.hero-sub { font-size: 1.1rem; color: rgba(255,255,255,0.72); line-height: 1.7; margin-bottom: 2.5rem; max-width: 520px; font-weight: 300; }
+.hero-sub { font-size: 1.1rem; color: rgba(255,255,255,0.85); line-height: 1.7; margin-bottom: 2.5rem; max-width: 520px; font-weight: 300; }
 .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
 .btn-primary { background: var(--blanc); color: var(--bleu); padding: 14px 28px; border-radius: 8px; font-weight: 500; font-size: 0.95rem; text-decoration: none; transition: all 0.2s; border: 2px solid var(--blanc); }
 .btn-primary:hover { background: transparent; color: var(--blanc); }
@@ -328,14 +328,14 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
   <div class="hero-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:4vw;align-items:center;min-height:100vh;width:100%;max-width:100%">
     <div>
       <h1>Apprendre le français,<br><em>ici, ensemble.</em></h1>
-      <p class="hero-sub">jeparlefrancais.ca a été créé pour aider les nouveaux arrivants avec le vocabulaire, dans une approche interactive et adaptée à leurs besoins.</p>
+      <p class="hero-sub">jeparlefrancais.ca a été créé pour accompagner les nouveaux arrivants dans leur apprentissage du vocabulaire québécois, avec des images, de l'audio et des exercices interactifs.</p>
     </div>
 
     <!-- DROITE : 4 cases -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative;z-index:1">
 
       <!-- Les verbes -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'verbes')">
+      <div class="hero-card" onclick="toggleHeroCard(this,'verbes')" style="background:rgba(26,58,92,0.85);">
         <div class="hero-card-icon">📝</div>
         <div class="hero-card-title">Les verbes</div>
         <div class="hero-card-sub">Verbes du 1er groupe + irréguliers</div>
@@ -343,7 +343,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
       </div>
 
       <!-- La routine et les activités -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'routine')">
+      <div class="hero-card" onclick="toggleHeroCard(this,'routine')" style="background:rgba(26,122,74,0.85);">
         <div class="hero-card-icon">🗓</div>
         <div class="hero-card-title">La routine et les activités</div>
         <div class="hero-card-sub">Vie quotidienne</div>
@@ -351,7 +351,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
       </div>
 
       <!-- Les activités de loisirs -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'loisirs')">
+      <div class="hero-card" onclick="toggleHeroCard(this,'loisirs')" style="background:rgba(192,57,43,0.85);">
         <div class="hero-card-icon">⚽</div>
         <div class="hero-card-title">Les activités de loisirs</div>
         <div class="hero-card-sub">Sports, matériel, règles</div>
@@ -359,7 +359,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
       </div>
 
       <!-- Les aliments et le restaurant -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'aliments')">
+      <div class="hero-card" onclick="toggleHeroCard(this,'aliments')" style="background:rgba(180,110,20,0.85);">
         <div class="hero-card-icon">🍎</div>
         <div class="hero-card-title">Les aliments et le restaurant</div>
         <div class="hero-card-sub">Nourriture et restauration</div>
