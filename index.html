@@ -425,10 +425,24 @@ window.toggleHeroCard = function(card, key) {
   activeCard = card; card.classList.add('active');
   dd.innerHTML = heroContents[key]; dd.classList.add('visible');
   const rect = card.getBoundingClientRect();
-  const ddW = 280;
+  const ddW = Math.min(280, window.innerWidth - 32);
   let left = rect.left;
   if (left + ddW > window.innerWidth - 16) left = window.innerWidth - ddW - 16;
-  dd.style.left = left + 'px'; dd.style.top = (rect.bottom + 8) + 'px'; dd.style.width = ddW + 'px';
+  if (left < 16) left = 16;
+  dd.style.left = left + 'px';
+  dd.style.width = ddW + 'px';
+  // Placer au-dessus ou en dessous selon l'espace disponible
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+  const maxH = Math.min(320, Math.max(spaceBelow, spaceAbove) - 16);
+  dd.style.maxHeight = maxH + 'px';
+  if (spaceBelow >= 200 || spaceBelow >= spaceAbove) {
+    dd.style.top = (rect.bottom + 8) + 'px';
+    dd.style.bottom = 'auto';
+  } else {
+    dd.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+    dd.style.top = 'auto';
+  }
 };
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.hero-card') && !e.target.closest('#hero-dropdown')) {
