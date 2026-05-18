@@ -97,7 +97,8 @@ nav.scrolled { box-shadow: var(--ombre); }
 #hero-dropdown .hcd-jeu { color: var(--rouge) !important; font-weight: 500; }
 #hero-dropdown .hcd-divider { height: 1px; background: rgba(26,58,92,0.08); margin: 6px 0; }
 @media (max-width: 700px) {
-  .hero-inner { grid-template-columns: 1fr 1fr !important; }
+  .hero-inner { grid-template-columns: 1fr !important; }
+  .hero-cards-grid { grid-template-columns: 1fr 1fr !important; }
   #hero-dropdown { max-width: calc(100vw - 32px); max-height: 60vh; overflow-y: auto; }
 }
 .section-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--rouge); margin-bottom: 1rem; }
@@ -332,7 +333,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
     </div>
 
     <!-- DROITE : 4 cases -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative;z-index:1">
+    <div class="hero-cards-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative;z-index:1">
 
       <!-- Les verbes -->
       <div class="hero-card" onclick="toggleHeroCard(this,'verbes')" style="background:rgba(26,58,92,0.85);">
