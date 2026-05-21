@@ -160,7 +160,7 @@ window.startGame = function() {
   const shuffled = shuffle([...cartes]);
   questions = shuffled.slice(0, 10).map(bonneCarte => {
     const autres = cartes.filter(c => c.id !== bonneCarte.id);
-    const mauvais = shuffle(autres).slice(0, 3);
+    const mauvais = shuffle(autres).slice(0, 2);
     const choix = shuffle([bonneCarte, ...mauvais]);
     return { bonneCarte, correctId: bonneCarte.id, choix };
   });
