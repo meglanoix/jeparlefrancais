@@ -141,7 +141,7 @@ async function loadCartes() {
   try {
     const snap = await getDocs(collection(db, 'le-couvert'));
     cartes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.image);
-    if (cartes.length < 4) {
+    if (cartes.length < 3) {
       document.getElementById('loading').textContent = 'Pas assez de cartes. Ajoutez du contenu dans l\'admin.';
       return;
     }
