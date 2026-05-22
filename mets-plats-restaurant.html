@@ -73,6 +73,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
   <!-- Section autres mets -->
   <div class="section-block" id="section-autres" style="display:none">
     <h2 class="section-title">🍽 Les mets et plats</h2>
+    <div style="margin-bottom:1rem">
+      <a href="jeu-mets.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
+        🎯 Testez vos connaissances sur les mets !
+      </a>
+    </div>
     <div class="card-grid" id="grid-autres"></div>
   </div>
 </div>
@@ -105,8 +110,8 @@ function renderCards(cartes, gridId) {
         ? `<img class="card-img" src="${c.image}" alt="${c.mot || ''}"/>`
         : `<div class="card-img-placeholder">🍽</div>`}
       <div class="card-body">
-        <div class="card-mot">${c.mot || ''}</div>
-        ${c.mot2 ? `<div class="card-mot-fr">${c.mot2}</div>` : ''}
+        <div class="card-mot">${(c.mot || '').split('/').map(s => s.trim()).join('<br/>')}</div>
+        ${c.mot2 ? `<div class="card-mot-fr">${c.mot2.split('/').map(s => s.trim()).join('<br/>')}</div>` : ''}
       </div>
     </div>
   `).join('');
