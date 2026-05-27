@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quel professionnel appeler ? | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.page-header { background: var(--bleu); padding: 100px 5vw 50px; position: relative; overflow: hidden; }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
+.page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.6); font-weight: 300; }
+.main { max-width: 600px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
+.progress-bar-wrap { height: 6px; background: rgba(26,58,92,0.12); border-radius: 99px; margin-bottom: 0.5rem; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--vert); border-radius: 99px; transition: width 0.4s ease; }
+.progress-label { font-size: 0.82rem; color: var(--gris); margin-bottom: 1.5rem; display: flex; justify-content: space-between; }
+.score-badge { font-weight: 500; color: var(--vert); }
+/* Carte question */
+.question-card { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); overflow: hidden; margin-bottom: 1.5rem; text-align: center; }
+.question-label { font-size: 0.78rem; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gris); padding: 1rem 1rem 0; }
+.question-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+.question-img-placeholder { width: 100%; aspect-ratio: 4/3; background: var(--creme); display: flex; align-items: center; justify-content: center; font-size: 5rem; }
+.question-mot { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--bleu); padding: 0.75rem 1rem 0.5rem; }
+.audio-play-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--bleu); color: var(--blanc); border: none; border-radius: 20px; padding: 7px 16px; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-bottom: 1rem; transition: opacity 0.2s; }
+.audio-play-btn:hover { opacity: 0.85; }
+.audio-play-btn.playing { background: var(--vert); }
+.audio-play-btn svg { width: 14px; height: 14px; fill: white; }
+/* Choix pièces */
+.choices-label { font-size: 0.82rem; color: var(--gris); text-align: center; margin-bottom: 0.75rem; }
+.choices-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.choice { background: var(--blanc); border: 1.5px solid rgba(26,58,92,0.1); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.15s; }
+.choice:active { transform: scale(0.97); }
+.choice.correct { border-color: var(--vert); box-shadow: 0 0 0 3px rgba(26,122,74,0.15); }
+.choice.wrong { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.15); }
+.choice.disabled { pointer-events: none; opacity: 0.45; }
+.choice.correct.disabled { opacity: 1; }
+.choice-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+.choice-img-placeholder { width: 100%; aspect-ratio: 4/3; background: var(--creme); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+.choice-mot { font-size: 0.82rem; font-weight: 500; color: var(--texte); padding: 0.5rem; text-align: center; }
+.feedback { text-align: center; min-height: 28px; font-size: 0.95rem; font-weight: 500; margin: 1rem 0; }
+.feedback.bon { color: var(--vert); }
+.feedback.mal { color: var(--rouge); }
+.score-final { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); padding: 3rem 2rem; text-align: center; display: none; }
+.score-final h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--bleu); margin-bottom: 0.5rem; }
+.score-num { font-size: 4rem; font-weight: 500; color: var(--vert); line-height: 1; margin: 1rem 0; }
+.score-final p { color: var(--gris); margin-bottom: 2rem; }
+.btn-rejouer { background: var(--bleu); color: var(--blanc); border: none; border-radius: 10px; padding: 0.85rem 2rem; font-size: 1rem; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.btn-rejouer:hover { opacity: 0.85; }
+.loading { text-align: center; padding: 4rem 2rem; color: var(--gris); }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="problemes-domestiques.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour
+  </a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">Les problèmes domestiques · Jeu interactif</p>
+    <h1>Quel professionnel appeler ?</h1>
+    <p>Écoutez le problème et trouvez le bon professionnel</p>
+  </div>
+</div>
+
+<div class="main">
+  <div id="loading" class="loading">Chargement...</div>
+
+  <div id="jeu" style="display:none">
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    <div class="progress-label">
+      <span id="progress-label">Question 1 / 10</span>
+      <span class="score-badge" id="score-label">0 bonne réponse</span>
+    </div>
+
+    <div class="question-card">
+      <div class="question-label">Quel professionnel peut résoudre ce problème ?</div>
+      <div id="question-img-wrap"></div>
+      <div class="question-mot" id="question-mot"></div>
+      <button class="audio-play-btn" id="audio-btn" onclick="jouerAudioQuestion()" style="display:none">
+        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Écouter
+      </button>
+    </div>
+
+    <div class="choices-label">Cliquez sur le bon professionnel</div>
+    <div class="choices-grid" id="choices-grid"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="score-final" id="score-final">
+    <h2>Résultat</h2>
+    <div class="score-num" id="score-num"></div>
+    <p id="score-msg"></p>
+    <button class="btn-rejouer" onclick="startGame()">🔄 Rejouer</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let objets = [], pieces = [], questions = [], qIndex = 0, score = 0, answered = false, currentAudio = null;
+
+async function loadCartes() {
+  try {
+    const [snapObj, snapPieces] = await Promise.all([
+      getDocs(collection(db, 'problemes-domestiques')),
+      getDocs(collection(db, 'les-professionnels'))
+    ]);
+
+    // Objets avec catégorie(s) et image
+    objets = snapObj.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(c => c.image && c.categorie && c.categorie.trim() !== '');
+
+    // Pièces avec catégorie et image
+    pieces = snapPieces.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(c => c.image && c.categorie && c.categorie.trim() !== '');
+
+    if (objets.length < 3 || pieces.length < 3) {
+      document.getElementById('loading').textContent = 'Pas assez de cartes avec catégories. Ajoutez du contenu dans l\'admin.';
+      return;
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    startGame();
+  } catch(e) {
+    document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.';
+  }
+}
+
+window.startGame = function() {
+  score = 0; qIndex = 0; answered = false;
+  document.getElementById('score-final').style.display = 'none';
+  document.getElementById('jeu').style.display = 'block';
+
+  // Construire les questions
+  const objetsValides = objets.filter(obj => {
+    const cats = obj.categorie.trim().split(/\s+/);
+    return cats.some(cat => pieces.some(p => p.categorie.trim() === cat));
+  });
+
+  if (objetsValides.length < 3) {
+    document.getElementById('jeu').innerHTML = '<p style="text-align:center;color:var(--gris);padding:3rem">Ajoutez des catégories correspondantes dans les admins meubles et pièces.</p>';
+    return;
+  }
+
+  const shuffled = shuffle([...objetsValides]);
+  questions = [];
+  for (let i = 0; i < shuffled.length && questions.length < 10; i++) {
+    const objet = shuffled[i % shuffled.length];
+    const cats = objet.categorie.trim().split(/\s+/);
+
+    // Bonne réponse : une pièce dont la catégorie correspond
+    const bonnesPieces = pieces.filter(p => cats.includes(p.categorie.trim()));
+    const bonnePiece = bonnesPieces[Math.floor(Math.random() * bonnesPieces.length)];
+
+    // Mauvais choix : pièces dont la catégorie ne correspond pas
+    const mauvaisesPieces = pieces.filter(p => !cats.includes(p.categorie.trim()));
+    if (mauvaisesPieces.length < 2) continue;
+    const mauvais = shuffle(mauvaisesPieces).slice(0, 2);
+
+    const choix = shuffle([bonnePiece, ...mauvais]);
+    questions.push({ objet, bonnePieceId: bonnePiece.id, bonnePiece, choix });
+  }
+  questions = questions.slice(0, 10);
+  afficherQuestion();
+};
+
+function afficherQuestion() {
+  answered = false;
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const q = questions[qIndex];
+  const total = questions.length;
+
+  document.getElementById('progress-fill').style.width = (qIndex / total * 100) + '%';
+  document.getElementById('progress-label').textContent = `Question ${qIndex + 1} / ${total}`;
+  document.getElementById('score-label').textContent = score === 1 ? '1 bonne réponse' : `${score} bonnes réponses`;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+
+  // Image de l'objet
+  const qImgWrap = document.getElementById('question-img-wrap');
+  qImgWrap.innerHTML = q.objet.image
+    ? `<img class="question-img" src="${q.objet.image}" alt="${q.objet.mot || ''}"/>`
+    : `<div class="question-img-placeholder">🔧</div>`;
+
+  document.getElementById('question-mot').innerHTML = (q.objet.mot || '').split('/').map(s => s.trim()).join('<br/>');
+
+  // Bouton audio
+  const audioBtn = document.getElementById('audio-btn');
+  if (q.objet.audio) {
+    audioBtn.style.display = 'inline-flex';
+    audioBtn.classList.remove('playing');
+    audioBtn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Écouter';
+  } else {
+    audioBtn.style.display = 'none';
+  }
+
+  // Choix : images des pièces + nom
+  const grid = document.getElementById('choices-grid');
+  grid.innerHTML = q.choix.map((p, i) => `
+    <div class="choice" id="choice-${i}" onclick="choisir(${i}, '${p.id}')">
+      ${p.image ? `<img class="choice-img" src="${p.image}" alt="${p.mot || ''}"/>` : `<div class="choice-img-placeholder">👷</div>`}
+      <div class="choice-mot">${(p.mot || '').split('/').map(s => s.trim()).join(' / ')}</div>
+    </div>
+  `).join('');
+}
+
+window.jouerAudioQuestion = function() {
+  const q = questions[qIndex];
+  if (!q.objet.audio) return;
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const audio = new Audio(q.objet.audio);
+  currentAudio = audio;
+  const btn = document.getElementById('audio-btn');
+  btn.classList.add('playing');
+  btn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> En cours...';
+  audio.play();
+  audio.onended = () => {
+    btn.classList.remove('playing');
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Écouter';
+    currentAudio = null;
+  };
+};
+
+window.choisir = function(i, pieceId) {
+  if (answered) return;
+  const q = questions[qIndex];
+  const el = document.getElementById('choice-' + i);
+  const feedback = document.getElementById('feedback');
+
+  if (pieceId === q.bonnePieceId) {
+    answered = true;
+    score++;
+    el.classList.add('correct');
+    feedback.textContent = '✓ Bonne réponse !';
+    feedback.className = 'feedback bon';
+    document.querySelectorAll('.choice').forEach(c => c.classList.add('disabled'));
+
+    // Jouer l'audio de la bonne pièce
+    if (q.bonnePiece.audio) {
+      if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+      const audio = new Audio(q.bonnePiece.audio);
+      currentAudio = audio;
+      audio.play();
+      audio.onended = () => {
+        currentAudio = null;
+        setTimeout(() => { qIndex++; if (qIndex >= questions.length) finJeu(); else afficherQuestion(); }, 600);
+      };
+    } else {
+      setTimeout(() => { qIndex++; if (qIndex >= questions.length) finJeu(); else afficherQuestion(); }, 1200);
+    }
+  } else {
+    el.classList.add('wrong');
+    feedback.textContent = '✗ Essaie encore !';
+    feedback.className = 'feedback mal';
+    setTimeout(() => { el.classList.remove('wrong'); feedback.textContent = ''; feedback.className = 'feedback'; }, 800);
+  }
+};
+
+function finJeu() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  document.getElementById('jeu').style.display = 'none';
+  const sf = document.getElementById('score-final');
+  sf.style.display = 'block';
+  const total = questions.length;
+  document.getElementById('score-num').textContent = `${score} / ${total}`;
+  const pct = score / total;
+  document.getElementById('score-msg').textContent = pct === 1 ? 'Parfait ! 🎉' : pct >= 0.8 ? 'Excellent ! 👏' : pct >= 0.6 ? 'Bien ! Continue à pratiquer.' : 'Continue, tu vas y arriver !';
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+loadCartes();
+</script>
+</body>
+</html>
