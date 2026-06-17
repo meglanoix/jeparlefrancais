@@ -33,8 +33,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .body-map-container { position: relative; display: inline-block; width: 100%; }
 .body-img { width: 100%; max-height: 65vh; object-fit: contain; display: block; border-radius: 14px; }
 .body-placeholder { width: 100%; height: 400px; background: rgba(26,58,92,0.05); border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; color: var(--gris); border: 2px dashed rgba(26,58,92,0.15); }
-.body-point { position: absolute; width: 20px; height: 20px; border-radius: 50%; background: var(--rouge); border: 3px solid var(--blanc); cursor: pointer; transform: translate(-50%, -50%); transition: all 0.2s; box-shadow: 0 2px 8px rgba(192,57,43,0.35); z-index: 10; }
-.body-point:hover, .body-point.active { background: var(--bleu); transform: translate(-50%, -50%) scale(1.3); }
+.body-point { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: transparent; border: 2px solid var(--rouge); cursor: pointer; transform: translate(-50%, -50%); transition: all 0.2s; box-shadow: none; z-index: 10; display: flex; align-items: center; justify-content: center; }
+.body-point::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; transition: all 0.2s; }
+.body-point:hover, .body-point.active { border-color: var(--bleu); transform: translate(-50%, -50%) scale(1.2); }
+.body-point:hover::after, .body-point.active::after { background: var(--bleu); }
 .body-tooltip { position: fixed; background: var(--blanc); border-radius: 10px; padding: 0.6rem 1rem; box-shadow: 0 4px 20px rgba(26,58,92,0.2); z-index: 999; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; border: 1px solid rgba(26,58,92,0.08); }
 .body-tooltip.visible { opacity: 1; pointer-events: auto; }
 .tooltip-mot { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--bleu); font-weight: 700; }

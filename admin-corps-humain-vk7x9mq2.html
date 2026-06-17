@@ -25,9 +25,12 @@ nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center
 .body-map-container { position: relative; cursor: crosshair; min-height: 200px; }
 .body-img { width: 100%; display: block; max-height: 60vh; object-fit: contain; }
 .body-placeholder { width: 100%; height: 350px; background: var(--creme); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; color: var(--gris); border: 2px dashed rgba(26,58,92,0.15); cursor: default; }
-.point { position: absolute; width: 20px; height: 20px; border-radius: 50%; background: var(--rouge); border: 3px solid white; transform: translate(-50%, -50%); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; transition: all 0.15s; }
-.point:hover { background: var(--bleu); transform: translate(-50%, -50%) scale(1.2); }
-.point.selected { background: var(--vert); transform: translate(-50%, -50%) scale(1.2); }
+.point { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: transparent; border: 2px solid var(--rouge); transform: translate(-50%, -50%); cursor: pointer; z-index: 10; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.point::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; }
+.point:hover { border-color: var(--bleu); transform: translate(-50%, -50%) scale(1.2); }
+.point:hover::after { background: var(--bleu); }
+.point.selected { border-color: var(--vert); transform: translate(-50%, -50%) scale(1.2); }
+.point.selected::after { background: var(--vert); }
 .point-label { position: absolute; background: rgba(26,58,92,0.9); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; white-space: nowrap; pointer-events: none; top: -26px; left: 50%; transform: translateX(-50%); }
 .img-hint { padding: 0.6rem 1rem; font-size: 0.78rem; color: var(--gris); background: rgba(26,58,92,0.04); border-top: 1px solid rgba(26,58,92,0.06); }
 .panel { display: flex; flex-direction: column; gap: 1rem; }
