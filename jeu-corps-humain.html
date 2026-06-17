@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jeu – Les parties du corps | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.page-header { background: var(--bleu); padding: 100px 5vw 50px; position: relative; overflow: hidden; }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
+.page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.6); font-weight: 300; }
+.main { max-width: 680px; margin: 0 auto; padding: 2rem 5vw 5rem; }
+.progress-bar-wrap { height: 6px; background: rgba(26,58,92,0.12); border-radius: 99px; margin-bottom: 0.5rem; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--vert); border-radius: 99px; transition: width 0.4s ease; }
+.progress-label { font-size: 0.82rem; color: var(--gris); margin-bottom: 1.25rem; display: flex; justify-content: space-between; }
+.score-badge { font-weight: 500; color: var(--vert); }
+.audio-card { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; }
+.play-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--bleu); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 14px rgba(26,58,92,0.25); flex-shrink: 0; }
+.play-btn:hover { transform: scale(1.05); }
+.play-btn.playing { background: var(--vert); }
+.play-btn svg { width: 20px; height: 20px; fill: white; margin-left: 3px; }
+.play-btn.playing svg { margin-left: 0; }
+.audio-info { flex: 1; }
+.audio-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gris); font-weight: 500; }
+.question-mot { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--bleu); font-weight: 700; margin-top: 2px; }
+.hint { font-size: 0.82rem; color: var(--gris); text-align: center; margin-bottom: 0.75rem; }
+
+/* Image + cercles */
+.body-map-wrap { position: relative; border-radius: 14px; overflow: hidden; border: 2px solid rgba(26,58,92,0.08); margin-bottom: 1rem; }
+.body-img { width: 100%; display: block; }
+
+/* Cercles cliquables */
+.choice-circle { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; animation: appear 0.3s ease-out; }
+@keyframes appear { 0%{transform:translate(-50%,-50%) scale(0); opacity:0} 100%{transform:translate(-50%,-50%) scale(1); opacity:1} }
+.choice-circle .inner { width: 14px; height: 14px; border-radius: 50%; background: white; transition: all 0.2s; }
+.choice-circle:hover .inner { transform: scale(1.2); }
+.choice-circle.correct { background: rgba(26,122,74,0.25) !important; border-color: var(--vert) !important; }
+.choice-circle.correct .inner { background: var(--vert); transform: scale(1.3); }
+.choice-circle.wrong { background: rgba(192,57,43,0.25) !important; border-color: var(--rouge) !important; animation: shake 0.4s ease; }
+.choice-circle.wrong .inner { background: var(--rouge); }
+.choice-circle.disabled { pointer-events: none; opacity: 0.35; }
+.choice-circle.correct.disabled { opacity: 1; }
+@keyframes shake { 0%,100%{transform:translate(-50%,-50%)} 25%{transform:translate(calc(-50% - 5px),-50%)} 75%{transform:translate(calc(-50% + 5px),-50%)} }
+
+.feedback { text-align: center; min-height: 28px; font-size: 0.95rem; font-weight: 500; margin: 0.5rem 0; }
+.feedback.bon { color: var(--vert); }
+.feedback.mal { color: var(--rouge); }
+
+.score-final { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); padding: 3rem 2rem; text-align: center; display: none; }
+.score-final h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--bleu); margin-bottom: 0.5rem; }
+.score-num { font-size: 4rem; font-weight: 500; color: var(--vert); line-height: 1; margin: 1rem 0; }
+.score-final p { color: var(--gris); margin-bottom: 2rem; }
+.btn-rejouer { background: var(--bleu); color: var(--blanc); border: none; border-radius: 10px; padding: 0.85rem 2rem; font-size: 1rem; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.loading { text-align: center; padding: 4rem 2rem; color: var(--gris); }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="corps-humain.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour
+  </a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow" id="page-eyebrow">La santé · Jeu</p>
+    <h1>Trouvez la bonne partie du corps !</h1>
+    <p>Écoutez et cliquez sur le bon cercle</p>
+  </div>
+</div>
+
+<div class="main">
+  <div id="loading" class="loading">Chargement...</div>
+
+  <div id="jeu" style="display:none">
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    <div class="progress-label">
+      <span id="progress-label">Question 1 / 10</span>
+      <span class="score-badge" id="score-label">0 bonne réponse</span>
+    </div>
+
+    <div class="audio-card">
+      <button class="play-btn" id="play-btn" onclick="jouerAudio()">
+        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <div class="audio-info">
+        <div class="audio-label">Où se trouve...</div>
+        <div class="question-mot" id="question-mot"></div>
+      </div>
+    </div>
+
+    <p class="hint">👆 Cliquez sur le bon cercle</p>
+
+    <div class="body-map-wrap" id="body-map-wrap">
+      <img id="body-img" class="body-img" src="" alt=""/>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="score-final" id="score-final">
+    <h2>Résultat</h2>
+    <div class="score-num" id="score-num"></div>
+    <p id="score-msg"></p>
+    <button class="btn-rejouer" onclick="startGame()">🔄 Rejouer</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const vueId = params.get('vue') || 'face';
+const VUES = {
+  face:    { col: 'corps-face',    label: 'Vue de face' },
+  dos:     { col: 'corps-dos',     label: 'Vue de dos' },
+  visage:  { col: 'corps-visage',  label: 'Le visage' },
+  organes: { col: 'corps-organes', label: 'Les organes' }
+};
+const vue = VUES[vueId] || VUES.face;
+document.getElementById('page-eyebrow').textContent = `La santé · Jeu – ${vue.label}`;
+
+let parties = [], questions = [], qIndex = 0, score = 0, answered = false, currentAudio = null;
+
+// Taille des cercles en % de la largeur de l'image
+const CIRCLE_SIZE = 14;
+
+async function load() {
+  try {
+    const snap = await getDocs(collection(db, vue.col));
+    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const imgDoc = data.find(d => d.type === 'image-corps');
+    parties = data.filter(d => d.type !== 'image-corps' && d.mot && d.x !== undefined && d.audio);
+
+    if (!imgDoc || parties.length < 3) {
+      document.getElementById('loading').textContent = 'Pas assez de contenu. Ajoutez des parties avec audio dans l\'admin.';
+      return;
+    }
+
+    document.getElementById('body-img').src = imgDoc.image;
+    document.getElementById('loading').style.display = 'none';
+    startGame();
+  } catch(e) {
+    document.getElementById('loading').textContent = 'Erreur de connexion.';
+  }
+}
+
+window.startGame = function() {
+  score = 0; qIndex = 0; answered = false;
+  document.getElementById('score-final').style.display = 'none';
+  document.getElementById('jeu').style.display = 'block';
+  questions = shuffle([...parties]).slice(0, Math.min(10, parties.length));
+  afficherQuestion();
+};
+
+function afficherQuestion() {
+  answered = false;
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+
+  // Nettoyer les cercles
+  document.querySelectorAll('.choice-circle').forEach(e => e.remove());
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+
+  const q = questions[qIndex];
+  const total = questions.length;
+
+  document.getElementById('progress-fill').style.width = (qIndex / total * 100) + '%';
+  document.getElementById('progress-label').textContent = `Question ${qIndex + 1} / ${total}`;
+  document.getElementById('score-label').textContent = score === 1 ? '1 bonne réponse' : `${score} bonnes réponses`;
+  document.getElementById('question-mot').textContent = q.mot;
+  document.getElementById('play-btn').classList.remove('playing');
+
+  // 2 mauvaises réponses
+  const autres = shuffle(parties.filter(p => p.id !== q.id)).slice(0, 2);
+  const choix = shuffle([q, ...autres]);
+
+  // Afficher les cercles
+  const wrap = document.getElementById('body-map-wrap');
+  choix.forEach((p, i) => {
+    const circle = document.createElement('div');
+    circle.className = 'choice-circle';
+    circle.dataset.id = p.id;
+    circle.dataset.correct = p.id === q.id ? '1' : '0';
+
+    // Taille du cercle proportionnelle à l'image
+    const size = CIRCLE_SIZE;
+    circle.style.cssText = `
+      left: ${p.x}%; top: ${p.y}%;
+      width: ${size}%; height: 0;
+      padding-bottom: ${size}%;
+      border: 3px solid white;
+      background: rgba(26,58,92,0.25);
+      animation-delay: ${i * 0.08}s;
+    `;
+    circle.innerHTML = '<div class="inner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)"></div>';
+    circle.onclick = () => choisir(circle, p.id === q.id, q);
+    wrap.appendChild(circle);
+  });
+
+  // Jouer l'audio automatiquement
+  jouerAudioPartie(q.audio);
+}
+
+window.jouerAudio = function() {
+  if (questions[qIndex]) jouerAudioPartie(questions[qIndex].audio);
+};
+
+function jouerAudioPartie(url) {
+  if (!url) return;
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const btn = document.getElementById('play-btn');
+  const audio = new Audio(url);
+  currentAudio = audio;
+  btn.classList.add('playing');
+  audio.play();
+  audio.onended = () => { btn.classList.remove('playing'); currentAudio = null; };
+}
+
+function choisir(circle, isCorrect, q) {
+  if (answered) return;
+  const feedback = document.getElementById('feedback');
+
+  if (isCorrect) {
+    answered = true;
+    score++;
+    circle.classList.add('correct');
+    feedback.textContent = '✓ Bonne réponse !';
+    feedback.className = 'feedback bon';
+    // Griser les mauvais
+    document.querySelectorAll('.choice-circle').forEach(c => {
+      if (c !== circle) c.classList.add('disabled');
+    });
+    setTimeout(() => { qIndex++; if (qIndex >= questions.length) finJeu(); else afficherQuestion(); }, 1300);
+  } else {
+    circle.classList.add('wrong');
+    feedback.textContent = '✗ Essaie encore !';
+    feedback.className = 'feedback mal';
+    setTimeout(() => {
+      circle.classList.remove('wrong');
+      feedback.textContent = '';
+      feedback.className = 'feedback';
+    }, 700);
+  }
+}
+
+function finJeu() {
+  document.getElementById('jeu').style.display = 'none';
+  const sf = document.getElementById('score-final');
+  sf.style.display = 'block';
+  const total = questions.length;
+  document.getElementById('score-num').textContent = `${score} / ${total}`;
+  const pct = score / total;
+  document.getElementById('score-msg').textContent = pct === 1 ? 'Parfait ! 🎉' : pct >= 0.8 ? 'Excellent ! 👏' : pct >= 0.6 ? 'Bien ! Continue à pratiquer.' : 'Continue, tu vas y arriver !';
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+  return arr;
+}
+
+load();
+</script>
+</body>
+</html>
