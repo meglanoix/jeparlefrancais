@@ -4,70 +4,67 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Admin – Les parties du corps | JeParle Français</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 :root { --bleu: #1a3a5c; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; background: var(--creme); color: var(--texte); }
-nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 64px; background: var(--bleu); color: white; }
+nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 64px; background: var(--bleu); }
 .nav-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: white; }
 .nav-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.88rem; }
 .nav-link:hover { color: white; }
-.main { max-width: 1100px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 1fr 340px; gap: 2rem; align-items: start; }
+.top-bar { padding: 1rem 2rem; background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.vue-btn { padding: 7px 18px; border-radius: 25px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--creme); color: var(--gris); font-size: 0.85rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+.vue-btn:hover { border-color: var(--bleu); color: var(--bleu); }
+.vue-btn.active { background: var(--bleu); color: white; border-color: var(--bleu); font-weight: 500; }
+.main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem; display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; }
 @media(max-width:768px){ .main { grid-template-columns: 1fr; } }
-
-/* Image du corps */
 .image-section { background: var(--blanc); border-radius: 14px; border: 1px solid rgba(26,58,92,0.1); overflow: hidden; }
-.section-header { padding: 1rem 1.25rem; border-bottom: 1px solid rgba(26,58,92,0.08); display: flex; align-items: center; justify-content: space-between; }
-.section-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--bleu); }
-.body-map-container { position: relative; cursor: crosshair; }
-.body-img { width: 100%; display: block; }
-.body-placeholder { width: 100%; height: 400px; background: var(--creme); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; color: var(--gris); border: 2px dashed rgba(26,58,92,0.15); cursor: default; }
-.point { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--rouge); border: 3px solid white; transform: translate(-50%, -50%); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.section-header { padding: 0.9rem 1.25rem; border-bottom: 1px solid rgba(26,58,92,0.08); display: flex; align-items: center; justify-content: space-between; }
+.section-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--bleu); }
+.body-map-container { position: relative; cursor: crosshair; min-height: 200px; }
+.body-img { width: 100%; display: block; max-height: 60vh; object-fit: contain; }
+.body-placeholder { width: 100%; height: 350px; background: var(--creme); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; color: var(--gris); border: 2px dashed rgba(26,58,92,0.15); cursor: default; }
+.point { position: absolute; width: 20px; height: 20px; border-radius: 50%; background: var(--rouge); border: 3px solid white; transform: translate(-50%, -50%); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; transition: all 0.15s; }
 .point:hover { background: var(--bleu); transform: translate(-50%, -50%) scale(1.2); }
 .point.selected { background: var(--vert); transform: translate(-50%, -50%) scale(1.2); }
-.point-label { position: absolute; background: var(--bleu); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; white-space: nowrap; pointer-events: none; top: -28px; left: 50%; transform: translateX(-50%); }
-.img-hint { padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--gris); background: rgba(26,58,92,0.04); border-top: 1px solid rgba(26,58,92,0.06); }
-
-/* Panneau droite */
-.panel { display: flex; flex-direction: column; gap: 1.25rem; }
-.card { background: var(--blanc); border-radius: 14px; border: 1px solid rgba(26,58,92,0.1); padding: 1.25rem; }
-.card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--bleu); margin-bottom: 1rem; }
-label { display: block; font-size: 0.82rem; font-weight: 500; color: var(--gris); margin-bottom: 4px; margin-top: 0.75rem; }
+.point-label { position: absolute; background: rgba(26,58,92,0.9); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; white-space: nowrap; pointer-events: none; top: -26px; left: 50%; transform: translateX(-50%); }
+.img-hint { padding: 0.6rem 1rem; font-size: 0.78rem; color: var(--gris); background: rgba(26,58,92,0.04); border-top: 1px solid rgba(26,58,92,0.06); }
+.panel { display: flex; flex-direction: column; gap: 1rem; }
+.card { background: var(--blanc); border-radius: 14px; border: 1px solid rgba(26,58,92,0.1); padding: 1.1rem; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--bleu); margin-bottom: 0.9rem; }
+label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--gris); margin-bottom: 3px; margin-top: 0.7rem; }
 label:first-child { margin-top: 0; }
-input[type=text], input[type=file] { width: 100%; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; padding: 8px 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; background: var(--creme); }
+input[type=text] { width: 100%; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; padding: 7px 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; background: var(--creme); }
 input:focus { outline: none; border-color: var(--bleu); }
-.btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: opacity 0.2s; margin-top: 0.75rem; }
+.btn { width: 100%; padding: 9px; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: opacity 0.2s; margin-top: 0.6rem; }
 .btn:hover { opacity: 0.85; }
 .btn-primary { background: var(--bleu); color: white; }
 .btn-danger { background: var(--rouge); color: white; }
 .btn-success { background: var(--vert); color: white; }
 .btn-sm { width: auto; padding: 5px 12px; font-size: 0.8rem; margin-top: 0; }
-
-/* Liste des parties */
-.parts-list { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
-.part-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; background: var(--creme); font-size: 0.85rem; cursor: pointer; border: 1.5px solid transparent; transition: all 0.15s; }
-.part-row:hover { border-color: var(--bleu); }
-.part-row.selected { border-color: var(--vert); background: rgba(26,122,74,0.06); }
-.part-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; }
-.part-row.selected .part-dot { background: var(--vert); }
-.part-name { flex: 1; font-weight: 500; }
-.part-del { background: none; border: none; cursor: pointer; color: var(--gris); font-size: 1rem; padding: 0 4px; }
-.part-del:hover { color: var(--rouge); }
-
-/* Audio */
-.audio-controls { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-.record-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--creme); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+.btn-ghost { background: var(--creme); color: var(--texte); }
+.audio-controls { display: flex; gap: 8px; margin-top: 6px; }
+.record-btn { flex: 1; padding: 7px; border-radius: 8px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--creme); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s; }
 .record-btn.recording { background: var(--rouge); color: white; border-color: var(--rouge); animation: pulse 1s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
-.play-recorded { padding: 8px 12px; border-radius: 8px; border: none; background: var(--bleu); color: white; cursor: pointer; font-size: 0.85rem; }
-.play-recorded:disabled { opacity: 0.4; cursor: default; }
-.audio-status { font-size: 0.78rem; color: var(--gris); margin-top: 4px; }
-.hint { font-size: 0.78rem; color: var(--gris); margin-top: 6px; }
-.msg { padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; text-align: center; display: none; }
+.play-btn { padding: 7px 12px; border-radius: 8px; border: none; background: var(--bleu); color: white; cursor: pointer; font-size: 0.82rem; }
+.play-btn:disabled { opacity: 0.4; cursor: default; }
+.audio-status { font-size: 0.75rem; color: var(--gris); margin-top: 4px; }
+.parts-list { display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; }
+.part-row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; background: var(--creme); font-size: 0.83rem; cursor: pointer; border: 1.5px solid transparent; transition: all 0.15s; }
+.part-row:hover { border-color: var(--bleu); }
+.part-row.selected { border-color: var(--vert); background: rgba(26,122,74,0.06); }
+.part-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; }
+.part-row.selected .part-dot { background: var(--vert); }
+.part-name { flex: 1; font-weight: 500; }
+.part-del { background: none; border: none; cursor: pointer; color: var(--gris); font-size: 0.95rem; padding: 0 3px; }
+.part-del:hover { color: var(--rouge); }
+.msg { padding: 7px 10px; border-radius: 8px; font-size: 0.82rem; text-align: center; display: none; margin-top: 6px; }
 .msg.success { background: rgba(26,122,74,0.1); color: var(--vert); }
 .msg.error { background: rgba(192,57,43,0.1); color: var(--rouge); }
+.hint { font-size: 0.75rem; color: var(--gris); margin-top: 4px; }
+input[type=file] { width: 100%; font-size: 0.82rem; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -76,12 +73,19 @@ input:focus { outline: none; border-color: var(--bleu); }
   <a class="nav-link" href="corps-humain.html">← Voir la page</a>
 </nav>
 
+<div class="top-bar">
+  <span style="font-size:0.85rem;color:var(--gris);font-weight:500">Vue :</span>
+  <button class="vue-btn active" data-col="corps-face" onclick="changerVue(this)">🧍 Vue de face</button>
+  <button class="vue-btn" data-col="corps-dos" onclick="changerVue(this)">🚶 Vue de dos</button>
+  <button class="vue-btn" data-col="corps-visage" onclick="changerVue(this)">😊 Le visage</button>
+  <button class="vue-btn" data-col="corps-organes" onclick="changerVue(this)">🫀 Les organes</button>
+</div>
+
 <div class="main">
-  <!-- Image + points -->
   <div class="image-section">
     <div class="section-header">
-      <span class="section-title">Image du corps</span>
-      <div style="display:flex;gap:8px;align-items:center">
+      <span class="section-title" id="vue-label">Vue de face</span>
+      <div style="display:flex;gap:8px">
         <input type="file" id="corps-img-input" accept="image/*" style="display:none" onchange="uploadCorpsImg(event)"/>
         <button class="btn btn-primary btn-sm" onclick="document.getElementById('corps-img-input').click()">📷 Changer l'image</button>
       </div>
@@ -89,174 +93,137 @@ input:focus { outline: none; border-color: var(--bleu); }
     <div class="body-map-container" id="body-map-container" onclick="handleMapClick(event)">
       <div class="body-placeholder" id="body-placeholder">
         <span style="font-size:4rem">🧍</span>
-        <p style="font-size:0.9rem">Ajoutez d'abord une image du corps</p>
+        <p>Ajoutez une image pour cette vue</p>
         <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();document.getElementById('corps-img-input').click()">Choisir une image</button>
       </div>
     </div>
-    <div class="img-hint" id="img-hint" style="display:none">💡 Cliquez sur l'image pour placer un point. Remplissez ensuite le formulaire à droite.</div>
+    <div class="img-hint" id="img-hint" style="display:none">💡 Cliquez sur l'image pour placer un nouveau point</div>
   </div>
 
-  <!-- Panneau droite -->
   <div class="panel">
-
-    <!-- Ajouter une partie -->
     <div class="card">
       <div class="card-title" id="form-title">➕ Ajouter une partie</div>
-
-      <div id="click-hint" style="font-size:0.82rem;color:var(--gris);padding:0.75rem;background:var(--creme);border-radius:8px;text-align:center">
-        Cliquez sur l'image pour placer un point
-      </div>
-
+      <div id="click-hint" style="font-size:0.82rem;color:var(--gris);padding:0.6rem;background:var(--creme);border-radius:8px;text-align:center">Cliquez sur l'image pour placer un point</div>
       <div id="form-fields" style="display:none">
-        <label>Nom de la partie</label>
+        <label>Nom</label>
         <input type="text" id="mot-input" placeholder="Ex : le poignet"/>
-
         <label>Audio</label>
         <div class="audio-controls">
           <button class="record-btn" id="record-btn" onclick="toggleRecord()">🎙 Enregistrer</button>
-          <button class="play-recorded" id="play-recorded" disabled onclick="playRecorded()">▶</button>
+          <button class="play-btn" id="play-btn" disabled onclick="playRecorded()">▶</button>
         </div>
-        <div class="audio-status" id="audio-status">Aucun audio enregistré</div>
-        <p class="hint">Ou importez un fichier audio :</p>
+        <div class="audio-status" id="audio-status">Aucun audio</div>
+        <p class="hint">Ou importer un fichier :</p>
         <input type="file" id="audio-file" accept="audio/*" onchange="handleAudioFile(event)"/>
-
-        <div style="font-size:0.78rem;color:var(--gris);margin-top:6px" id="pos-display"></div>
-
         <div class="msg" id="form-msg"></div>
         <button class="btn btn-success" onclick="sauvegarder()">💾 Sauvegarder</button>
-        <button class="btn" style="background:var(--creme);color:var(--texte);margin-top:4px" onclick="annuler()">Annuler</button>
+        <button class="btn btn-ghost" onclick="annuler()">Annuler</button>
       </div>
     </div>
 
-    <!-- Liste des parties -->
     <div class="card">
       <div class="card-title">📋 Parties enregistrées</div>
-      <div class="parts-list" id="parts-list">
-        <div style="font-size:0.85rem;color:var(--gris);text-align:center;padding:1rem">Chargement...</div>
-      </div>
+      <div class="parts-list" id="parts-list"><div style="font-size:0.82rem;color:var(--gris);text-align:center;padding:1rem">Chargement...</div></div>
     </div>
-
-    <!-- Image du corps -->
-    <div class="card">
-      <div class="card-title">🧍 Image principale</div>
-      <p style="font-size:0.82rem;color:var(--gris);margin-bottom:0.75rem">L'image sur laquelle vous placez les points.</p>
-      <input type="file" id="corps-img-input2" accept="image/*" style="display:none" onchange="uploadCorpsImg(event)"/>
-      <button class="btn btn-primary" onclick="document.getElementById('corps-img-input2').click()">📷 Changer l'image du corps</button>
-    </div>
-
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
-  authDomain: "audio-francisation.firebaseapp.com",
-  projectId: "audio-francisation",
-  storageBucket: "audio-francisation.firebasestorage.app",
-  messagingSenderId: "840403407027",
-  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
-};
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-
-let parties = [], corpsImgDoc = null;
+let colActuelle = 'corps-face', parties = [], corpsImgDoc = null;
 let pendingX = null, pendingY = null;
-let mediaRecorder = null, audioChunks = [], recordedBlob = null, audioFileBlob = null;
-let isRecording = false;
+let mediaRecorder = null, audioChunks = [], recordedBlob = null, audioFileBlob = null, isRecording = false;
 
-// Chargement initial
 async function load() {
-  const snap = await getDocs(collection(db, 'corps-humain'));
+  const snap = await getDocs(collection(db, colActuelle));
   const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   corpsImgDoc = data.find(d => d.type === 'image-corps') || null;
   parties = data.filter(d => d.type !== 'image-corps' && d.mot);
-  renderImage();
-  renderPoints();
-  renderList();
+  renderImage(); renderPoints(); renderList();
 }
 
 function renderImage() {
   const container = document.getElementById('body-map-container');
+  const placeholder = document.getElementById('body-placeholder');
+  const hint = document.getElementById('img-hint');
   if (corpsImgDoc && corpsImgDoc.image) {
-    document.getElementById('body-placeholder').style.display = 'none';
-    document.getElementById('img-hint').style.display = 'block';
-    if (!document.getElementById('body-img')) {
-      const img = document.createElement('img');
-      img.id = 'body-img';
-      img.className = 'body-img';
-      img.src = corpsImgDoc.image;
-      container.insertBefore(img, container.firstChild);
-    } else {
-      document.getElementById('body-img').src = corpsImgDoc.image;
-    }
+    placeholder.style.display = 'none';
+    hint.style.display = 'block';
+    let img = document.getElementById('body-img');
+    if (!img) { img = document.createElement('img'); img.id = 'body-img'; img.className = 'body-img'; container.insertBefore(img, container.firstChild); }
+    img.src = corpsImgDoc.image;
+  } else {
+    placeholder.style.display = 'flex';
+    hint.style.display = 'none';
+    const img = document.getElementById('body-img');
+    if (img) img.remove();
   }
 }
 
 function renderPoints() {
   document.querySelectorAll('.point').forEach(p => p.remove());
-  const container = document.getElementById('body-map-container');
   if (!document.getElementById('body-img')) return;
   parties.forEach(p => {
     const pt = document.createElement('div');
-    pt.className = 'point';
-    pt.dataset.id = p.id;
-    pt.style.left = p.x + '%';
-    pt.style.top = p.y + '%';
+    pt.className = 'point'; pt.dataset.id = p.id;
+    pt.style.left = p.x + '%'; pt.style.top = p.y + '%';
     pt.innerHTML = `<div class="point-label">${p.mot}</div>`;
     pt.onclick = (e) => { e.stopPropagation(); selectPartie(p.id); };
-    container.appendChild(pt);
+    document.getElementById('body-map-container').appendChild(pt);
   });
 }
 
 function renderList() {
   const list = document.getElementById('parts-list');
-  if (parties.length === 0) {
-    list.innerHTML = '<div style="font-size:0.85rem;color:var(--gris);text-align:center;padding:1rem">Aucune partie enregistrée.</div>';
-    return;
-  }
+  if (parties.length === 0) { list.innerHTML = '<div style="font-size:0.82rem;color:var(--gris);text-align:center;padding:1rem">Aucune partie.</div>'; return; }
   list.innerHTML = parties.map(p => `
     <div class="part-row" id="row-${p.id}" onclick="selectPartie('${p.id}')">
       <div class="part-dot"></div>
       <span class="part-name">${p.mot}</span>
       <button class="part-del" onclick="event.stopPropagation();supprimerPartie('${p.id}')">🗑</button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 function selectPartie(id) {
   document.querySelectorAll('.point').forEach(p => p.classList.remove('selected'));
   document.querySelectorAll('.part-row').forEach(p => p.classList.remove('selected'));
-  const pt = document.querySelector(`.point[data-id="${id}"]`);
-  const row = document.getElementById('row-' + id);
-  if (pt) pt.classList.add('selected');
-  if (row) row.classList.add('selected');
+  document.querySelector(`.point[data-id="${id}"]`)?.classList.add('selected');
+  document.getElementById('row-' + id)?.classList.add('selected');
 }
 
-window.handleMapClick = function(e) {
-  if (!document.getElementById('body-img')) return;
+window.changerVue = function(btn) {
+  document.querySelectorAll('.vue-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  colActuelle = btn.dataset.col;
+  document.getElementById('vue-label').textContent = btn.textContent;
+  annuler();
   const img = document.getElementById('body-img');
+  if (img) img.remove();
+  document.getElementById('body-placeholder').style.display = 'flex';
+  document.getElementById('img-hint').style.display = 'none';
+  load();
+};
+
+window.handleMapClick = function(e) {
+  const img = document.getElementById('body-img');
+  if (!img) return;
   const rect = img.getBoundingClientRect();
   if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
   pendingX = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
   pendingY = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
   document.getElementById('click-hint').style.display = 'none';
   document.getElementById('form-fields').style.display = 'block';
-  document.getElementById('pos-display').textContent = `Position : x=${pendingX}%, y=${pendingY}%`;
   document.getElementById('mot-input').focus();
-
-  // Point temporaire
   document.querySelectorAll('.point-pending').forEach(p => p.remove());
-  const container = document.getElementById('body-map-container');
   const pt = document.createElement('div');
   pt.className = 'point selected point-pending';
-  pt.style.left = pendingX + '%';
-  pt.style.top = pendingY + '%';
-  container.appendChild(pt);
+  pt.style.left = pendingX + '%'; pt.style.top = pendingY + '%';
+  document.getElementById('body-map-container').appendChild(pt);
 };
 
 window.annuler = function() {
@@ -266,43 +233,30 @@ window.annuler = function() {
   document.getElementById('click-hint').style.display = 'block';
   document.getElementById('mot-input').value = '';
   recordedBlob = null; audioFileBlob = null;
-  document.getElementById('audio-status').textContent = 'Aucun audio enregistré';
-  document.getElementById('play-recorded').disabled = true;
+  document.getElementById('audio-status').textContent = 'Aucun audio';
+  document.getElementById('play-btn').disabled = true;
 };
 
 window.sauvegarder = async function() {
   const mot = document.getElementById('mot-input').value.trim();
-  if (!mot) { showMsg('form-msg', 'Entrez le nom de la partie.', 'error'); return; }
-  if (pendingX === null) { showMsg('form-msg', 'Cliquez sur l\'image pour placer le point.', 'error'); return; }
-
-  showMsg('form-msg', 'Sauvegarde...', 'success');
-
+  if (!mot) { showMsg('Entrez le nom.', 'error'); return; }
+  if (pendingX === null) { showMsg('Cliquez sur l\'image.', 'error'); return; }
+  showMsg('Sauvegarde...', 'success');
   try {
     let audioUrl = null;
     const blob = recordedBlob || audioFileBlob;
     if (blob) {
-      audioUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.readAsDataURL(blob);
-      });
+      audioUrl = await new Promise(r => { const reader = new FileReader(); reader.onload = e => r(e.target.result); reader.readAsDataURL(blob); });
     }
-
-    await addDoc(collection(db, 'corps-humain'), {
-      mot, x: parseFloat(pendingX), y: parseFloat(pendingY),
-      audio: audioUrl, type: 'partie'
-    });
-
-    showMsg('form-msg', '✓ Sauvegardé !', 'success');
-    setTimeout(() => { annuler(); load(); }, 800);
-  } catch(e) {
-    showMsg('form-msg', 'Erreur : ' + e.message, 'error');
-  }
+    await addDoc(collection(db, colActuelle), { mot, x: parseFloat(pendingX), y: parseFloat(pendingY), audio: audioUrl, type: 'partie' });
+    showMsg('✓ Sauvegardé !', 'success');
+    setTimeout(() => { annuler(); load(); }, 700);
+  } catch(e) { showMsg('Erreur : ' + e.message, 'error'); }
 };
 
 window.supprimerPartie = async function(id) {
-  if (!confirm('Supprimer cette partie ?')) return;
-  await deleteDoc(doc(db, 'corps-humain', id));
+  if (!confirm('Supprimer ?')) return;
+  await deleteDoc(doc(db, colActuelle, id));
   load();
 };
 
@@ -314,19 +268,14 @@ window.uploadCorpsImg = async function(e) {
     const img = new Image();
     img.onload = async () => {
       const canvas = document.createElement('canvas');
-      const MAX = 800;
-      let w = img.width, h = img.height;
-      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
-      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      const MAX = 900; let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } } else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const url = canvas.toDataURL('image/jpeg', 0.80);
+      const url = canvas.toDataURL('image/jpeg', 0.82);
       try {
-        if (corpsImgDoc) {
-          await updateDoc(doc(db, 'corps-humain', corpsImgDoc.id), { image: url });
-        } else {
-          await addDoc(collection(db, 'corps-humain'), { type: 'image-corps', image: url });
-        }
+        if (corpsImgDoc) { await updateDoc(doc(db, colActuelle, corpsImgDoc.id), { image: url }); }
+        else { await addDoc(collection(db, colActuelle), { type: 'image-corps', image: url }); }
         load();
       } catch(err) { alert('Erreur : ' + err.message); }
     };
@@ -335,11 +284,9 @@ window.uploadCorpsImg = async function(e) {
   reader.readAsDataURL(file);
 };
 
-// Enregistrement audio
 window.toggleRecord = async function() {
   if (isRecording) {
-    mediaRecorder.stop();
-    isRecording = false;
+    mediaRecorder.stop(); isRecording = false;
     document.getElementById('record-btn').classList.remove('recording');
     document.getElementById('record-btn').innerHTML = '🎙 Enregistrer';
   } else {
@@ -350,11 +297,10 @@ window.toggleRecord = async function() {
     mediaRecorder.onstop = () => {
       recordedBlob = new Blob(audioChunks, { type: 'audio/webm' });
       document.getElementById('audio-status').textContent = '✓ Audio enregistré';
-      document.getElementById('play-recorded').disabled = false;
+      document.getElementById('play-btn').disabled = false;
       stream.getTracks().forEach(t => t.stop());
     };
-    mediaRecorder.start();
-    isRecording = true;
+    mediaRecorder.start(); isRecording = true;
     document.getElementById('record-btn').classList.add('recording');
     document.getElementById('record-btn').innerHTML = '⏹ Arrêter';
   }
@@ -362,26 +308,21 @@ window.toggleRecord = async function() {
 
 window.playRecorded = function() {
   const blob = recordedBlob || audioFileBlob;
-  if (!blob) return;
-  const url = URL.createObjectURL(blob);
-  new Audio(url).play();
+  if (blob) new Audio(URL.createObjectURL(blob)).play();
 };
 
 window.handleAudioFile = function(e) {
   const file = e.target.files[0];
   if (!file) return;
-  audioFileBlob = file;
-  recordedBlob = null;
-  document.getElementById('audio-status').textContent = '✓ Fichier audio sélectionné : ' + file.name;
-  document.getElementById('play-recorded').disabled = false;
+  audioFileBlob = file; recordedBlob = null;
+  document.getElementById('audio-status').textContent = '✓ ' + file.name;
+  document.getElementById('play-btn').disabled = false;
 };
 
-function showMsg(id, msg, type) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.className = 'msg ' + type;
-  el.style.display = 'block';
-  if (type === 'success') setTimeout(() => el.style.display = 'none', 3000);
+function showMsg(msg, type) {
+  const el = document.getElementById('form-msg');
+  el.textContent = msg; el.className = 'msg ' + type; el.style.display = 'block';
+  if (type === 'success') setTimeout(() => el.style.display = 'none', 2500);
 }
 
 load();

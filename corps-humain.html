@@ -14,7 +14,7 @@ body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(
 nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
 .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
 .nav-logo span { color: var(--rouge); }
-.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; }
 .nav-back:hover { color: var(--bleu); }
 .nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .page-header { background: var(--bleu); padding: 100px 5vw 50px; position: relative; overflow: hidden; }
@@ -23,49 +23,36 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
 .page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
 .page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.6); font-weight: 300; }
-
-.main { max-width: 900px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
-
-/* Conteneur image + points */
-.body-map-wrap { position: relative; display: inline-block; width: 100%; max-width: 500px; margin: 0 auto; display: flex; justify-content: center; }
-.body-map-container { position: relative; display: inline-block; }
-.body-img { max-width: 100%; max-height: 70vh; display: block; border-radius: 16px; }
-.body-img-placeholder { width: 320px; height: 500px; background: rgba(26,58,92,0.08); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; color: var(--gris); font-size: 0.9rem; border: 2px dashed rgba(26,58,92,0.2); }
-
-/* Points cliquables */
-.body-point { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--rouge); border: 3px solid var(--blanc); cursor: pointer; transform: translate(-50%, -50%); transition: all 0.2s; box-shadow: 0 2px 8px rgba(192,57,43,0.4); z-index: 10; }
-.body-point:hover, .body-point.active { background: var(--bleu); transform: translate(-50%, -50%) scale(1.3); box-shadow: 0 4px 16px rgba(26,58,92,0.4); }
-.body-point::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid currentColor; opacity: 0; animation: ping 1.5s ease-out infinite; }
-.body-point:hover::after { opacity: 0.3; color: var(--bleu); }
-@keyframes ping { 0%{transform:scale(1);opacity:0.4} 100%{transform:scale(1.8);opacity:0} }
-
-/* Bulle info */
-.body-tooltip { position: absolute; background: var(--blanc); border-radius: 10px; padding: 0.6rem 1rem; box-shadow: 0 4px 20px rgba(26,58,92,0.2); z-index: 20; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.2s; border: 1px solid rgba(26,58,92,0.08); }
+.main { max-width: 960px; margin: 0 auto; padding: 2rem 5vw 5rem; }
+.tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { padding: 8px 20px; border-radius: 25px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--blanc); color: var(--gris); font-size: 0.88rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.tab:hover { border-color: var(--bleu); color: var(--bleu); }
+.tab.active { background: var(--bleu); color: var(--blanc); border-color: var(--bleu); font-weight: 500; }
+.body-layout { display: grid; grid-template-columns: 1fr 260px; gap: 2rem; align-items: start; }
+@media(max-width:700px) { .body-layout { grid-template-columns: 1fr; } }
+.body-map-container { position: relative; display: inline-block; width: 100%; }
+.body-img { width: 100%; max-height: 65vh; object-fit: contain; display: block; border-radius: 14px; }
+.body-placeholder { width: 100%; height: 400px; background: rgba(26,58,92,0.05); border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; color: var(--gris); border: 2px dashed rgba(26,58,92,0.15); }
+.body-point { position: absolute; width: 20px; height: 20px; border-radius: 50%; background: var(--rouge); border: 3px solid var(--blanc); cursor: pointer; transform: translate(-50%, -50%); transition: all 0.2s; box-shadow: 0 2px 8px rgba(192,57,43,0.35); z-index: 10; }
+.body-point:hover, .body-point.active { background: var(--bleu); transform: translate(-50%, -50%) scale(1.3); }
+.body-tooltip { position: fixed; background: var(--blanc); border-radius: 10px; padding: 0.6rem 1rem; box-shadow: 0 4px 20px rgba(26,58,92,0.2); z-index: 999; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; border: 1px solid rgba(26,58,92,0.08); }
 .body-tooltip.visible { opacity: 1; pointer-events: auto; }
-.body-tooltip .tooltip-mot { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--bleu); font-weight: 700; }
-.body-tooltip .tooltip-audio { display: flex; align-items: center; gap: 6px; margin-top: 4px; background: none; border: none; cursor: pointer; color: var(--gris); font-size: 0.8rem; font-family: 'DM Sans', sans-serif; padding: 0; }
-.body-tooltip .tooltip-audio:hover { color: var(--bleu); }
-.body-tooltip .tooltip-audio svg { width: 14px; height: 14px; fill: currentColor; }
-
-/* Message vide */
-.empty-msg { text-align: center; padding: 3rem; color: var(--gris); }
-.empty-msg p { margin-bottom: 0.5rem; }
-
-/* Layout */
-.body-layout { display: grid; grid-template-columns: 1fr 280px; gap: 2rem; align-items: start; }
-@media (max-width: 700px) { .body-layout { grid-template-columns: 1fr; } }
-
-/* Liste des parties */
+.tooltip-mot { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--bleu); font-weight: 700; }
+.tooltip-audio { display: flex; align-items: center; gap: 6px; margin-top: 4px; background: none; border: none; cursor: pointer; color: var(--gris); font-size: 0.8rem; font-family: 'DM Sans', sans-serif; padding: 0; }
+.tooltip-audio:hover { color: var(--bleu); }
+.tooltip-audio svg { width: 14px; height: 14px; fill: currentColor; }
 .parts-list { background: var(--blanc); border-radius: 14px; border: 1px solid rgba(26,58,92,0.08); padding: 1.25rem; }
 .parts-list h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--bleu); margin-bottom: 1rem; }
-.part-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: background 0.15s; font-size: 0.88rem; }
+.parts-scroll { max-height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.part-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; cursor: pointer; transition: background 0.15s; font-size: 0.85rem; }
 .part-item:hover { background: var(--creme); }
 .part-item.active { background: rgba(26,58,92,0.08); font-weight: 500; color: var(--bleu); }
-.part-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; }
-.part-audio-btn { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--gris); padding: 2px; }
-.part-audio-btn:hover { color: var(--bleu); }
-.part-audio-btn svg { width: 14px; height: 14px; fill: currentColor; }
-.parts-empty { font-size: 0.85rem; color: var(--gris); text-align: center; padding: 1rem 0; }
+.part-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; }
+.part-item.active .part-dot { background: var(--bleu); }
+.part-audio { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--gris); padding: 2px; }
+.part-audio:hover { color: var(--bleu); }
+.part-audio svg { width: 13px; height: 13px; fill: currentColor; display: block; }
+.parts-empty { font-size: 0.85rem; color: var(--gris); text-align: center; padding: 1.5rem 0; }
 </style>
 </head>
 <body>
@@ -76,185 +63,134 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
     Accueil
   </a>
 </nav>
-
 <div class="page-header">
   <div class="page-header-inner">
     <p class="page-eyebrow">Vocabulaire · Le corps humain</p>
     <h1>Les parties du corps</h1>
-    <p>Cliquez sur les points pour découvrir chaque partie du corps</p>
+    <p>Choisissez une vue et cliquez sur les points pour découvrir chaque partie</p>
   </div>
 </div>
-
 <div class="main">
   <div id="loading" style="text-align:center;padding:3rem;color:var(--gris)">Chargement...</div>
-
   <div id="content" style="display:none">
+    <div class="tabs" id="tabs"></div>
     <div class="body-layout">
-      <!-- Image + points -->
-      <div class="body-map-wrap">
-        <div class="body-map-container" id="body-map-container">
-          <!-- Image chargée dynamiquement -->
-        </div>
-      </div>
-
-      <!-- Liste des parties -->
+      <div class="body-map-container" id="body-map-container"></div>
       <div class="parts-list">
-        <h3>Les parties du corps</h3>
-        <div id="parts-list-content"><div class="parts-empty">Aucune partie enregistrée.</div></div>
+        <h3 id="list-title">Les parties</h3>
+        <div class="parts-scroll" id="parts-list-content"></div>
       </div>
     </div>
   </div>
 </div>
-
-<!-- Tooltip -->
 <div class="body-tooltip" id="body-tooltip">
   <div class="tooltip-mot" id="tooltip-mot"></div>
-  <button class="tooltip-audio" id="tooltip-audio" onclick="jouerAudioTooltip()">
+  <button class="tooltip-audio" id="tooltip-audio-btn" onclick="jouerAudioTooltip()">
     <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
     Écouter
   </button>
 </div>
-
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-const firebaseConfig = {
-  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
-  authDomain: "audio-francisation.firebaseapp.com",
-  projectId: "audio-francisation",
-  storageBucket: "audio-francisation.firebasestorage.app",
-  messagingSenderId: "840403407027",
-  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
-};
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let parties = [], currentAudio = null, activePoint = null;
+const VUES = [
+  { id: 'face',    label: '🧍 Vue de face',  col: 'corps-face' },
+  { id: 'dos',     label: '🚶 Vue de dos',   col: 'corps-dos' },
+  { id: 'visage',  label: '😊 Le visage',    col: 'corps-visage' },
+  { id: 'organes', label: '🫀 Les organes',  col: 'corps-organes' },
+];
 
-async function load() {
-  try {
-    const snap = await getDocs(collection(db, 'corps-humain'));
-    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    
-    // Séparer l'image du corps et les parties
-    const imgDoc = data.find(d => d.type === 'image-corps');
-    parties = data.filter(d => d.type !== 'image-corps' && d.mot && d.x !== undefined && d.y !== undefined);
+let cache = {}, vueActive = VUES[0], currentAudio = null, activePoint = null, tooltipAudioUrl = null;
 
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('content').style.display = 'block';
-
-    const container = document.getElementById('body-map-container');
-
-    if (imgDoc && imgDoc.image) {
-      container.innerHTML = `<img class="body-img" id="body-img" src="${imgDoc.image}" alt="Corps humain"/>`;
-    } else {
-      container.innerHTML = `<div class="body-img-placeholder"><span style="font-size:4rem">🧍</span><p>Image du corps à ajouter dans l'admin</p></div>`;
-    }
-
-    renderPoints();
-    renderList();
-  } catch(e) {
-    document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.';
+async function loadVue(vue) {
+  if (!cache[vue.id]) {
+    const snap = await getDocs(collection(db, vue.col));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    cache[vue.id] = { img: docs.find(d => d.type === 'image-corps') || null, parties: docs.filter(d => d.type !== 'image-corps' && d.mot && d.x !== undefined) };
   }
+  return cache[vue.id];
 }
 
-function renderPoints() {
+async function afficherVue(vue) {
+  vueActive = vue;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.id === vue.id));
+  const vd = await loadVue(vue);
   const container = document.getElementById('body-map-container');
-  // Retirer les anciens points
-  container.querySelectorAll('.body-point').forEach(p => p.remove());
-  container.querySelectorAll('.body-tooltip-inline').forEach(p => p.remove());
-
-  parties.forEach(p => {
+  container.innerHTML = '';
+  if (vd.img && vd.img.image) {
+    const img = document.createElement('img');
+    img.className = 'body-img'; img.id = 'body-img'; img.src = vd.img.image;
+    container.appendChild(img);
+  } else {
+    container.innerHTML = '<div class="body-placeholder"><span style="font-size:4rem">🧍</span><p style="font-size:0.9rem">Image à ajouter dans l\'admin</p></div>';
+  }
+  vd.parties.forEach(p => {
     const pt = document.createElement('div');
-    pt.className = 'body-point';
-    pt.style.left = p.x + '%';
-    pt.style.top = p.y + '%';
-    pt.dataset.id = p.id;
+    pt.className = 'body-point'; pt.dataset.id = p.id;
+    pt.style.left = p.x + '%'; pt.style.top = p.y + '%';
     pt.onclick = (e) => { e.stopPropagation(); showTooltip(p, pt); };
     container.appendChild(pt);
   });
-}
-
-function renderList() {
   const list = document.getElementById('parts-list-content');
-  if (parties.length === 0) {
-    list.innerHTML = '<div class="parts-empty">Aucune partie enregistrée.</div>';
-    return;
-  }
-  list.innerHTML = parties.map(p => `
-    <div class="part-item" id="list-${p.id}" onclick="highlightPoint('${p.id}')">
-      <div class="part-dot"></div>
-      <span>${p.mot}</span>
-      ${p.audio ? `<button class="part-audio-btn" onclick="event.stopPropagation();jouerAudio('${p.audio}')">
-        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      </button>` : ''}
-    </div>
-  `).join('');
+  list.innerHTML = vd.parties.length === 0
+    ? '<div class="parts-empty">Aucune partie enregistrée.</div>'
+    : vd.parties.map(p => `<div class="part-item" id="item-${p.id}" onclick="highlightPoint('${p.id}')"><div class="part-dot"></div><span>${p.mot}</span>${p.audio ? `<button class="part-audio" onclick="event.stopPropagation();jouerAudio('${p.audio}')"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>` : ''}</div>`).join('');
+  closeTooltip();
 }
 
 window.highlightPoint = function(id) {
-  document.querySelectorAll('.body-point').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.part-item').forEach(p => p.classList.remove('active'));
+  const p = cache[vueActive.id].parties.find(p => p.id === id);
   const pt = document.querySelector(`.body-point[data-id="${id}"]`);
-  const li = document.getElementById('list-' + id);
-  if (pt) { pt.classList.add('active'); showTooltip(parties.find(p => p.id === id), pt); }
-  if (li) li.classList.add('active');
+  if (p && pt) showTooltip(p, pt);
 };
-
-let tooltipAudioUrl = null;
 
 function showTooltip(partie, pointEl) {
   if (activePoint) activePoint.classList.remove('active');
-  activePoint = pointEl;
-  pointEl.classList.add('active');
-
-  // Mettre à jour la liste
-  document.querySelectorAll('.part-item').forEach(p => p.classList.remove('active'));
-  const li = document.getElementById('list-' + partie.id);
-  if (li) li.classList.add('active');
-
-  const tooltip = document.getElementById('body-tooltip');
-  document.getElementById('tooltip-mot').textContent = partie.mot;
+  activePoint = pointEl; pointEl.classList.add('active');
+  document.querySelectorAll('.part-item').forEach(i => i.classList.remove('active'));
+  const item = document.getElementById('item-' + partie.id);
+  if (item) { item.classList.add('active'); item.scrollIntoView({ block: 'nearest' }); }
   tooltipAudioUrl = partie.audio || null;
-  document.getElementById('tooltip-audio').style.display = partie.audio ? 'flex' : 'none';
-
-  // Positionner le tooltip
-  const rect = pointEl.getBoundingClientRect();
+  document.getElementById('tooltip-mot').textContent = partie.mot;
+  document.getElementById('tooltip-audio-btn').style.display = partie.audio ? 'flex' : 'none';
+  const tooltip = document.getElementById('body-tooltip');
   tooltip.classList.add('visible');
-  const ttW = 160, ttH = 70;
-  let left = rect.left + window.scrollX + 16;
-  let top = rect.top + window.scrollY - ttH - 8;
-  if (left + ttW > window.innerWidth - 16) left = rect.left + window.scrollX - ttW - 8;
-  if (top < 70) top = rect.bottom + window.scrollY + 8;
-  tooltip.style.left = left + 'px';
-  tooltip.style.top = top + 'px';
-
-  // Jouer l'audio automatiquement
+  const rect = pointEl.getBoundingClientRect();
+  let left = rect.right + 10, top = rect.top - 10;
+  if (left + 180 > window.innerWidth - 16) left = rect.left - 190;
+  if (top < 70) top = rect.bottom + 8;
+  tooltip.style.left = left + 'px'; tooltip.style.top = top + 'px';
   if (partie.audio) jouerAudio(partie.audio);
 }
 
-window.jouerAudioTooltip = function() {
-  if (tooltipAudioUrl) jouerAudio(tooltipAudioUrl);
-};
+function closeTooltip() {
+  document.getElementById('body-tooltip').classList.remove('visible');
+  if (activePoint) { activePoint.classList.remove('active'); activePoint = null; }
+  document.querySelectorAll('.part-item').forEach(i => i.classList.remove('active'));
+}
 
+window.jouerAudioTooltip = function() { if (tooltipAudioUrl) jouerAudio(tooltipAudioUrl); };
 window.jouerAudio = function(url) {
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  const audio = new Audio(url);
-  currentAudio = audio;
-  audio.play();
-  audio.onended = () => { currentAudio = null; };
+  const a = new Audio(url); currentAudio = a; a.play();
+  a.onended = () => { currentAudio = null; };
 };
+document.addEventListener('click', e => { if (!e.target.closest('.body-point') && !e.target.closest('#body-tooltip')) closeTooltip(); });
 
-// Fermer tooltip au clic ailleurs
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.body-point') && !e.target.closest('#body-tooltip')) {
-    document.getElementById('body-tooltip').classList.remove('visible');
-    if (activePoint) { activePoint.classList.remove('active'); activePoint = null; }
-    document.querySelectorAll('.part-item').forEach(p => p.classList.remove('active'));
-  }
+const tabsEl = document.getElementById('tabs');
+VUES.forEach(vue => {
+  const btn = document.createElement('button');
+  btn.className = 'tab'; btn.dataset.id = vue.id; btn.textContent = vue.label;
+  btn.onclick = () => afficherVue(vue);
+  tabsEl.appendChild(btn);
 });
-
-load();
+document.getElementById('loading').style.display = 'none';
+document.getElementById('content').style.display = 'block';
+afficherVue(VUES[0]);
 </script>
 </body>
 </html>
