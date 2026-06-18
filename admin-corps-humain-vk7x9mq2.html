@@ -25,10 +25,9 @@ nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center
 .body-map-container { position: relative; cursor: crosshair; min-height: 200px; }
 .body-img { width: 100%; display: block; }
 .body-placeholder { width: 100%; height: 350px; background: var(--creme); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; color: var(--gris); border: 2px dashed rgba(26,58,92,0.15); cursor: default; }
-.point { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: transparent; border: 2px solid var(--rouge); transform: translate(-50%, -50%); cursor: pointer; z-index: 10; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
-.point::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; }
-.point:hover { border-color: var(--bleu); transform: translate(-50%, -50%) scale(1.2); }
-.point:hover::after { background: var(--bleu); }
+.point { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: transparent; border: 2px solid rgba(255,255,255,0.8); transform: translate(-50%, -50%); cursor: pointer; z-index: 10; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.point::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; flex-shrink: 0; }
+.point:hover { border-color: white; transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 8px rgba(255,255,255,0.6); }
 .point.selected { border-color: var(--vert); transform: translate(-50%, -50%) scale(1.2); }
 .point.selected::after { background: var(--vert); }
 .point-label { position: absolute; background: rgba(26,58,92,0.9); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.68rem; white-space: nowrap; pointer-events: none; top: -26px; left: 50%; transform: translateX(-50%); }
