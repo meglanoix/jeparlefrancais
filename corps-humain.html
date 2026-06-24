@@ -75,6 +75,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
       <a href="jeu-corps-humain.html?vue=dos" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:var(--blanc);text-decoration:none;padding:8px 16px;border-radius:20px;font-size:0.82rem;border:1px solid rgba(255,255,255,0.3);transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">🎯 Vue de dos</a>
       <a href="jeu-corps-humain.html?vue=visage" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:var(--blanc);text-decoration:none;padding:8px 16px;border-radius:20px;font-size:0.82rem;border:1px solid rgba(255,255,255,0.3);transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">🎯 Le visage</a>
       <a href="jeu-corps-humain.html?vue=organes" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:var(--blanc);text-decoration:none;padding:8px 16px;border-radius:20px;font-size:0.82rem;border:1px solid rgba(255,255,255,0.3);transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">🎯 Les organes</a>
+      <a href="jeu-corps-humain.html?vue=reproducteurs" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:var(--blanc);text-decoration:none;padding:8px 16px;border-radius:20px;font-size:0.82rem;border:1px solid rgba(255,255,255,0.3);transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">🎯 Les organes reproducteurs</a>
     </div>
   </div>
 </div>
@@ -110,6 +111,7 @@ const VUES = [
   { id: 'dos',     label: '🚶 Vue de dos',   col: 'corps-dos' },
   { id: 'visage',  label: '😊 Le visage',    col: 'corps-visage' },
   { id: 'organes', label: '🫀 Les organes',  col: 'corps-organes' },
+  { id: 'reproducteurs', label: '🧬 Les organes reproducteurs', col: 'corps-reproducteurs' },
 ];
 
 let cache = {}, vueActive = VUES[0], currentAudio = null, activePoint = null, tooltipAudioUrl = null;
