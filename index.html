@@ -326,6 +326,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
         <div class="dropdown-category">🩺 Chez le docteur</div>
         <a href="questions-docteur.html">Les questions du docteur</a>
         <a href="consignes-docteur.html">Les consignes du docteur</a>
+        <a href="actes-medicaux.html">Les actes médicaux</a>
       </div>
     </li>
     <li class="nav-dropdown">
@@ -432,6 +433,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
   <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🩺 Chez le docteur</div>
   <a href="questions-docteur.html" onclick="closeMenu()" style="padding-left:1rem">Les questions du docteur</a>
   <a href="consignes-docteur.html" onclick="closeMenu()" style="padding-left:1rem">Les consignes du docteur</a>
+  <a href="actes-medicaux.html" onclick="closeMenu()" style="padding-left:1rem">Les actes médicaux</a>
 
   <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
   <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">Activités</div>
@@ -569,7 +571,7 @@ const heroContents = {
   logement: `<div class="hcd-cat">🏠 Le logement</div><a href="les-meubles.html">Les meubles et objets de la maison</a><a href="les-pieces.html">Les pièces de la maison</a><div class="hcd-divider"></div><div class="hcd-cat">🛒 Acheter un bien de consommation durable</div><a href="departements-magasin.html">Les départements d'un magasin grande surface</a><a href="acheter-objet-maison.html">Acheter un objet pour la maison</a><div class="hcd-divider"></div><div class="hcd-cat">🔧 Les problèmes domestiques</div><a href="problemes-domestiques.html">Les problèmes domestiques</a><a href="solutions-rapides.html">Les solutions rapides</a><a href="les-professionnels.html">Les professionnels</a><div class="hcd-divider"></div><div class="hcd-cat">🏗 Les réparations et les rénovations</div><a href="renovations-reparations.html">Les rénovations et les réparations</a><a href="professionnels-renovation.html">Les professionnels</a><a href="outils.html">Les outils</a>`,
   emploi: `<div class="hcd-cat">💼 Les professions</div><a href="les-professions.html">Les professions</a><a href="les-qualites-professionnelles.html">Les qualités professionnelles</a><a href="les-taches-directives.html">Les tâches et les directives au travail</a>`,
   passe: `<div class="hcd-cat">⏪ Raconter au passé</div><a href="participes-passes-3e-groupe.html">Les participes passés des verbes du 3e groupe</a><a href="verbes-etre-passe.html">Les verbes avec l'auxiliaire être</a><a href="raconter-fin-semaine.html">Raconter sa fin de semaine</a><a href="moments-importants.html">Les moments importants de sa vie</a>`,
-  sante: `<div class="hcd-cat">🏥 La santé</div><a href="corps-humain.html">Les parties du corps</a><div class="hcd-divider"></div><div class="hcd-cat">🤒 Les symptômes et les maladies</div><a href="les-symptomes.html">Les symptômes</a><a href="maladies-courantes.html">Les maladies courantes</a><a href="symptomes-maladies-graves.html">Les symptômes et maladies graves</a><div class="hcd-divider"></div><div class="hcd-cat">💊 La pharmacie</div><a href="types-medicaments.html">Les types de médicaments</a><div class="hcd-divider"></div><div class="hcd-cat">🩺 Chez le docteur</div><a href="questions-docteur.html">Les questions du docteur</a><a href="consignes-docteur.html">Les consignes du docteur</a>`
+  sante: `<div class="hcd-cat">🏥 La santé</div><a href="corps-humain.html">Les parties du corps</a><div class="hcd-divider"></div><div class="hcd-cat">🤒 Les symptômes et les maladies</div><a href="les-symptomes.html">Les symptômes</a><a href="maladies-courantes.html">Les maladies courantes</a><a href="symptomes-maladies-graves.html">Les symptômes et maladies graves</a><div class="hcd-divider"></div><div class="hcd-cat">💊 La pharmacie</div><a href="types-medicaments.html">Les types de médicaments</a><div class="hcd-divider"></div><div class="hcd-cat">🩺 Chez le docteur</div><a href="questions-docteur.html">Les questions du docteur</a><a href="consignes-docteur.html">Les consignes du docteur</a><a href="actes-medicaux.html">Les actes médicaux</a>`
 };
 let activeCard = null;
 window.toggleHeroCard = function(card, key) {
