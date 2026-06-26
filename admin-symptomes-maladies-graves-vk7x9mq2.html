@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Les symptômes et maladies graves | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b;
+  --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b;
+  --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5vw; height: 64px;
+  background: rgba(26,58,92,0.97); backdrop-filter: blur(8px);
+  border-bottom: 2px solid var(--rouge);
+}
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--blanc); text-decoration: none; }
+.nav-logo span { color: #e88; }
+.nav-badge { background: var(--rouge); color: var(--blanc); font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; }
+.nav-right { display: flex; align-items: center; gap: 1rem; }
+.nav-view-link { color: rgba(255,255,255,0.6); font-size: 0.85rem; text-decoration: none; transition: color 0.2s; }
+.nav-view-link:hover { color: #fff; }
+
+.page-header {
+  background: var(--bleu); padding: 100px 5vw 50px;
+  position: relative; overflow: hidden;
+  border-bottom: 3px solid var(--rouge);
+}
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: #e88; margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 3rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
+.page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.55); font-weight: 300; }
+
+.main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
+
+/* PANNEAU ADMIN */
+.admin-panel { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--ombre); }
+.admin-title { font-size: 1rem; font-weight: 500; color: var(--bleu); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+.admin-title svg { width: 18px; height: 18px; fill: none; stroke: var(--rouge); stroke-width: 1.8; stroke-linecap: round; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 0.78rem; color: var(--gris); letter-spacing: 0.3px; }
+input[type=text] { padding: 10px 14px; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; color: var(--texte); outline: none; transition: border-color 0.2s; }
+input[type=text]:focus { border-color: var(--bleu); }
+.upload-zone { border: 2px dashed rgba(26,58,92,0.2); border-radius: 10px; padding: 1.25rem; text-align: center; cursor: pointer; color: var(--gris); font-size: 0.85rem; transition: background 0.15s; }
+.upload-zone:hover { background: var(--creme); }
+.upload-zone.has-file { border-color: var(--vert); background: #f0faf4; color: var(--vert); }
+.rec-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; }
+.app-btn { padding: 9px 20px; border-radius: 8px; border: 1.5px solid rgba(26,58,92,0.18); background: transparent; cursor: pointer; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; color: var(--texte); transition: all 0.2s; }
+.app-btn:hover { background: var(--creme); }
+.app-btn.primary { background: var(--bleu); color: var(--blanc); border-color: var(--bleu); }
+.app-btn.primary:hover { background: var(--bleu-clair); }
+.app-btn.rec-active { background: #fdf2f2; color: var(--rouge); border-color: rgba(192,57,43,0.2); }
+.rec-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--rouge); animation: pulse 1s infinite; display: inline-block; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+.timer { font-size: 0.82rem; color: var(--rouge); font-weight: 500; }
+.sep { border: none; border-top: 1px solid rgba(26,58,92,0.08); margin: 1rem 0; }
+.success-msg { color: #27ae60; font-size: 0.82rem; }
+.err-msg { color: var(--rouge); font-size: 0.82rem; }
+
+/* CARTES */
+.section-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--bleu); margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+.card-count { font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--gris); font-weight: 400; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+.card { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
+.card:hover { transform: translateY(-4px); box-shadow: var(--ombre); }
+.card.playing { border: 2px solid var(--vert); }
+.card-img { width: 100%; aspect-ratio: 1/1; background: var(--creme); position: relative; }
+.card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-img .emoji-placeholder { font-size: 5rem; width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; background: var(--creme); }
+.play-overlay { position: absolute; inset: 0; background: rgba(26,58,92,0.35); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+.card:hover .play-overlay { opacity: 1; }
+.card.playing .play-overlay { opacity: 1; background: rgba(26,122,74,0.35); }
+.play-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--blanc); display: flex; align-items: center; justify-content: center; }
+.play-btn svg { width: 22px; height: 22px; fill: var(--bleu); margin-left: 3px; }
+.card.playing .play-btn svg { fill: var(--vert); }
+.card-body { padding: 1rem; }
+.card-word { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--bleu); margin-bottom: 2px; }
+.card-sub { font-size: 0.8rem; color: var(--gris); }
+.card-meta { font-size: 0.72rem; color: rgba(107,107,107,0.6); margin-top: 4px; }
+.card-audio-wave { display: none; align-items: center; gap: 3px; margin-top: 6px; height: 16px; }
+.card.playing .card-audio-wave { display: flex; }
+.wave-bar { width: 3px; border-radius: 2px; background: var(--vert); animation: wave 0.8s ease-in-out infinite; }
+.wave-bar:nth-child(1){ height: 6px; animation-delay: 0s; }
+.wave-bar:nth-child(2){ height: 12px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3){ height: 8px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4){ height: 14px; animation-delay: 0.15s; }
+.wave-bar:nth-child(5){ height: 6px; animation-delay: 0.05s; }
+@keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.8)} }
+
+.card-overlay-btns {
+  position: absolute; inset: 0; background: rgba(26,58,92,0.55);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; opacity: 0; transition: opacity 0.2s; z-index: 5;
+}
+.card:hover .card-overlay-btns { opacity: 1; }
+.card.playing .card-overlay-btns { background: rgba(26,122,74,0.55); }
+.overlay-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500;
+  transition: transform 0.15s, background 0.15s; white-space: nowrap;
+}
+.overlay-btn:hover { transform: scale(1.05); }
+.overlay-btn.play  { background: var(--blanc); color: var(--bleu); }
+.overlay-btn.rec   { background: var(--rouge); color: var(--blanc); }
+.overlay-btn.del   { background: rgba(255,255,255,0.15); color: var(--blanc); border: 1px solid rgba(255,255,255,0.4); }
+.overlay-btn svg   { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+.overlay-btn.play svg { margin-left: 2px; }
+.overlay-btn.rec svg  { fill: none; stroke: currentColor; stroke-width: 2; }
+.qr-modal-overlay {
+  position: fixed; inset: 0; background: rgba(26,58,92,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300; backdrop-filter: blur(4px);
+}
+.qr-modal-box {
+  background: var(--blanc); border-radius: 16px; padding: 2rem;
+  width: 100%; max-width: 320px; box-shadow: 0 8px 40px rgba(26,58,92,0.25);
+  text-align: center;
+}
+.qr-modal-box h3 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.2rem; margin-bottom: 0.3rem; }
+.qr-modal-box .qr-mot { color: var(--gris); font-size: 0.85rem; margin-bottom: 1.25rem; }
+#qr-canvas { margin: 0 auto 1.25rem; display: block; }
+.qr-url { font-size: 0.7rem; color: var(--gris); word-break: break-all; margin-bottom: 1.25rem; background: var(--creme); padding: 8px 10px; border-radius: 8px; }
+.rec-modal-overlay {
+  position: fixed; inset: 0; background: rgba(26,58,92,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300; backdrop-filter: blur(4px);
+}
+.rec-modal-box {
+  background: var(--blanc); border-radius: 16px; padding: 2rem;
+  width: 100%; max-width: 400px; box-shadow: 0 8px 40px rgba(26,58,92,0.25);
+  text-align: center;
+}
+.rec-modal-box h3 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.3rem; margin-bottom: 0.4rem; }
+.rec-modal-box p  { color: var(--gris); font-size: 0.85rem; margin-bottom: 1.5rem; }
+.rec-modal-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.25rem; }
+
+.empty-grid { text-align: center; padding: 4rem 2rem; color: var(--gris); grid-column: 1/-1; }
+.empty-grid p { font-size: 1rem; margin-top: 0.5rem; }
+
+/* SÉLECTION ET IMPRESSION */
+.card.selected { border: 2px solid var(--bleu-clair); box-shadow: 0 0 0 3px rgba(42,82,152,0.2); }
+.card-checkbox {
+  position: absolute; top: 8px; left: 8px; z-index: 50;
+  width: 26px; height: 26px; border-radius: 6px;
+  background: var(--blanc); border: 2px solid rgba(26,58,92,0.4);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.card.selected .card-checkbox { background: var(--bleu); border-color: var(--bleu); }
+.card-checkbox::after { content: '✓'; color: var(--blanc); font-size: 13px; font-weight: 700; opacity: 0; }
+.card.selected .card-checkbox::after { opacity: 1; }
+.print-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+  background: var(--bleu); color: var(--blanc);
+  padding: 14px 5vw; display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 -4px 20px rgba(26,58,92,0.3);
+  transform: translateY(100%); transition: transform 0.3s;
+}
+.print-bar.visible { transform: translateY(0); }
+.print-bar-left { font-size: 0.9rem; }
+.print-bar-left strong { font-size: 1.1rem; }
+.print-bar-btns { display: flex; gap: 8px; }
+.print-bar-btn { padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; }
+.print-bar-btn.primary { background: var(--blanc); color: var(--bleu); }
+.print-bar-btn.primary:hover { background: var(--creme); }
+.print-bar-btn.secondary { background: rgba(255,255,255,0.15); color: var(--blanc); }
+.print-bar-btn.secondary:hover { background: rgba(255,255,255,0.25); }
+
+.order-saving { font-size: 0.78rem; color: var(--vert); margin-left: 8px; }
+.move-btns { display: flex; gap: 4px; justify-content: center; margin-top: 6px; }
+.move-btn { width: 28px; height: 28px; border-radius: 6px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--creme); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.move-btn:hover { background: var(--bleu); color: white; }
+.move-btn:disabled { opacity: 0.25; cursor: default; }
+
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+</style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ELGPLZQGVN"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-ELGPLZQGVN");
+</script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <div class="nav-right">
+    <a class="nav-view-link" href="symptomes-maladies-graves.html" target="_blank">Voir la page publique ↗</a>
+    <span class="nav-badge">⚙ Admin</span>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">⚙ Panneau d'administration</p>
+    <h1>Les symptômes et maladies graves</h1>
+    <p>Ajoutez, écoutez et supprimez les cartes. Les modifications sont visibles immédiatement sur le site.</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- FORMULAIRE AJOUT -->
+  <div class="admin-panel">
+    <div class="admin-title">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ajouter une nouvelle carte
+    </div>
+    <div class="form-group" style="margin-bottom:1rem">
+      <label>Mot en français</label>
+      <input type="text" id="mot" placeholder="Ex : le soccer"/>
+    </div>
+    <div class="form-group" style="margin-bottom:1rem">
+      <label>Catégorie <span style="color:var(--gris);font-weight:300">(pour le jeu d'association)</span></label>
+      <input type="text" id="categorie" placeholder="Ex : soccer, natation, hockey..."/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Image</label>
+        <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-input').click()">
+          Cliquer pour choisir une image
+          <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Audio (prononciation)</label>
+        <div class="rec-row">
+          <button class="app-btn" id="rec-btn" onclick="toggleRecord()">▶ Enregistrer</button>
+          <span id="rec-status" style="display:none" class="rec-row">
+            <span class="rec-dot"></span>
+            <span class="timer" id="rec-timer">0:00</span>
+          </span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--gris);margin-top:6px" id="audio-status"></div>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="app-btn primary" onclick="saveCard()">Ajouter la carte</button>
+      <span id="save-msg" class="success-msg" style="display:none"></span>
+      <span id="save-err" class="err-msg" style="display:none"></span>
+    </div>
+  </div>
+
+  <!-- GRILLE -->
+  <div class="section-title">
+    Cartes actuelles
+    <span class="card-count" id="card-count"></span>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:8px">
+    <div style="font-size:0.78rem;color:var(--gris)">
+      Utilisez les flèches ← → pour réordonner les cartes
+      <span class="order-saving" id="order-saving" style="display:none">✓ Ordre sauvegardé</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="app-btn" onclick="selectAll()" id="select-all-btn">☐ Tout sélectionner</button>
+    </div>
+  </div>
+  <div class="grid" id="card-grid">
+    <div class="empty-grid"><p>Chargement des cartes...</p></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let cartes = [];
+let mediaRecorder = null, chunks = [], recording = false;
+let timerInterval = null, seconds = 0;
+let pendingAudio = null, pendingImage = null, currentAudio = null;
+
+window.handleImage = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const zone = document.getElementById('img-zone');
+  zone.textContent = 'Compression en cours...';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 600;
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      pendingImage = canvas.toDataURL('image/jpeg', 0.75);
+      zone.textContent = '✓ ' + file.name;
+      zone.classList.add('has-file');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.toggleRecord = function() { recording ? stopRecord() : startRecord(); };
+
+function startRecord() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    mediaRecorder = new MediaRecorder(stream);
+    chunks = [];
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      pendingAudio = new Blob(chunks, { type: 'audio/webm' });
+      document.getElementById('audio-status').textContent = '✓ Audio enregistré';
+    };
+    mediaRecorder.start();
+    recording = true; seconds = 0;
+    document.getElementById('rec-btn').textContent = '■ Arrêter';
+    document.getElementById('rec-btn').classList.add('rec-active');
+    document.getElementById('rec-status').style.display = 'flex';
+    timerInterval = setInterval(() => {
+      seconds++;
+      document.getElementById('rec-timer').textContent = Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+    }, 1000);
+  }).catch(() => alert('Accès au microphone refusé.'));
+}
+
+function stopRecord() {
+  if (mediaRecorder) { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
+  recording = false; clearInterval(timerInterval);
+  document.getElementById('rec-btn').textContent = '▶ Enregistrer';
+  document.getElementById('rec-btn').classList.remove('rec-active');
+  document.getElementById('rec-status').style.display = 'none';
+}
+
+window.saveCard = async function() {
+  const mot = document.getElementById('mot').value.trim();
+  if (!mot) { alert('Veuillez entrer un mot.'); return; }
+  if (!pendingImage) { alert('Veuillez choisir une image.'); return; }
+  if (!pendingAudio) { alert('Veuillez enregistrer un audio.'); return; }
+  const saveMsg = document.getElementById('save-msg');
+  const saveErr = document.getElementById('save-err');
+  saveMsg.style.display = 'none'; saveErr.style.display = 'none';
+  saveMsg.textContent = 'Sauvegarde...'; saveMsg.style.display = 'inline';
+  try {
+    const audioUrl = await blobToDataUrl(pendingAudio);
+    await addDoc(collection(db, 'symptomes-maladies-graves'), {
+      mot,
+      categorie: document.getElementById('categorie').value.trim().toLowerCase(),
+      image: pendingImage,
+      audio: audioUrl,
+      date: new Date().toLocaleDateString('fr-CA')
+    });
+    await loadCards();
+    saveMsg.textContent = '✓ Carte ajoutée !';
+    document.getElementById('mot').value = '';
+    document.getElementById('categorie').value = '';
+    // Réinitialiser la zone image (recrée l'input pour permettre un 2e upload sans recharger)
+    const imgZone = document.getElementById('img-zone');
+    imgZone.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
+    imgZone.classList.remove('has-file');
+    document.getElementById('audio-status').textContent = '';
+    pendingAudio = null; pendingImage = null;
+    setTimeout(() => saveMsg.style.display = 'none', 3000);
+  } catch(e) {
+    saveMsg.style.display = 'none';
+    saveErr.textContent = 'Erreur : ' + e.message;
+    saveErr.style.display = 'inline';
+  }
+};
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = reject;
+    r.readAsDataURL(blob);
+  });
+}
+
+async function loadCards() {
+  try {
+    const snap = await getDocs(collection(db, 'symptomes-maladies-graves'));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Trier selon l'ordre sauvegardé si présent
+    const savedOrder = JSON.parse(localStorage.getItem('cartes-order') || '[]');
+    if (savedOrder.length) {
+      cartes = savedOrder.map(id => docs.find(d => d.id === id)).filter(Boolean);
+      // Ajouter les nouvelles cartes pas encore dans l'ordre
+      docs.forEach(d => { if (!cartes.find(c => c.id === d.id)) cartes.push(d); });
+    } else {
+      cartes = docs;
+    }
+    document.getElementById('card-count').textContent = cartes.length + ' carte' + (cartes.length !== 1 ? 's' : '');
+    renderCards();
+  } catch(e) {
+    document.getElementById('card-grid').innerHTML = '<div class="empty-grid"><p>Erreur de connexion Firebase.</p></div>';
+  }
+}
+
+function saveOrder() {
+  localStorage.setItem('cartes-order', JSON.stringify(cartes.map(c => c.id)));
+  const el = document.getElementById('order-saving');
+  el.style.display = 'inline';
+  setTimeout(() => el.style.display = 'none', 2000);
+}
+
+function renderCards() {
+  const grid = document.getElementById('card-grid');
+  if (!cartes.length) {
+    grid.innerHTML = '<div class="empty-grid"><p>Aucune carte pour l\'instant.</p><p style="font-size:0.85rem;margin-top:0.5rem">Utilisez le formulaire ci-dessus pour ajouter votre première carte !</p></div>';
+    return;
+  }
+  grid.innerHTML = cartes.map((c, i) => `
+    <div class="card" id="card-${i}">
+      <div class="card-img">
+        ${c.image ? `<img src="${c.image}" alt="${c.mot}"/>` : `<div class="emoji-placeholder">🏃</div>`}
+        <div class="card-checkbox" onclick="toggleSelect(event, ${i})"></div>
+        <div class="card-overlay-btns">
+          <button class="overlay-btn play" onclick="playCard(event,${i})">
+            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Écouter
+          </button>
+          <button class="overlay-btn rec" onclick="openReRecord(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="10"/></svg> Réenregistrer
+          </button>
+          <button class="overlay-btn del" onclick="deleteCard(event,'${c.id}')">
+            ✕ Supprimer
+          </button>
+          <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4)" onclick="openRename(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
+            ✏ Renommer
+          </button>
+          <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4);margin-top:4px" onclick="openCategorie(event,'${c.id}','${(c.categorie||'').replace(/'/g,"\\'")}')">
+            🏷 Catégorie${c.categorie ? ': '+c.categorie : ''}
+          </button>
+          <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
+            ⬛ QR Code
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-word">${c.mot.split("/").map(s=>s.trim()).join("<br/>")}</div>
+        ${c.date ? `<div class="card-meta">Ajouté le ${c.date}</div>` : ''}
+        <div class="card-audio-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
+        <div class="move-btns">
+          <button class="move-btn" onclick="moveCard(event,${i},-3)" ${i<3?'disabled':''}>↑</button>
+          <button class="move-btn" onclick="moveCard(event,${i},-1)" ${i===0?'disabled':''}>←</button>
+          <button class="move-btn" onclick="moveCard(event,${i},1)" ${i===cartes.length-1?'disabled':''}>→</button>
+          <button class="move-btn" onclick="moveCard(event,${i},3)" ${i>=cartes.length-3?'disabled':''}>↓</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+window.moveCard = function(e, i, dir) {
+  e.stopPropagation();
+  const newIdx = i + dir;
+  if (newIdx < 0 || newIdx >= cartes.length) return;
+  const moved = cartes.splice(i, 1)[0];
+  cartes.splice(newIdx, 0, moved);
+  saveOrder();
+  renderCards();
+};
+
+
+window.playCard = function(e, i) {
+  if (e) e.stopPropagation();
+  const carte = cartes[i];
+  if (!carte.audio) return;
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('playing'));
+  const audio = new Audio(carte.audio);
+  currentAudio = audio;
+  document.getElementById('card-' + i).classList.add('playing');
+  audio.play();
+  audio.onended = () => { document.getElementById('card-' + i).classList.remove('playing'); currentAudio = null; };
+};
+
+// --- Réenregistrement audio sur une carte existante ---
+let reRecId = null, reRecMot = null;
+let reRecorder = null, reChunks = [], reRecording = false;
+let reTimerInterval = null, reSeconds = 0;
+
+window.openReRecord = function(e, id, mot) {
+  e.stopPropagation();
+  reRecId = id; reRecMot = mot;
+  reRecording = false; reChunks = [];
+  document.getElementById('re-mot').textContent = mot;
+  document.getElementById('re-status').textContent = '';
+  document.getElementById('re-btn').textContent = '● Enregistrer';
+  document.getElementById('re-btn').className = 'overlay-btn rec';
+  document.getElementById('re-timer-row').style.display = 'none';
+  document.getElementById('re-save-btn').style.display = 'none';
+  document.getElementById('re-modal').style.display = 'flex';
+};
+
+window.closeReRecord = function() {
+  if (reRecorder && reRecording) { reRecorder.stop(); reRecorder.stream.getTracks().forEach(t=>t.stop()); }
+  clearInterval(reTimerInterval); reRecording = false;
+  document.getElementById('re-modal').style.display = 'none';
+};
+
+window.toggleReRecord = function() { reRecording ? stopReRecord() : startReRecord(); };
+
+function startReRecord() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    reRecorder = new MediaRecorder(stream);
+    reChunks = [];
+    reRecorder.ondataavailable = e => reChunks.push(e.data);
+    reRecorder.onstop = () => {
+      document.getElementById('re-status').textContent = '✓ Audio enregistré — prêt à sauvegarder';
+      document.getElementById('re-save-btn').style.display = 'inline-block';
+    };
+    reRecorder.start();
+    reRecording = true; reSeconds = 0;
+    document.getElementById('re-btn').textContent = '■ Arrêter';
+    document.getElementById('re-btn').className = 'app-btn rec-active';
+    document.getElementById('re-timer-row').style.display = 'flex';
+    reTimerInterval = setInterval(() => {
+      reSeconds++;
+      document.getElementById('re-timer').textContent = Math.floor(reSeconds/60)+':'+String(reSeconds%60).padStart(2,'0');
+    }, 1000);
+  }).catch(() => alert('Accès au microphone refusé.'));
+}
+
+function stopReRecord() {
+  if (reRecorder) { reRecorder.stop(); reRecorder.stream.getTracks().forEach(t=>t.stop()); }
+  reRecording = false; clearInterval(reTimerInterval);
+  document.getElementById('re-btn').textContent = '● Réenregistrer';
+  document.getElementById('re-btn').className = 'overlay-btn rec';
+  document.getElementById('re-timer-row').style.display = 'none';
+}
+
+window.saveReRecord = async function() {
+  const blob = new Blob(reChunks, { type: 'audio/webm' });
+  const audioUrl = await blobToDataUrl(blob);
+  try {
+    const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await updateDoc(firestoreDoc(db, 'symptomes-maladies-graves', reRecId), { audio: audioUrl });
+    document.getElementById('re-status').textContent = '✓ Sauvegardé !';
+    setTimeout(() => { closeReRecord(); loadCards(); }, 1200);
+  } catch(err) {
+    document.getElementById('re-status').textContent = 'Erreur : ' + err.message;
+  }
+};
+
+// --- Sélection et impression ---
+window.selectedCards = new Set();
+let selectedCards = window.selectedCards;
+
+window.toggleSelect = function(e, i) {
+  e.stopPropagation();
+  const card = document.getElementById('card-' + i);
+  if (selectedCards.has(i)) {
+    selectedCards.delete(i);
+    card.classList.remove('selected');
+  } else {
+    selectedCards.add(i);
+    card.classList.add('selected');
+  }
+  updatePrintBar();
+};
+
+window.selectAll = function() {
+  const btn = document.getElementById('select-all-btn');
+  if (selectedCards.size === cartes.length) {
+    clearSelection();
+  } else {
+    cartes.forEach((c, i) => {
+      selectedCards.add(i);
+      const card = document.getElementById('card-' + i);
+      if (card) card.classList.add('selected');
+    });
+    btn.textContent = '☑ Tout désélectionner';
+    updatePrintBar();
+  }
+};
+
+window.clearSelection = function() {
+  selectedCards.clear();
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('select-all-btn').textContent = '☐ Tout sélectionner';
+  updatePrintBar();
+};
+
+function updatePrintBar() {
+  const bar = document.getElementById('print-bar');
+  const count = document.getElementById('selected-count');
+  count.textContent = selectedCards.size;
+  bar.classList.toggle('visible', selectedCards.size > 0);
+}
+
+window.printSelected = function() {
+  const selected = [...window.selectedCards].map(i => cartes[i]);
+  if (!selected.length) return;
+
+  const base = window.location.origin;
+  const tempDiv = document.createElement('div');
+  tempDiv.style.cssText = 'position:fixed;left:-9999px;top:0;';
+  document.body.appendChild(tempDiv);
+
+  const qrPromises = selected.map((c) => {
+    return new Promise(resolve => {
+      const url = base + '/carte.html?id=' + c.id + '&col=symptomes-maladies-graves';
+      const div = document.createElement('div');
+      tempDiv.appendChild(div);
+      new QRCode(div, { text: url, width: 300, height: 300, colorDark: '#1a3a5c', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+      setTimeout(() => {
+        const canvas = div.querySelector('canvas');
+        resolve({ carte: c, qrDataUrl: canvas ? canvas.toDataURL('image/png') : '' });
+      }, 600);
+    });
+  });
+
+  Promise.all(qrPromises).then(items => {
+    document.body.removeChild(tempDiv);
+    const { jsPDF } = window.jspdf;
+    const W = 279, H = 216, pad = 6, gap = 3, cols = 3, rows = 2;
+    const cellW = (W - pad*2 - gap*(cols-1)) / cols;
+    const cellH = (H - pad*2 - gap*(rows-1)) / rows;
+    const imgH = cellH * 0.62;
+
+    const pages = [];
+    for (let i = 0; i < items.length; i += 6) pages.push(items.slice(i, i + 6));
+
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
+
+    pages.forEach((group, pi) => {
+      if (pi > 0) doc.addPage();
+
+      // RECTO
+      for (let i = 0; i < 6; i++) {
+        const col = i % cols, row = Math.floor(i / cols);
+        const x = pad + col * (cellW + gap), y = pad + row * (cellH + gap);
+        doc.setDrawColor(220); doc.setLineWidth(0.3);
+        doc.roundedRect(x, y, cellW, cellH, 2, 2);
+        if (group[i]) {
+          if (group[i].carte.image) {
+            try { doc.addImage(group[i].carte.image, 'JPEG', x, y, cellW, imgH, '', 'FAST'); } catch(e) {}
+          }
+          const mots = group[i].carte.mot.split('/').map(s => s.trim());
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(26, 58, 92);
+          const lineH = 6, totalH = mots.length * lineH;
+          const startY = y + imgH + (cellH - imgH - totalH) / 2 + 5;
+          mots.forEach((m, mi) => doc.text(m, x + cellW/2, startY + mi * lineH, { align: 'center' }));
+        }
+      }
+
+      // VERSO
+      doc.addPage();
+      // Retournement côté long (standard paysage) : inverser colonnes
+      const mirror = [3,4,5,0,1,2];
+      const qrSize = Math.min(cellW, cellH) * 0.85;
+      for (let i = 0; i < 6; i++) {
+        const mi = mirror[i];
+        const col = i % cols, row = Math.floor(i / cols);
+        const x = pad + col * (cellW + gap), y = pad + row * (cellH + gap);
+        doc.setDrawColor(220); doc.setLineWidth(0.3);
+        doc.setFillColor(249, 245, 239);
+        doc.roundedRect(x, y, cellW, cellH, 2, 2, 'FD');
+        if (group[mi] && group[mi].qrDataUrl) {
+          try {
+            const qrX = x + (cellW - qrSize) / 2, qrY = y + (cellH - qrSize) / 2;
+            doc.addImage(group[mi].qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
+          } catch(e) {}
+        }
+      }
+    });
+
+    // Télécharger via dataURI
+    const dataUri = doc.output('datauristring');
+    const a = document.createElement('a');
+    a.href = dataUri;
+    a.download = 'cartes-jeparlefrancais.pdf';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 1000);
+  });
+};
+
+window.openQR = function(e, id, mot) {
+  e.stopPropagation();
+  const url = window.location.origin + '/carte.html?id=' + id + '&col=symptomes-maladies-graves';
+  document.getElementById('qr-mot-label').textContent = mot.replace('/', ' / ');
+  document.getElementById('qr-url-text').textContent = url;
+  document.getElementById('qr-canvas').innerHTML = '';
+  new QRCode(document.getElementById('qr-canvas'), {
+    text: url, width: 200, height: 200,
+    colorDark: '#1a3a5c', colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+  document.getElementById('qr-modal').style.display = 'flex';
+};
+
+window.closeQR = function() {
+  document.getElementById('qr-modal').style.display = 'none';
+};
+
+window.printQR = function() {
+  const box = document.getElementById('qr-modal-box');
+  const w = window.open('', '_blank');
+  w.document.write('<html><head><title>QR Code</title><style>body{font-family:sans-serif;text-align:center;padding:2rem}img{max-width:200px}p{margin:0.5rem 0;font-size:0.9rem;color:#555}</style></head><body>');
+  w.document.write('<p style="font-size:1.2rem;font-weight:bold;color:#1a3a5c">' + document.getElementById('qr-mot-label').textContent + '</p>');
+  w.document.write(box.querySelector('#qr-canvas').innerHTML);
+  w.document.write('<p style="font-size:0.65rem;color:#aaa">' + document.getElementById('qr-url-text').textContent + '</p>');
+  w.document.write('</body></html>');
+  w.document.close();
+  w.print();
+};
+
+// --- Modifier la catégorie ---
+window.openCategorie = function(e, id, cat) {
+  e.stopPropagation();
+  document.getElementById('categorie-input').value = cat;
+  document.getElementById('categorie-id').value = id;
+  document.getElementById('categorie-status').textContent = '';
+  document.getElementById('categorie-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('categorie-input').focus(), 100);
+};
+
+window.closeCategorie = function() {
+  document.getElementById('categorie-modal').style.display = 'none';
+};
+
+window.saveCategorie = async function() {
+  const id = document.getElementById('categorie-id').value;
+  const newCat = document.getElementById('categorie-input').value.trim().toLowerCase();
+  document.getElementById('categorie-status').textContent = 'Sauvegarde...';
+  try {
+    const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await updateDoc(firestoreDoc(db, 'symptomes-maladies-graves', id), { categorie: newCat });
+    document.getElementById('categorie-status').textContent = '✓ Catégorie mise à jour !';
+    setTimeout(() => { closeCategorie(); loadCards(); }, 900);
+  } catch(err) {
+    document.getElementById('categorie-status').textContent = 'Erreur : ' + err.message;
+  }
+};
+
+window.openRename = function(e, id, mot) {
+  e.stopPropagation();
+  document.getElementById('rename-input').value = mot;
+  document.getElementById('rename-id').value = id;
+  document.getElementById('rename-status').textContent = '';
+  document.getElementById('rename-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('rename-input').focus(), 100);
+};
+
+window.closeRename = function() {
+  document.getElementById('rename-modal').style.display = 'none';
+};
+
+window.saveRename = async function() {
+  const id = document.getElementById('rename-id').value;
+  const newMot = document.getElementById('rename-input').value.trim();
+  if (!newMot) { document.getElementById('rename-status').textContent = 'Le titre ne peut pas être vide.'; return; }
+  document.getElementById('rename-status').textContent = 'Sauvegarde...';
+  try {
+    const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await updateDoc(firestoreDoc(db, 'symptomes-maladies-graves', id), { mot: newMot });
+    document.getElementById('rename-status').textContent = '✓ Renommé !';
+    setTimeout(() => { closeRename(); loadCards(); }, 900);
+  } catch(err) {
+    document.getElementById('rename-status').textContent = 'Erreur : ' + err.message;
+  }
+};
+
+window.deleteCard = async function(e, id) {
+  e.stopPropagation();
+  if (!confirm('Supprimer cette carte ?')) return;
+  try {
+    await deleteDoc(doc(db, 'symptomes-maladies-graves', id));
+    await loadCards();
+  } catch(err) { alert('Erreur : ' + err.message); }
+};
+
+loadCards();
+</script>
+<!-- BARRE D'IMPRESSION -->
+<div class="print-bar" id="print-bar">
+  <div class="print-bar-left"><strong id="selected-count">0</strong> carte(s) sélectionnée(s)</div>
+  <div class="print-bar-btns">
+    <button class="print-bar-btn secondary" onclick="clearSelection()">Annuler</button>
+    <button class="print-bar-btn primary" onclick="printSelected()">🖨 Imprimer recto/verso</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<!-- MODAL QR CODE -->
+<div class="qr-modal-overlay" id="qr-modal" style="display:none">
+  <div class="qr-modal-box" id="qr-modal-box">
+    <h3>QR Code</h3>
+    <p class="qr-mot" id="qr-mot-label"></p>
+    <div id="qr-canvas"></div>
+    <div class="qr-url" id="qr-url-text"></div>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="app-btn primary" onclick="printQR()">🖨 Imprimer</button>
+      <button class="app-btn" onclick="closeQR()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RÉENREGISTREMENT -->
+<div class="rec-modal-overlay" id="re-modal" style="display:none">
+  <div class="rec-modal-box">
+    <h3>Réenregistrer l'audio</h3>
+    <p>Carte : <strong id="re-mot"></strong></p>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <button class="overlay-btn rec" id="re-btn" onclick="toggleReRecord()" style="padding:10px 24px;font-size:0.9rem">● Enregistrer</button>
+      <div id="re-timer-row" style="display:none;align-items:center;gap:8px">
+        <span class="rec-dot"></span>
+        <span class="timer" id="re-timer">0:00</span>
+      </div>
+      <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em" id="re-status"></div>
+      <button class="app-btn primary" id="re-save-btn" onclick="saveReRecord()" style="display:none">💾 Sauvegarder l'audio</button>
+    </div>
+    <div class="rec-modal-btns">
+      <button class="app-btn" onclick="closeReRecord()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CATÉGORIE -->
+<div class="rec-modal-overlay" id="categorie-modal" style="display:none">
+  <div class="rec-modal-box">
+    <h3>Modifier la catégorie</h3>
+    <p style="color:var(--gris);font-size:0.85rem;margin-bottom:1.25rem">Entrez la catégorie pour le jeu d'association</p>
+    <input type="hidden" id="categorie-id"/>
+    <input type="text" id="categorie-input" placeholder="Ex : soccer, natation, hockey..." style="width:100%;margin-bottom:0.75rem"
+      onkeydown="if(event.key==='Enter') saveCategorie()"/>
+    <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em;margin-bottom:0.75rem" id="categorie-status"></div>
+    <div class="rec-modal-btns">
+      <button class="app-btn" onclick="closeCategorie()">Annuler</button>
+      <button class="app-btn primary" onclick="saveCategorie()">✓ Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RENOMMER -->
+<div class="rec-modal-overlay" id="rename-modal" style="display:none">
+  <div class="rec-modal-box">
+    <h3>Modifier le titre</h3>
+    <p style="color:var(--gris);font-size:0.85rem;margin-bottom:1.25rem">Entrez le nouveau titre de la carte</p>
+    <input type="hidden" id="rename-id"/>
+    <input type="text" id="rename-input" placeholder="Ex : le soccer" style="width:100%;margin-bottom:0.75rem"
+      onkeydown="if(event.key==='Enter') saveRename()"/>
+    <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em;margin-bottom:0.75rem" id="rename-status"></div>
+    <div class="rec-modal-btns">
+      <button class="app-btn" onclick="closeRename()">Annuler</button>
+      <button class="app-btn primary" onclick="saveRename()">✓ Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
