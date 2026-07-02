@@ -571,7 +571,7 @@ window.saveReRecord = async function() {
   const audioUrl = await blobToDataUrl(blob);
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, 'professionnels-sante', reRecId), { audio: audioUrl });
+    await updateDoc(firestoreDoc(db, currentCol, reRecId), { audio: audioUrl });
     document.getElementById('re-status').textContent = '✓ Sauvegardé !';
     setTimeout(() => { closeReRecord(); loadCards(); }, 1200);
   } catch(err) {
@@ -636,7 +636,7 @@ window.printSelected = function() {
 
   const qrPromises = selected.map((c) => {
     return new Promise(resolve => {
-      const url = base + '/carte.html?id=' + c.id + '&col=professionnels-sante';
+      const url = base + '/carte.html?id=' + c.id + '&col=' + currentCol + '';
       const div = document.createElement('div');
       tempDiv.appendChild(div);
       new QRCode(div, { text: url, width: 300, height: 300, colorDark: '#1a3a5c', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
@@ -716,7 +716,7 @@ window.printSelected = function() {
 
 window.openQR = function(e, id, mot) {
   e.stopPropagation();
-  const url = window.location.origin + '/carte.html?id=' + id + '&col=professionnels-sante';
+  const url = window.location.origin + '/carte.html?id=' + id + '&col=' + currentCol + '';
   document.getElementById('qr-mot-label').textContent = mot.replace('/', ' / ');
   document.getElementById('qr-url-text').textContent = url;
   document.getElementById('qr-canvas').innerHTML = '';
@@ -764,7 +764,7 @@ window.saveCategorie = async function() {
   document.getElementById('categorie-status').textContent = 'Sauvegarde...';
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, 'professionnels-sante', id), { categorie: newCat });
+    await updateDoc(firestoreDoc(db, currentCol, id), { categorie: newCat });
     document.getElementById('categorie-status').textContent = '✓ Catégorie mise à jour !';
     setTimeout(() => { closeCategorie(); loadCards(); }, 900);
   } catch(err) {
@@ -792,7 +792,7 @@ window.saveRename = async function() {
   document.getElementById('rename-status').textContent = 'Sauvegarde...';
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, 'professionnels-sante', id), { mot: newMot });
+    await updateDoc(firestoreDoc(db, currentCol, id), { mot: newMot });
     document.getElementById('rename-status').textContent = '✓ Renommé !';
     setTimeout(() => { closeRename(); loadCards(); }, 900);
   } catch(err) {
@@ -804,7 +804,7 @@ window.deleteCard = async function(e, id) {
   e.stopPropagation();
   if (!confirm('Supprimer cette carte ?')) return;
   try {
-    await deleteDoc(doc(db, 'professionnels-sante', id));
+    await deleteDoc(doc(db, currentCol, id));
     await loadCards();
   } catch(err) { alert('Erreur : ' + err.message); }
 };
