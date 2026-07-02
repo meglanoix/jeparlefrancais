@@ -428,14 +428,7 @@ function blobToDataUrl(blob) {
 async function loadCards() {
   try {
     const snap = await getDocs(collection(db, currentCol || 'professionnels-sante'));
-    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const savedOrder = JSON.parse(localStorage.getItem('cartes-order-' + currentCol) || '[]');
-    if (savedOrder.length) {
-      cartes = savedOrder.map(id => docs.find(d => d.id === id)).filter(Boolean);
-      docs.forEach(d => { if (!cartes.find(c => c.id === d.id)) cartes.push(d); });
-    } else {
-      cartes = docs;
-    }
+    cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     document.getElementById('card-count').textContent = cartes.length + ' carte' + (cartes.length !== 1 ? 's' : '');
     renderCards();
   } catch(e) {
@@ -444,10 +437,9 @@ async function loadCards() {
 }
 
 function saveOrder() {
-  localStorage.setItem('cartes-order-' + currentCol, JSON.stringify(cartes.map(c => c.id)));
+  // ordre non utilisé dans cet admin
   const el = document.getElementById('order-saving');
-  el.style.display = 'inline';
-  setTimeout(() => el.style.display = 'none', 2000);
+  if (el) { el.style.display = 'inline'; setTimeout(() => el.style.display = 'none', 2000); }
 }
 
 function renderCards() {
