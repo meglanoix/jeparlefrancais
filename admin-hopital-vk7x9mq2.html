@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – L'hôpital | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--creme); color: var(--texte); }
+nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 64px; background: var(--bleu); }
+.nav-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: white; }
+.nav-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.88rem; }
+.nav-link:hover { color: white; }
+.top-bar { padding: 1rem 2rem; background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.section-btn { padding: 7px 18px; border-radius: 25px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--creme); color: var(--gris); font-size: 0.85rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+.section-btn:hover { border-color: var(--bleu); color: var(--bleu); }
+.section-btn.active { background: var(--bleu); color: white; border-color: var(--bleu); font-weight: 500; }
+.main { max-width: 900px; margin: 0 auto; padding: 2rem; }
+.card { background: var(--blanc); border-radius: 14px; border: 1px solid rgba(26,58,92,0.1); padding: 1.5rem; margin-bottom: 1.5rem; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--bleu); margin-bottom: 1rem; }
+.upload-zone { border: 2px dashed rgba(26,58,92,0.2); border-radius: 10px; padding: 1.25rem; text-align: center; cursor: pointer; color: var(--gris); font-size: 0.85rem; transition: background 0.15s; }
+.upload-zone:hover { background: var(--creme); }
+.upload-zone.has-file { border-color: var(--vert); background: #f0faf4; color: var(--vert); }
+label { display: block; font-size: 0.82rem; font-weight: 500; color: var(--gris); margin-bottom: 4px; margin-top: 0.75rem; }
+label:first-child { margin-top: 0; }
+input[type=text] { width: 100%; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; padding: 8px 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; background: var(--creme); }
+input:focus { outline: none; border-color: var(--bleu); }
+.btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: opacity 0.2s; margin-top: 0.75rem; }
+.btn:hover { opacity: 0.85; }
+.btn-primary { background: var(--bleu); color: white; }
+.btn-success { background: var(--vert); color: white; }
+.btn-ghost { background: var(--creme); color: var(--texte); }
+.audio-controls { display: flex; gap: 8px; margin-top: 6px; }
+.record-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--creme); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s; }
+.record-btn.recording { background: var(--rouge); color: white; border-color: var(--rouge); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+.play-btn-sm { padding: 8px 12px; border-radius: 8px; border: none; background: var(--bleu); color: white; cursor: pointer; font-size: 0.82rem; }
+.play-btn-sm:disabled { opacity: 0.4; cursor: default; }
+.audio-status { font-size: 0.75rem; color: var(--gris); margin-top: 4px; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.existing-card { background: var(--creme); border-radius: 10px; overflow: hidden; border: 1px solid rgba(26,58,92,0.08); position: relative; }
+.existing-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+.existing-card-body { padding: 0.5rem; display: flex; align-items: center; gap: 6px; }
+.existing-card-mot { font-size: 0.8rem; font-weight: 500; flex: 1; }
+.del-btn { background: none; border: none; cursor: pointer; color: var(--gris); font-size: 0.9rem; padding: 2px; }
+.del-btn:hover { color: var(--rouge); }
+.play-card-btn { background: none; border: none; cursor: pointer; color: var(--gris); padding: 2px; }
+.play-card-btn:hover { color: var(--bleu); }
+.play-card-btn svg { width: 13px; height: 13px; fill: currentColor; display: block; }
+.msg { padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; text-align: center; display: none; margin-top: 8px; }
+.msg.success { background: rgba(26,122,74,0.1); color: var(--vert); }
+.msg.error { background: rgba(192,57,43,0.1); color: var(--rouge); }
+input[type=file] { width: 100%; font-size: 0.82rem; margin-top: 4px; }
+</style>
+</head>
+<body>
+<nav>
+  <span class="nav-title">Admin – L'hôpital</span>
+  <a class="nav-link" href="l-hopital.html">← Voir la page</a>
+</nav>
+
+<div class="top-bar">
+  <span style="font-size:0.85rem;color:var(--gris);font-weight:500">Section :</span>
+  <button class="section-btn active" data-col="professionnels-sante" onclick="changerSection(this)">👨‍⚕️ Les professionnels de la santé</button>
+  <button class="section-btn" data-col="unites-hopital" onclick="changerSection(this)">🏨 Les unités de l'hôpital</button>
+</div>
+
+<div class="main">
+  <!-- Ajouter une carte -->
+  <div class="card">
+    <div class="card-title" id="form-title">➕ Ajouter un professionnel de la santé</div>
+    <label>Nom</label>
+    <input type="text" id="mot-input" placeholder="Ex : l'infirmière"/>
+    <label>Image</label>
+    <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-input').click()">
+      📷 Cliquez pour choisir une image
+    </div>
+    <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+    <label>Audio</label>
+    <div class="audio-controls">
+      <button class="record-btn" id="record-btn" onclick="toggleRecord()">🎙 Enregistrer</button>
+      <button class="play-btn-sm" id="play-btn" disabled onclick="playRecorded()">▶</button>
+    </div>
+    <div class="audio-status" id="audio-status">Aucun audio</div>
+    <p style="font-size:0.75rem;color:var(--gris);margin-top:4px">Ou importer :</p>
+    <input type="file" id="audio-file" accept="audio/*" onchange="handleAudioFile(event)"/>
+    <div class="msg" id="form-msg"></div>
+    <button class="btn btn-success" onclick="sauvegarder()">💾 Sauvegarder</button>
+    <button class="btn btn-ghost" onclick="resetForm()">Réinitialiser</button>
+  </div>
+
+  <!-- Cartes existantes -->
+  <div class="card">
+    <div class="card-title" id="list-title">📋 Professionnels enregistrés</div>
+    <div class="cards-grid" id="cards-grid"><div style="color:var(--gris);font-size:0.85rem;text-align:center;padding:1rem">Chargement...</div></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let colActuelle = 'professionnels-sante';
+let pendingImage = null, recordedBlob = null, audioFileBlob = null;
+let mediaRecorder = null, audioChunks = [], isRecording = false;
+let currentAudio = null;
+
+const LABELS = {
+  'professionnels-sante': { form: 'un professionnel de la santé', list: 'Professionnels enregistrés', placeholder: '👨‍⚕️' },
+  'unites-hopital': { form: 'une unité de l\'hôpital', list: 'Unités enregistrées', placeholder: '🏨' }
+};
+
+async function load() {
+  const snap = await getDocs(collection(db, colActuelle));
+  const cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const grid = document.getElementById('cards-grid');
+  const label = LABELS[colActuelle];
+  if (cartes.length === 0) { grid.innerHTML = '<div style="color:var(--gris);font-size:0.85rem;text-align:center;padding:1rem">Aucune carte.</div>'; return; }
+  grid.innerHTML = cartes.map(c => `
+    <div class="existing-card">
+      ${c.image ? `<img src="${c.image}" alt="${c.mot || ''}"/>` : `<div style="width:100%;aspect-ratio:4/3;background:var(--creme);display:flex;align-items:center;justify-content:center;font-size:2rem">${label.placeholder}</div>`}
+      <div class="existing-card-body">
+        <span class="existing-card-mot">${c.mot || ''}</span>
+        ${c.audio ? `<button class="play-card-btn" onclick="jouerAudio('${c.audio}')"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>` : ''}
+        <button class="del-btn" onclick="supprimer('${c.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+window.jouerAudio = function(url) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const a = new Audio(url); currentAudio = a; a.play();
+};
+
+window.changerSection = function(btn) {
+  document.querySelectorAll('.section-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  colActuelle = btn.dataset.col;
+  const label = LABELS[colActuelle];
+  document.getElementById('form-title').textContent = `➕ Ajouter ${label.form}`;
+  document.getElementById('list-title').textContent = `📋 ${label.list}`;
+  resetForm();
+  load();
+};
+
+window.handleImage = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const zone = document.getElementById('img-zone');
+  zone.textContent = 'Compression...';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 800; let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } } else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      pendingImage = canvas.toDataURL('image/jpeg', 0.8);
+      zone.textContent = '✓ Image prête';
+      zone.classList.add('has-file');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.toggleRecord = async function() {
+  if (isRecording) {
+    mediaRecorder.stop(); isRecording = false;
+    document.getElementById('record-btn').classList.remove('recording');
+    document.getElementById('record-btn').innerHTML = '🎙 Enregistrer';
+  } else {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      recordedBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      document.getElementById('audio-status').textContent = '✓ Audio enregistré';
+      document.getElementById('play-btn').disabled = false;
+      stream.getTracks().forEach(t => t.stop());
+    };
+    mediaRecorder.start(); isRecording = true;
+    document.getElementById('record-btn').classList.add('recording');
+    document.getElementById('record-btn').innerHTML = '⏹ Arrêter';
+  }
+};
+
+window.playRecorded = function() {
+  const blob = recordedBlob || audioFileBlob;
+  if (blob) new Audio(URL.createObjectURL(blob)).play();
+};
+
+window.handleAudioFile = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  audioFileBlob = file; recordedBlob = null;
+  document.getElementById('audio-status').textContent = '✓ ' + file.name;
+  document.getElementById('play-btn').disabled = false;
+};
+
+window.sauvegarder = async function() {
+  const mot = document.getElementById('mot-input').value.trim();
+  if (!mot) { showMsg('Entrez le nom.', 'error'); return; }
+  showMsg('Sauvegarde...', 'success');
+  try {
+    let audioUrl = null;
+    const blob = recordedBlob || audioFileBlob;
+    if (blob) {
+      audioUrl = await new Promise(r => { const reader = new FileReader(); reader.onload = e => r(e.target.result); reader.readAsDataURL(blob); });
+    }
+    await addDoc(collection(db, colActuelle), { mot, image: pendingImage || null, audio: audioUrl });
+    showMsg('✓ Sauvegardé !', 'success');
+    setTimeout(() => { resetForm(); load(); }, 700);
+  } catch(e) { showMsg('Erreur : ' + e.message, 'error'); }
+};
+
+window.supprimer = async function(id) {
+  if (!confirm('Supprimer ?')) return;
+  await deleteDoc(doc(db, colActuelle, id));
+  load();
+};
+
+window.resetForm = function() {
+  document.getElementById('mot-input').value = '';
+  pendingImage = null; recordedBlob = null; audioFileBlob = null;
+  const zone = document.getElementById('img-zone');
+  zone.textContent = '📷 Cliquez pour choisir une image';
+  zone.classList.remove('has-file');
+  document.getElementById('audio-status').textContent = 'Aucun audio';
+  document.getElementById('play-btn').disabled = true;
+  document.getElementById('form-msg').style.display = 'none';
+};
+
+function showMsg(msg, type) {
+  const el = document.getElementById('form-msg');
+  el.textContent = msg; el.className = 'msg ' + type; el.style.display = 'block';
+  if (type === 'success') setTimeout(() => el.style.display = 'none', 2500);
+}
+
+load();
+</script>
+</body>
+</html>
