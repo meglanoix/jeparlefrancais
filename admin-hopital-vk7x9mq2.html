@@ -225,11 +225,6 @@ window.changerSection = function(col, titre, btn) {
     <span class="nav-badge">⚙ Admin</span>
   </div>
 </nav>
-<div style="background:var(--blanc);border-bottom:1px solid rgba(26,58,92,0.08);padding:1rem 2rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-  <span style="font-size:0.85rem;color:var(--gris);font-weight:500">Section :</span>
-  <button id="btn-profs" style="padding:7px 18px;border-radius:25px;border:1.5px solid var(--bleu);background:var(--bleu);color:white;font-size:0.85rem;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:500" onclick="changerSection('professionnels-sante', 'Les professionnels de la santé', this)">👨‍⚕️ Les professionnels de la santé</button>
-  <button id="btn-unites" style="padding:7px 18px;border-radius:25px;border:1.5px solid rgba(26,58,92,0.15);background:var(--creme);color:var(--gris);font-size:0.85rem;cursor:pointer;font-family:DM Sans,sans-serif" onclick="changerSection('unites-hopital', 'Les unités de l\'hôpital', this)">🏨 Les unités de l'hôpital</button>
-</div>
 
 
 <div class="page-header">
@@ -237,6 +232,10 @@ window.changerSection = function(col, titre, btn) {
     <p class="page-eyebrow">⚙ Panneau d'administration</p>
     <h1 id="section-title">Les professionnels de la santé</h1>
     <p>Ajoutez, écoutez et supprimez les cartes. Les modifications sont visibles immédiatement sur le site.</p>
+    <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
+      <button id="btn-profs" style="padding:7px 18px;border-radius:25px;border:1.5px solid white;background:white;color:var(--bleu);font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500" onclick="changerSection('professionnels-sante', 'Les professionnels de la santé', this)">👨‍⚕️ Les professionnels de la santé</button>
+      <button id="btn-unites" style="padding:7px 18px;border-radius:25px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('unites-hopital', 'Les unités de l\'hôpital', this)">🏨 Les unités de l'hôpital</button>
+    </div>
   </div>
 </div>
 
