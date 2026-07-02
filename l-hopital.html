@@ -30,7 +30,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .main { max-width: 1100px; margin: 0 auto; padding: 2rem 5vw 5rem; }
 .panel { display: none; }
 .panel.active { display: block; }
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.25rem; }
+.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+@media(max-width:700px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
 .card { background: var(--blanc); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(26,58,92,0.07); cursor: pointer; transition: all 0.2s; border: 1px solid rgba(26,58,92,0.06); }
 .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,58,92,0.13); }
 .card.playing { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.15); }
