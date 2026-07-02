@@ -201,21 +201,17 @@ input[type=text]:focus { border-color: var(--bleu); }
   gtag("config", "G-ELGPLZQGVN");
 
 window.changerSection = function(col, titre, btnId) {
-  // Reset les deux boutons
   const profs = document.getElementById('btn-profs');
   const unites = document.getElementById('btn-unites');
   profs.style.background = 'transparent'; profs.style.color = 'white'; profs.style.borderColor = 'rgba(255,255,255,0.4)'; profs.style.fontWeight = 'normal';
   unites.style.background = 'transparent'; unites.style.color = 'white'; unites.style.borderColor = 'rgba(255,255,255,0.4)'; unites.style.fontWeight = 'normal';
-  // Activer le bouton cliqué
   const active = document.getElementById(btnId);
   active.style.background = 'white'; active.style.color = 'var(--bleu)'; active.style.borderColor = 'white'; active.style.fontWeight = '500';
-  // Changer la collection et recharger
   currentCol = col;
   document.getElementById('section-title').textContent = titre;
   document.getElementById('card-grid').innerHTML = '<div class="empty-grid"><p>Chargement...</p></div>';
   cartes = [];
-  localStorage.removeItem('cartes-order');
-  resetForm();
+  // Utiliser une clé localStorage distincte par collection
   loadCards();
 };
 </script>
@@ -433,11 +429,9 @@ async function loadCards() {
   try {
     const snap = await getDocs(collection(db, currentCol || 'professionnels-sante'));
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    // Trier selon l'ordre sauvegardé si présent
-    const savedOrder = JSON.parse(localStorage.getItem('cartes-order') || '[]');
+    const savedOrder = JSON.parse(localStorage.getItem('cartes-order-' + currentCol) || '[]');
     if (savedOrder.length) {
       cartes = savedOrder.map(id => docs.find(d => d.id === id)).filter(Boolean);
-      // Ajouter les nouvelles cartes pas encore dans l'ordre
       docs.forEach(d => { if (!cartes.find(c => c.id === d.id)) cartes.push(d); });
     } else {
       cartes = docs;
@@ -450,7 +444,7 @@ async function loadCards() {
 }
 
 function saveOrder() {
-  localStorage.setItem('cartes-order', JSON.stringify(cartes.map(c => c.id)));
+  localStorage.setItem('cartes-order-' + currentCol, JSON.stringify(cartes.map(c => c.id)));
   const el = document.getElementById('order-saving');
   el.style.display = 'inline';
   setTimeout(() => el.style.display = 'none', 2000);
