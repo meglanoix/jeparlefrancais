@@ -212,8 +212,11 @@ window.changerSection = function(col, titre, btnId) {
   // Changer la collection et recharger
   currentCol = col;
   document.getElementById('section-title').textContent = titre;
+  document.getElementById('card-grid').innerHTML = '<div class="empty-grid"><p>Chargement...</p></div>';
+  cartes = [];
+  localStorage.removeItem('cartes-order');
   resetForm();
-  loadCartes();
+  loadCards();
 };
 </script>
 </head>
@@ -222,7 +225,7 @@ window.changerSection = function(col, titre, btnId) {
 <nav>
   <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
   <div class="nav-right">
-    <a class="nav-view-link" href="professionnels-sante.html" target="_blank">Voir la page publique ↗</a>
+    <a class="nav-view-link" href="l-hopital.html" target="_blank">Voir la page publique ↗</a>
     <span class="nav-badge">⚙ Admin</span>
   </div>
 </nav>
