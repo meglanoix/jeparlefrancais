@@ -65,6 +65,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
   <button class="tab" id="tab-unites" onclick="afficherSection('unites')">🏨 Les unités de l'hôpital</button>
 </div>
 
+<div style="padding:1rem 5vw 0;max-width:1100px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap">
+  <a id="jeu-btn-profs" href="jeu-professionnels-sante.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:8px 20px;border-radius:25px;font-size:0.85rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">🎯 Testez vos connaissances !</a>
+  <a id="jeu-btn-unites" href="jeu-unites-hopital.html" style="display:none;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:8px 20px;border-radius:25px;font-size:0.85rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">🎯 Testez vos connaissances !</a>
+</div>
+
 <div class="main">
   <div id="loading" class="loading-msg">Chargement...</div>
 
@@ -90,6 +95,9 @@ window.afficherSection = function(section) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('panel-' + section).classList.add('active');
   document.getElementById('tab-' + section).classList.add('active');
+  // Switcher le bouton jeu
+  document.getElementById('jeu-btn-profs').style.display = section === 'profs' ? 'inline-flex' : 'none';
+  document.getElementById('jeu-btn-unites').style.display = section === 'unites' ? 'inline-flex' : 'none';
 };
 
 function renderCards(cartes, gridId, placeholder) {
