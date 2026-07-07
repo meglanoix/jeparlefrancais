@@ -294,6 +294,7 @@ input[type=text]:focus { border-color: var(--bleu); }
       <button class="app-btn primary" onclick="saveCard()">Ajouter la carte</button>
       <span id="save-msg" class="success-msg" style="display:none"></span>
       <span id="save-err" class="err-msg" style="display:none"></span>
+      <span id="rec-status" style="display:none"><span class="rec-dot"></span><span id="rec-timer">0:00</span></span>
     </div>
   </div>
 
@@ -464,6 +465,7 @@ window.saveCard = async function() {
     [1,2,3,4,5].forEach(i => {
       if (document.getElementById('label' + i)) document.getElementById('label' + i).value = '';
       if (document.getElementById('play-extra' + i)) document.getElementById('play-extra' + i).disabled = true;
+      if (document.getElementById('rec-extra' + i)) document.getElementById('rec-extra' + i).textContent = '🎙';
     });
     setTimeout(() => saveMsg.style.display = 'none', 3000);
   } catch(e) {
