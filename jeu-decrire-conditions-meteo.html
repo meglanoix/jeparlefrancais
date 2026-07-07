@@ -156,7 +156,7 @@ window.startGame = function() {
 function afficherQuestion() {
   answered = false;
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  document.querySelectorAll('.choice').forEach(e => e.remove());
+  document.getElementById('choices-grid').innerHTML = '';
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
 
