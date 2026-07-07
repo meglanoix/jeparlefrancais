@@ -71,7 +71,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 <body>
 <nav>
   <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
-  <a class="nav-back" href="conditions-meteorologiques.html">
+  <a class="nav-back" href="la-circulation.html">
     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     Retour
   </a>
@@ -96,7 +96,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
     </div>
 
     <div class="audio-card">
-      <div class="audio-label">Quelle condition météo entendez-vous ?</div>
+      <div class="audio-label">Quel élément de circulation entendez-vous ?</div>
       <button class="play-btn" id="play-btn" onclick="jouerAudio()">
         <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       </button>
@@ -140,7 +140,7 @@ let cartes = [], questions = [], qIndex = 0, score = 0, answered = false, curren
 
 async function loadCartes() {
   try {
-    const snap = await getDocs(collection(db, 'conditions-meteorologiques'));
+    const snap = await getDocs(collection(db, 'la-circulation'));
     cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .filter(c => c.audio && c.image && c.audio && c.image);
     if (cartes.length < 3) {
@@ -189,7 +189,7 @@ function afficherQuestion() {
   const grid = document.getElementById('choices-grid');
   grid.innerHTML = q.choix.map((c, i) => `
     <div class="choice" id="choice-${i}" onclick="choisir(${i}, '${c.id}')">
-      ${c.image ? `<img class="choice-img" src="${c.image}" alt=""/>` : `<div class="choice-img-placeholder">🌧</div>`}
+      ${c.image ? `<img class="choice-img" src="${c.image}" alt=""/>` : `<div class="choice-img-placeholder">🚗</div>`}
     </div>
   `).join('');
 }
