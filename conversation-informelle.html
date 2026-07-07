@@ -91,7 +91,7 @@ async function load() {
       const audios = [];
       for (let i = 1; i <= 5; i++) {
         const a = c[`audio${i}`], l = c[`label${i}`];
-        if (a) audios.push({ url: a, label: l || `Expression ${i}` });
+        if (a && a.length > 10) audios.push({ url: a, label: l || `Expression ${i}` });
       }
       // Rétrocompat : si audio (sans numéro) existe
       if (c.audio && audios.length === 0) audios.push({ url: c.audio, label: c.mot || 'Écouter' });
