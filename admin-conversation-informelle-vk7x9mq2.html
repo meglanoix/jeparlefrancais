@@ -243,7 +243,7 @@ input[type=text]:focus { border-color: var(--bleu); }
         </div>
       </div>
       <div class="form-group">
-        <label>Audio (prononciation)</label>
+        <label>Audio principal</label>
         <div class="rec-row">
           <button class="app-btn" id="rec-btn" onclick="toggleRecord()">▶ Enregistrer</button>
           <span id="rec-status" style="display:none" class="rec-row">
@@ -252,6 +252,19 @@ input[type=text]:focus { border-color: var(--bleu); }
           </span>
         </div>
         <div style="font-size:0.78rem;color:var(--gris);margin-top:6px" id="audio-status"></div>
+      </div>
+      <div class="form-group">
+        <label style="font-weight:600;color:var(--bleu)">Expressions supplémentaires (optionnel)</label>
+        <p style="font-size:0.78rem;color:var(--gris);margin-bottom:8px">Jusqu'à 4 expressions supplémentaires avec leur audio</p>
+        ${[2,3,4,5].map(i => `
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression ${i}</span>
+          <input type="text" id="label${i}" placeholder="Ex: Ça va bien ?" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(${i})" id="rec-extra${i}">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra${i}" onclick="playExtra(${i})">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra${i}').click()">📁</button>
+          <input type="file" id="file-extra${i}" accept="audio/*" style="display:none" onchange="handleFileExtra(${i}, event)"/>
+        </div>`).join('')}
       </div>
     </div>
     <div class="sep"></div>
@@ -301,6 +314,39 @@ let cartes = [];
 let mediaRecorder = null, chunks = [], recording = false;
 let timerInterval = null, seconds = 0;
 let pendingAudio = null, pendingImage = null, currentAudio = null;
+let extraBlobs = { 2: null, 3: null, 4: null, 5: null };
+let extraRecorder = null, extraChunks = [], extraRecording = false, extraSlot = null;
+
+window.toggleRecordExtra = async function(slot) {
+  if (extraRecording && extraSlot === slot) {
+    extraRecorder.stop(); extraRecording = false; extraSlot = null;
+    document.getElementById('rec-extra' + slot).textContent = '🎙';
+  } else {
+    if (extraRecording) { extraRecorder.stop(); document.getElementById('rec-extra' + extraSlot).textContent = '🎙'; }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    extraChunks = [];
+    extraRecorder = new MediaRecorder(stream);
+    extraRecorder.ondataavailable = e => extraChunks.push(e.data);
+    extraRecorder.onstop = () => {
+      extraBlobs[slot] = new Blob(extraChunks, { type: 'audio/webm' });
+      document.getElementById('play-extra' + slot).disabled = false;
+      stream.getTracks().forEach(t => t.stop());
+    };
+    extraRecorder.start(); extraRecording = true; extraSlot = slot;
+    document.getElementById('rec-extra' + slot).textContent = '⏹';
+  }
+};
+
+window.playExtra = function(slot) {
+  const blob = extraBlobs[slot]; if (!blob) return;
+  new Audio(URL.createObjectURL(blob)).play();
+};
+
+window.handleFileExtra = function(slot, e) {
+  const file = e.target.files[0]; if (!file) return;
+  extraBlobs[slot] = file;
+  document.getElementById('play-extra' + slot).disabled = false;
+};
 
 window.handleImage = function(e) {
   const file = e.target.files[0];
@@ -369,23 +415,36 @@ window.saveCard = async function() {
   saveMsg.textContent = 'Sauvegarde...'; saveMsg.style.display = 'inline';
   try {
     const audioUrl = await blobToDataUrl(pendingAudio);
-    await addDoc(collection(db, 'conversation-informelle'), {
+    const data = {
       mot,
       categorie: document.getElementById('categorie').value.trim().toLowerCase(),
       image: pendingImage,
       audio: audioUrl,
       date: new Date().toLocaleDateString('fr-CA')
-    });
+    };
+    for (let i = 2; i <= 5; i++) {
+      const blob = extraBlobs[i];
+      const label = document.getElementById('label' + i)?.value?.trim();
+      if (blob) {
+        data['audio' + i] = await blobToDataUrl(blob);
+        data['label' + i] = label || ('Expression ' + i);
+      }
+    }
+    await addDoc(collection(db, 'conversation-informelle'), data);
     await loadCards();
     saveMsg.textContent = '✓ Carte ajoutée !';
     document.getElementById('mot').value = '';
     document.getElementById('categorie').value = '';
-    // Réinitialiser la zone image (recrée l'input pour permettre un 2e upload sans recharger)
     const imgZone = document.getElementById('img-zone');
     imgZone.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
     imgZone.classList.remove('has-file');
     document.getElementById('audio-status').textContent = '';
     pendingAudio = null; pendingImage = null;
+    extraBlobs = { 2: null, 3: null, 4: null, 5: null };
+    [2,3,4,5].forEach(i => {
+      if (document.getElementById('label' + i)) document.getElementById('label' + i).value = '';
+      if (document.getElementById('play-extra' + i)) document.getElementById('play-extra' + i).disabled = true;
+    });
     setTimeout(() => saveMsg.style.display = 'none', 3000);
   } catch(e) {
     saveMsg.style.display = 'none';
