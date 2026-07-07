@@ -242,21 +242,19 @@ input[type=text]:focus { border-color: var(--bleu); }
           <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
         </div>
       </div>
-      <div class="form-group">
-        <label>Audio principal</label>
-        <div class="rec-row">
-          <button class="app-btn" id="rec-btn" onclick="toggleRecord()">▶ Enregistrer</button>
-          <span id="rec-status" style="display:none" class="rec-row">
-            <span class="rec-dot"></span>
-            <span class="timer" id="rec-timer">0:00</span>
-          </span>
-        </div>
-        <div style="font-size:0.78rem;color:var(--gris);margin-top:6px" id="audio-status"></div>
-      </div>
+      
       <div class="form-group">
         <label style="font-weight:600;color:var(--bleu)">Expressions supplémentaires (optionnel)</label>
-        <p style="font-size:0.78rem;color:var(--gris);margin-bottom:8px">Jusqu'à 4 expressions supplémentaires avec leur audio</p>
+        <p style="font-size:0.78rem;color:var(--gris);margin-bottom:8px">Jusqu'à 5 expressions avec leur audio</p>
         
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 1</span>
+          <input type="text" id="label1" placeholder="Ex: Bonjour !" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(1)" id="rec-extra1">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra1" onclick="playExtra(1)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra1').click()">📁</button>
+          <input type="file" id="file-extra1" accept="audio/*" style="display:none" onchange="handleFileExtra(1, event)"/>
+        </div>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
           <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 2</span>
           <input type="text" id="label2" placeholder="Ex: Ça va bien ?" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
@@ -338,7 +336,7 @@ let cartes = [];
 let mediaRecorder = null, chunks = [], recording = false;
 let timerInterval = null, seconds = 0;
 let pendingAudio = null, pendingImage = null, currentAudio = null;
-let extraBlobs = { 2: null, 3: null, 4: null, 5: null };
+let extraBlobs = { 1: null, 2: null, 3: null, 4: null, 5: null };
 let extraRecorder = null, extraChunks = [], extraRecording = false, extraSlot = null;
 
 window.toggleRecordExtra = async function(slot) {
@@ -432,21 +430,19 @@ window.saveCard = async function() {
   const mot = document.getElementById('mot').value.trim();
   if (!mot) { alert('Veuillez entrer un mot.'); return; }
   if (!pendingImage) { alert('Veuillez choisir une image.'); return; }
-  if (!pendingAudio) { alert('Veuillez enregistrer un audio.'); return; }
+  // audio principal optionnel
   const saveMsg = document.getElementById('save-msg');
   const saveErr = document.getElementById('save-err');
   saveMsg.style.display = 'none'; saveErr.style.display = 'none';
   saveMsg.textContent = 'Sauvegarde...'; saveMsg.style.display = 'inline';
   try {
-    const audioUrl = await blobToDataUrl(pendingAudio);
     const data = {
       mot,
       categorie: document.getElementById('categorie').value.trim().toLowerCase(),
       image: pendingImage,
-      audio: audioUrl,
       date: new Date().toLocaleDateString('fr-CA')
     };
-    for (let i = 2; i <= 5; i++) {
+    for (let i = 1; i <= 5; i++) {
       const blob = extraBlobs[i];
       const label = document.getElementById('label' + i)?.value?.trim();
       if (blob) {
@@ -464,8 +460,8 @@ window.saveCard = async function() {
     imgZone.classList.remove('has-file');
     document.getElementById('audio-status').textContent = '';
     pendingAudio = null; pendingImage = null;
-    extraBlobs = { 2: null, 3: null, 4: null, 5: null };
-    [2,3,4,5].forEach(i => {
+    extraBlobs = { 1: null, 2: null, 3: null, 4: null, 5: null };
+    [1,2,3,4,5].forEach(i => {
       if (document.getElementById('label' + i)) document.getElementById('label' + i).value = '';
       if (document.getElementById('play-extra' + i)) document.getElementById('play-extra' + i).disabled = true;
     });
