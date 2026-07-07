@@ -256,15 +256,39 @@ input[type=text]:focus { border-color: var(--bleu); }
       <div class="form-group">
         <label style="font-weight:600;color:var(--bleu)">Expressions supplémentaires (optionnel)</label>
         <p style="font-size:0.78rem;color:var(--gris);margin-bottom:8px">Jusqu'à 4 expressions supplémentaires avec leur audio</p>
-        ${[2,3,4,5].map(i => `
+        
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
-          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression ${i}</span>
-          <input type="text" id="label${i}" placeholder="Ex: Ça va bien ?" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
-          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(${i})" id="rec-extra${i}">🎙</button>
-          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra${i}" onclick="playExtra(${i})">▶</button>
-          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra${i}').click()">📁</button>
-          <input type="file" id="file-extra${i}" accept="audio/*" style="display:none" onchange="handleFileExtra(${i}, event)"/>
-        </div>`).join('')}
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 2</span>
+          <input type="text" id="label2" placeholder="Ex: Ça va bien ?" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(2)" id="rec-extra2">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra2" onclick="playExtra(2)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra2').click()">📁</button>
+          <input type="file" id="file-extra2" accept="audio/*" style="display:none" onchange="handleFileExtra(2, event)"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 3</span>
+          <input type="text" id="label3" placeholder="Ex: Et toi ?" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(3)" id="rec-extra3">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra3" onclick="playExtra(3)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra3').click()">📁</button>
+          <input type="file" id="file-extra3" accept="audio/*" style="display:none" onchange="handleFileExtra(3, event)"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 4</span>
+          <input type="text" id="label4" placeholder="(optionnel)" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(4)" id="rec-extra4">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra4" onclick="playExtra(4)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra4').click()">📁</button>
+          <input type="file" id="file-extra4" accept="audio/*" style="display:none" onchange="handleFileExtra(4, event)"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 5</span>
+          <input type="text" id="label5" placeholder="(optionnel)" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(5)" id="rec-extra5">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra5" onclick="playExtra(5)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra5').click()">📁</button>
+          <input type="file" id="file-extra5" accept="audio/*" style="display:none" onchange="handleFileExtra(5, event)"/>
+        </div>
       </div>
     </div>
     <div class="sep"></div>
