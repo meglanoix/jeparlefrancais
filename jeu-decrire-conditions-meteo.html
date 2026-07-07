@@ -142,9 +142,9 @@ async function loadCartes() {
   try {
     const snap = await getDocs(collection(db, 'decrire-conditions-meteo'));
     cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .filter(c => c.audio && c.image && c.audio && c.image);
+      .filter(c => c.image && (c.audio || c.audio1 || c.audio2));
     if (cartes.length < 3) {
-      document.getElementById('loading').textContent = 'Pas assez de cartes déjeuner avec image et audio. Ajoutez du contenu dans l\'admin.';
+      document.getElementById('loading').textContent = 'Pas assez de cartes avec image. Ajoutez du contenu dans l\'admin.';
       return;
     }
     document.getElementById('loading').style.display = 'none';
