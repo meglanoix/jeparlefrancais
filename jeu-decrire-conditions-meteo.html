@@ -121,7 +121,7 @@ let cartes = [], questions = [], qIndex = 0, score = 0, answered = false, curren
 async function load() {
   try {
     const snap = await getDocs(collection(db, 'decrire-conditions-meteo'));
-    cartes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.image && (c.audio1 || c.audio));
+    cartes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.image);
     if (cartes.length < 3) {
       document.getElementById('loading').textContent = 'Pas assez de cartes. Ajoutez du contenu dans l\'admin.';
       return;
