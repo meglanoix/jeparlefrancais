@@ -405,13 +405,13 @@ function startRecord() {
     mediaRecorder.ondataavailable = e => chunks.push(e.data);
     mediaRecorder.onstop = () => {
       pendingAudio = new Blob(chunks, { type: 'audio/webm' });
-      document.getElementById('audio-status').textContent = '✓ Audio enregistré';
+      // audio-status supprimé
     };
     mediaRecorder.start();
     recording = true; seconds = 0;
-    document.getElementById('rec-btn').textContent = '■ Arrêter';
+    // rec-btn supprimé
     document.getElementById('rec-btn').classList.add('rec-active');
-    document.getElementById('rec-status').style.display = 'flex';
+    // rec-status supprimé
     timerInterval = setInterval(() => {
       seconds++;
       document.getElementById('rec-timer').textContent = Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
@@ -422,9 +422,9 @@ function startRecord() {
 function stopRecord() {
   if (mediaRecorder) { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
   recording = false; clearInterval(timerInterval);
-  document.getElementById('rec-btn').textContent = '▶ Enregistrer';
-  document.getElementById('rec-btn').classList.remove('rec-active');
-  document.getElementById('rec-status').style.display = 'none';
+  // rec-btn supprimé
+  // rec-btn supprimé
+  // rec-status supprimé
 }
 
 window.saveCard = async function() {
@@ -459,7 +459,7 @@ window.saveCard = async function() {
     const imgZone = document.getElementById('img-zone');
     imgZone.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
     imgZone.classList.remove('has-file');
-    document.getElementById('audio-status').textContent = '';
+    // audio-status supprimé
     pendingAudio = null; pendingImage = null;
     extraBlobs = { 1: null, 2: null, 3: null, 4: null, 5: null };
     [1,2,3,4,5].forEach(i => {
@@ -744,10 +744,25 @@ window.printSelected = function() {
             try { doc.addImage(group[i].carte.image, 'JPEG', x, y, cellW, imgH, '', 'FAST'); } catch(e) {}
           }
           const mots = group[i].carte.mot.split('/').map(s => s.trim());
-          doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(26, 58, 92);
-          const lineH = 6, totalH = mots.length * lineH;
-          const startY = y + imgH + (cellH - imgH - totalH) / 2 + 5;
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(26, 58, 92);
+          const lineH = 5.5, totalTextH = mots.length * lineH;
+          const startY = y + imgH + 4;
           mots.forEach((m, mi) => doc.text(m, x + cellW/2, startY + mi * lineH, { align: 'center' }));
+
+          // Expressions label1-label5
+          const expressions = [];
+          for (let ei = 1; ei <= 5; ei++) {
+            const lbl = group[i].carte['label' + ei];
+            if (lbl && lbl.trim()) expressions.push(lbl.trim());
+          }
+          if (expressions.length) {
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(80, 80, 80);
+            const exprStartY = startY + mots.length * lineH + 2;
+            expressions.forEach((ex, ei) => {
+              if (exprStartY + ei * 4.5 < y + cellH - 2)
+                doc.text('• ' + ex, x + cellW/2, exprStartY + ei * 4.5, { align: 'center' });
+            });
+          }
         }
       }
 
