@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin – Demander et donner des indications | JeParle Français</title>
+<title>Admin – Demander des informations et donner des directions | JeParle Français</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -223,7 +223,7 @@ input[type=text]:focus { border-color: var(--bleu); }
 <div class="page-header">
   <div class="page-header-inner">
     <p class="page-eyebrow">⚙ Panneau d'administration</p>
-    <h1>Demander et donner des indications</h1>
+    <h1>Demander des informations et donner des directions</h1>
     <p>Ajoutez, écoutez et supprimez les cartes. Les modifications sont visibles immédiatement sur le site.</p>
   </div>
 </div>
@@ -239,10 +239,10 @@ input[type=text]:focus { border-color: var(--bleu); }
     <div class="form-tabs">
       <div class="form-tabs-title">Ajouter dans quelle section ?</div>
       <div class="tab-row" style="padding:4px 0">
-        <button data-col="transports-demander" class="tab active" onclick="changerSection('transports-demander','🙋 Demander des indications')">🙋 Demander</button>
-        <button data-col="transports-donner" class="tab" onclick="changerSection('transports-donner','🗣 Donner des indications')">🗣 Donner</button>
+        <button data-col="transports-demander" class="tab active" onclick="changerSection('transports-demander','🙋 Demander des informations')">🙋 Demander</button>
+        <button data-col="transports-donner" class="tab" onclick="changerSection('transports-donner','🗣 Donner des directions')">🗣 Donner</button>
       </div>
-      <div style="font-size:0.78rem;color:var(--gris);margin-top:8px">Destination : <strong id="dest-section" style="color:var(--bleu)">🙋 Demander des indications</strong></div>
+      <div style="font-size:0.78rem;color:var(--gris);margin-top:8px">Destination : <strong id="dest-section" style="color:var(--bleu)">🙋 Demander des informations</strong></div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -310,7 +310,7 @@ input[type=text]:focus { border-color: var(--bleu); }
 
   <!-- GRILLE -->
   <div class="section-title">
-    <span id="section-title">🙋 Demander des indications</span>
+    <span id="section-title">🙋 Demander des informations</span>
     <span class="card-count" id="card-count"></span>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:8px">
