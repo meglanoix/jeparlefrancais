@@ -65,16 +65,15 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 </div>
 
 <div class="tabs-wrap">
-  <div class="tabs-inner">
-    <div class="tab-group">
-      <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gris);font-weight:500;white-space:nowrap">Demander</span>
+  <div class="tabs-inner" style="flex-direction:column;gap:0;padding:0">
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 5vw;border-bottom:1px solid rgba(26,58,92,0.06)">
+      <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gris);font-weight:500;min-width:70px">Demander</span>
       <button class="tab active" id="tab-demander-batiment" onclick="afficherSection('demander-batiment')">🏢 Dans un bâtiment</button>
       <button class="tab" id="tab-demander-quartier" onclick="afficherSection('demander-quartier')">🏘 Dans un quartier</button>
       <button class="tab" id="tab-demander-ville" onclick="afficherSection('demander-ville')">🏙 Dans la ville</button>
     </div>
-    <div class="tab-divider"></div>
-    <div class="tab-group">
-      <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gris);font-weight:500;white-space:nowrap">Donner</span>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 5vw">
+      <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gris);font-weight:500;min-width:70px">Donner</span>
       <button class="tab" id="tab-donner-batiment" onclick="afficherSection('donner-batiment')">🏢 Dans un bâtiment</button>
       <button class="tab" id="tab-donner-ville" onclick="afficherSection('donner-ville')">🏙 Dans la ville</button>
     </div>
