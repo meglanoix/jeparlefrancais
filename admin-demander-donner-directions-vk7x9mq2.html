@@ -190,6 +190,16 @@ input[type=text]:focus { border-color: var(--bleu); }
   .form-row { grid-template-columns: 1fr; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 }
+.tabs-wrap { background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); position: sticky; top: 64px; z-index: 50; }
+.tab-row { display: flex; align-items: center; gap: 8px; padding: 8px 2rem; overflow-x: auto; scrollbar-width: none; }
+.tab-row::-webkit-scrollbar { display: none; }
+.tab-row + .tab-row { border-top: 1px solid rgba(26,58,92,0.06); }
+.tab-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gris); font-weight: 500; min-width: 70px; flex-shrink: 0; }
+.tab { padding: 7px 16px; border-radius: 20px; border: 1.5px solid rgba(26,58,92,0.12); background: transparent; color: var(--gris); font-size: 0.82rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
+.tab:hover { border-color: var(--bleu); color: var(--bleu); }
+.tab.active { background: var(--bleu); color: var(--blanc); border-color: var(--bleu); font-weight: 500; }
+.form-tabs { background: var(--creme); border: 1px solid rgba(26,58,92,0.1); border-radius: 10px; padding: 10px 12px; margin-bottom: 1.25rem; }
+.form-tabs-title { font-size: 0.78rem; font-weight: 600; color: var(--bleu); margin-bottom: 8px; }
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELGPLZQGVN"></script>
@@ -210,16 +220,6 @@ input[type=text]:focus { border-color: var(--bleu); }
   </div>
 </nav>
 
-<div style="background:var(--bleu);padding:0.75rem 2rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-  <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.5);font-weight:500">Demander :</span>
-  <button id="btn-demander-batiment" style="padding:6px 14px;border-radius:20px;border:1.5px solid white;background:white;color:var(--bleu);font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500" onclick="changerSection('demander-batiment','🏢 Dans un bâtiment (demander)','btn-demander-batiment')">🏢 Bâtiment</button>
-  <button id="btn-demander-quartier" style="padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('demander-quartier','🏘 Dans un quartier (demander)','btn-demander-quartier')">🏘 Quartier</button>
-  <button id="btn-demander-ville" style="padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('demander-ville','🏙 Dans la ville (demander)','btn-demander-ville')">🏙 Ville</button>
-  <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.5);font-weight:500;margin-left:8px">Donner :</span>
-  <button id="btn-donner-batiment" style="padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('donner-batiment','🏢 Dans un bâtiment (donner)','btn-donner-batiment')">🏢 Bâtiment</button>
-  <button id="btn-donner-ville" style="padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('donner-ville','🏙 Dans la ville (donner)','btn-donner-ville')">🏙 Ville</button>
-</div>
-
 <div class="page-header">
   <div class="page-header-inner">
     <p class="page-eyebrow">⚙ Panneau d'administration</p>
@@ -235,6 +235,21 @@ input[type=text]:focus { border-color: var(--bleu); }
     <div class="admin-title">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
       Ajouter une nouvelle carte
+    </div>
+    <div class="form-tabs">
+      <div class="form-tabs-title">Ajouter dans quelle section ?</div>
+      <div class="tab-row" style="padding:4px 0">
+        <span class="tab-label">Demander</span>
+        <button data-col="demander-batiment" class="tab active" onclick="changerSection('demander-batiment','🏢 Dans un bâtiment (demander)')">🏢 Dans un bâtiment</button>
+        <button data-col="demander-quartier" class="tab" onclick="changerSection('demander-quartier','🏘 Dans un quartier (demander)')">🏘 Dans un quartier</button>
+        <button data-col="demander-ville" class="tab" onclick="changerSection('demander-ville','🏙 Dans la ville (demander)')">🏙 Dans la ville</button>
+      </div>
+      <div class="tab-row" style="padding:4px 0;border-top:none">
+        <span class="tab-label">Donner</span>
+        <button data-col="donner-batiment" class="tab" onclick="changerSection('donner-batiment','🏢 Dans un bâtiment (donner)')">🏢 Dans un bâtiment</button>
+        <button data-col="donner-ville" class="tab" onclick="changerSection('donner-ville','🏙 Dans la ville (donner)')">🏙 Dans la ville</button>
+      </div>
+      <div style="font-size:0.78rem;color:var(--gris);margin-top:8px">Destination : <strong id="dest-section" style="color:var(--bleu)">🏢 Dans un bâtiment (demander)</strong></div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -302,7 +317,7 @@ input[type=text]:focus { border-color: var(--bleu); }
 
   <!-- GRILLE -->
   <div class="section-title">
-    Cartes actuelles
+    <span id="section-title">🏢 Dans un bâtiment (demander)</span>
     <span class="card-count" id="card-count"></span>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:8px">
@@ -336,6 +351,20 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let cartes = [];
+let currentCol = 'demander-batiment';
+
+window.changerSection = function(col, titre, btnId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab[data-col="' + col + '"]').forEach(t => t.classList.add('active'));
+  currentCol = col;
+  const t = document.getElementById('section-title');
+  if (t) t.textContent = titre;
+  const d = document.getElementById('dest-section');
+  if (d) d.textContent = titre;
+  document.getElementById('card-grid').innerHTML = '<div class="empty-grid"><p>Chargement des cartes...</p></div>';
+  cartes = [];
+  loadCards();
+};
 let mediaRecorder = null, chunks = [], recording = false;
 let timerInterval = null, seconds = 0;
 let pendingAudio = null, pendingImage = null, currentAudio = null;
@@ -485,7 +514,7 @@ async function loadCards() {
     const snap = await getDocs(collection(db, currentCol));
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     // Trier selon l'ordre sauvegardé si présent
-    const savedOrder = JSON.parse(localStorage.getItem('cartes-order') || '[]');
+    const savedOrder = JSON.parse(localStorage.getItem('cartes-order-' + currentCol) || '[]');
     if (savedOrder.length) {
       cartes = savedOrder.map(id => docs.find(d => d.id === id)).filter(Boolean);
       // Ajouter les nouvelles cartes pas encore dans l'ordre
@@ -501,7 +530,7 @@ async function loadCards() {
 }
 
 function saveOrder() {
-  localStorage.setItem('cartes-order', JSON.stringify(cartes.map(c => c.id)));
+  localStorage.setItem('cartes-order-' + currentCol, JSON.stringify(cartes.map(c => c.id)));
   const el = document.getElementById('order-saving');
   el.style.display = 'inline';
   setTimeout(() => el.style.display = 'none', 2000);
