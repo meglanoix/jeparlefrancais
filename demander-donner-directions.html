@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-:root { --bleu: #1a3a5c; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --violet: rgba(89,74,136,0.85); --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+:root { --bleu: #1a3a5c; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
 nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
@@ -24,25 +24,27 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
 .page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.6); font-weight: 300; }
 .tabs-wrap { background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); position: sticky; top: 64px; z-index: 50; }
-.tabs-inner { max-width: 1100px; margin: 0 auto; padding: 0 5vw; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
-.tabs-inner::-webkit-scrollbar { display: none; }
-.tab-group { display: flex; align-items: center; gap: 4px; padding: 10px 0; }
-.tab-divider { width: 1px; background: rgba(26,58,92,0.12); height: 28px; margin: 0 8px; flex-shrink: 0; }
+.tab-row { display: flex; align-items: center; gap: 8px; padding: 8px 5vw; max-width: 1100px; margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
+.tab-row::-webkit-scrollbar { display: none; }
+.tab-row:first-child { border-bottom: 1px solid rgba(26,58,92,0.06); }
+.tab-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gris); font-weight: 500; min-width: 70px; flex-shrink: 0; }
 .tab { padding: 7px 16px; border-radius: 20px; border: 1.5px solid rgba(26,58,92,0.12); background: transparent; color: var(--gris); font-size: 0.82rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; white-space: nowrap; flex-shrink: 0; }
 .tab:hover { border-color: var(--bleu); color: var(--bleu); }
 .tab.active { background: var(--bleu); color: var(--blanc); border-color: var(--bleu); font-weight: 500; }
 .main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
 .panel { display: none; }
 .panel.active { display: block; }
-.section-heading { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--bleu); margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(26,58,92,0.1); }
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
-.card { background: var(--blanc); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(26,58,92,0.07); cursor: pointer; transition: all 0.2s; border: 1px solid rgba(26,58,92,0.06); }
-.card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,58,92,0.13); }
-.card.playing { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.15); }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
+.card { background: var(--blanc); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(26,58,92,0.07); border: 1px solid rgba(26,58,92,0.06); transition: all 0.2s; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,58,92,0.13); }
 .card-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: var(--creme); }
 .card-img-placeholder { width: 100%; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: var(--creme); }
-.card-body { padding: 1rem; }
-.card-mot { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--bleu); line-height: 1.3; }
+.card-body { padding: 0.9rem; }
+.audio-list { display: flex; flex-direction: column; gap: 6px; }
+.audio-btn { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--creme); border: 1px solid rgba(26,58,92,0.1); border-radius: 8px; padding: 8px 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--texte); transition: all 0.15s; width: 100%; }
+.audio-btn:hover { background: rgba(26,58,92,0.08); border-color: var(--bleu); color: var(--bleu); }
+.audio-btn.playing { background: var(--bleu); color: var(--blanc); border-color: var(--bleu); }
+.audio-btn svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
 .empty-grid { text-align: center; padding: 3rem; color: var(--gris); grid-column: 1/-1; font-size: 0.9rem; }
 .loading-msg { text-align: center; padding: 3rem; color: var(--gris); }
 </style>
@@ -60,49 +62,31 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
   <div class="page-header-inner">
     <p class="page-eyebrow">Les directions dans le bâtiment et la ville</p>
     <h1>Demander et donner des directions</h1>
-    <p>Cliquez sur une image pour entendre la prononciation</p>
+    <p>Cliquez sur les boutons pour entendre les expressions</p>
   </div>
 </div>
 
 <div class="tabs-wrap">
-  <div class="tabs-inner" style="flex-direction:column;gap:0;padding:0">
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 5vw;border-bottom:1px solid rgba(26,58,92,0.06)">
-      <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gris);font-weight:500;min-width:70px">Demander</span>
-      <button class="tab active" id="tab-demander-batiment" onclick="afficherSection('demander-batiment')">🏢 Dans un bâtiment</button>
-      <button class="tab" id="tab-demander-quartier" onclick="afficherSection('demander-quartier')">🏘 Dans un quartier</button>
-      <button class="tab" id="tab-demander-ville" onclick="afficherSection('demander-ville')">🏙 Dans la ville</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 5vw">
-      <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gris);font-weight:500;min-width:70px">Donner</span>
-      <button class="tab" id="tab-donner-batiment" onclick="afficherSection('donner-batiment')">🏢 Dans un bâtiment</button>
-      <button class="tab" id="tab-donner-ville" onclick="afficherSection('donner-ville')">🏙 Dans la ville</button>
-    </div>
+  <div class="tab-row">
+    <span class="tab-label">Demander</span>
+    <button class="tab active" id="tab-demander-batiment" onclick="afficherSection('demander-batiment')">🏢 Dans un bâtiment</button>
+    <button class="tab" id="tab-demander-quartier" onclick="afficherSection('demander-quartier')">🏘 Dans un quartier</button>
+    <button class="tab" id="tab-demander-ville" onclick="afficherSection('demander-ville')">🏙 Dans la ville</button>
+  </div>
+  <div class="tab-row">
+    <span class="tab-label">Donner</span>
+    <button class="tab" id="tab-donner-batiment" onclick="afficherSection('donner-batiment')">🏢 Dans un bâtiment</button>
+    <button class="tab" id="tab-donner-ville" onclick="afficherSection('donner-ville')">🏙 Dans la ville</button>
   </div>
 </div>
 
 <div class="main">
   <div id="loading" class="loading-msg">Chargement...</div>
-
-  <div class="panel active" id="panel-demander-batiment">
-    <h2 class="section-heading">🏢 Demander des directions dans un bâtiment</h2>
-    <div class="card-grid" id="grid-demander-batiment"></div>
-  </div>
-  <div class="panel" id="panel-demander-quartier">
-    <h2 class="section-heading">🏘 Demander des directions dans un quartier</h2>
-    <div class="card-grid" id="grid-demander-quartier"></div>
-  </div>
-  <div class="panel" id="panel-demander-ville">
-    <h2 class="section-heading">🏙 Demander des directions dans la ville</h2>
-    <div class="card-grid" id="grid-demander-ville"></div>
-  </div>
-  <div class="panel" id="panel-donner-batiment">
-    <h2 class="section-heading">🏢 Donner des indications dans un bâtiment</h2>
-    <div class="card-grid" id="grid-donner-batiment"></div>
-  </div>
-  <div class="panel" id="panel-donner-ville">
-    <h2 class="section-heading">🏙 Donner des indications dans la ville</h2>
-    <div class="card-grid" id="grid-donner-ville"></div>
-  </div>
+  <div class="panel active" id="panel-demander-batiment"><div class="card-grid" id="grid-demander-batiment"></div></div>
+  <div class="panel" id="panel-demander-quartier"><div class="card-grid" id="grid-demander-quartier"></div></div>
+  <div class="panel" id="panel-demander-ville"><div class="card-grid" id="grid-demander-ville"></div></div>
+  <div class="panel" id="panel-donner-batiment"><div class="card-grid" id="grid-donner-batiment"></div></div>
+  <div class="panel" id="panel-donner-ville"><div class="card-grid" id="grid-donner-ville"></div></div>
 </div>
 
 <script type="module">
@@ -111,7 +95,7 @@ import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/fireb
 const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-let currentAudio = null;
+let currentAudio = null, currentBtn = null;
 
 const sections = ['demander-batiment','demander-quartier','demander-ville','donner-batiment','donner-ville'];
 
@@ -122,37 +106,48 @@ window.afficherSection = function(section) {
   document.getElementById('tab-' + section).classList.add('active');
 };
 
-function renderCards(cartes, gridId, placeholder) {
+function renderCards(cartes, gridId) {
   const grid = document.getElementById(gridId);
   if (!grid) return;
   if (cartes.length === 0) { grid.innerHTML = '<div class="empty-grid">Aucune carte pour l\'instant.</div>'; return; }
-  grid.innerHTML = cartes.map(c => `
-    <div class="card" id="card-${c.id}" onclick="jouerAudio('${c.id}', '${(c.audio||'').replace(/'/g,"\\'")}')">
-      ${c.image ? `<img class="card-img" src="${c.image}" alt="${c.mot || ''}"/>` : `<div class="card-img-placeholder">${placeholder}</div>`}
-      <div class="card-body"><div class="card-mot">${(c.mot || '').split('/').map(s => s.trim()).join('<br/>')}</div></div>
-    </div>`).join('');
+  grid.innerHTML = cartes.map(c => {
+    const audios = [];
+    for (let i = 1; i <= 5; i++) {
+      if (c['audio' + i] && c['audio' + i].length > 10) audios.push({ url: c['audio' + i], label: c['label' + i] || '', idx: i });
+    }
+    if (c.audio && audios.length === 0) audios.push({ url: c.audio, label: c.mot || '', idx: 0 });
+    return `
+      <div class="card">
+        ${c.image ? `<img class="card-img" src="${c.image}" alt=""/>` : `<div class="card-img-placeholder">🗺</div>`}
+        <div class="card-body">
+          <div class="audio-list">
+            ${audios.map((a, i) => `
+              <button class="audio-btn" id="abtn-${c.id}-${i}" onclick="jouerAudio('${a.url}', '${c.id}-${i}')">
+                <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                ${a.label ? `<span style="text-align:left">${a.label}</span>` : ''}
+              </button>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
 }
 
-window.jouerAudio = function(id, audioUrl) {
-  if (!audioUrl) return;
+window.jouerAudio = function(url, btnId) {
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('playing'));
-  const card = document.getElementById('card-' + id);
-  if (card) card.classList.add('playing');
-  const audio = new Audio(audioUrl);
+  if (currentBtn) { currentBtn.classList.remove('playing'); currentBtn = null; }
+  const btn = document.getElementById('abtn-' + btnId);
+  if (btn) { btn.classList.add('playing'); currentBtn = btn; }
+  const audio = new Audio(url);
   currentAudio = audio;
   audio.play();
-  audio.onended = () => { if (card) card.classList.remove('playing'); currentAudio = null; };
+  audio.onended = () => { if (btn) btn.classList.remove('playing'); currentAudio = null; currentBtn = null; };
 };
 
 async function load() {
   try {
     const snaps = await Promise.all(sections.map(s => getDocs(collection(db, s))));
     document.getElementById('loading').style.display = 'none';
-    const placeholders = { 'demander-batiment':'🏢','demander-quartier':'🏘','demander-ville':'🏙','donner-batiment':'🏢','donner-ville':'🏙' };
-    sections.forEach((s, i) => {
-      renderCards(snaps[i].docs.map(d => ({ id: d.id, ...d.data() })), 'grid-' + s, placeholders[s]);
-    });
+    sections.forEach((s, i) => renderCards(snaps[i].docs.map(d => ({ id: d.id, ...d.data() })), 'grid-' + s));
   } catch(e) {
     document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.';
   }

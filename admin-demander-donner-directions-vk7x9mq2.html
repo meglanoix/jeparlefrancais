@@ -192,8 +192,7 @@ input[type=text]:focus { border-color: var(--bleu); }
 }
 </style>
 <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ELGPLZQGVN">
-</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ELGPLZQGVN"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -211,16 +210,21 @@ input[type=text]:focus { border-color: var(--bleu); }
   </div>
 </nav>
 
+<div style="background:var(--bleu);padding:0.75rem 2rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+  <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.5);font-weight:500">Demander :</span>
+  <button id="btn-demander-batiment" style="padding:6px 14px;border-radius:20px;border:1.5px solid white;background:white;color:var(--bleu);font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500" onclick="changerSection('demander-batiment','🏢 Dans un bâtiment (demander)','btn-demander-batiment')">🏢 Bâtiment</button>
+  <button id="btn-demander-quartier" style="padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('demander-quartier','🏘 Dans un quartier (demander)','btn-demander-quartier')">🏘 Quartier</button>
+  <button id="btn-demander-ville" style="padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('demander-ville','🏙 Dans la ville (demander)','btn-demander-ville')">🏙 Ville</button>
+  <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.5);font-weight:500;margin-left:8px">Donner :</span>
+  <button id="btn-donner-batiment" style="padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('donner-batiment','🏢 Dans un bâtiment (donner)','btn-donner-batiment')">🏢 Bâtiment</button>
+  <button id="btn-donner-ville" style="padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('donner-ville','🏙 Dans la ville (donner)','btn-donner-ville')">🏙 Ville</button>
+</div>
 
 <div class="page-header">
   <div class="page-header-inner">
     <p class="page-eyebrow">⚙ Panneau d'administration</p>
-    <h1 id="section-title">Les professionnels de la santé</h1>
+    <h1>Demander et donner des directions</h1>
     <p>Ajoutez, écoutez et supprimez les cartes. Les modifications sont visibles immédiatement sur le site.</p>
-    <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
-      <button id="btn-profs" style="padding:7px 18px;border-radius:25px;border:1.5px solid white;background:white;color:var(--bleu);font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500" onclick="changerSection('professionnels-sante', 'Les professionnels de la santé', 'btn-profs')">👨‍⚕️ Les professionnels de la santé</button>
-      <button id="btn-unites" style="padding:7px 18px;border-radius:25px;border:1.5px solid rgba(255,255,255,0.4);background:transparent;color:white;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="changerSection('unites-hopital', 'Les unités de l\'hôpital', 'btn-unites')">🏨 Les unités de l'hôpital</button>
-    </div>
   </div>
 </div>
 
@@ -232,14 +236,6 @@ input[type=text]:focus { border-color: var(--bleu); }
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
       Ajouter une nouvelle carte
     </div>
-    <div class="form-group" style="margin-bottom:1rem">
-      <label>Mot en français</label>
-      <input type="text" id="mot" placeholder="Ex : le soccer"/>
-    </div>
-    <div class="form-group" style="margin-bottom:1rem">
-      <label>Catégorie <span style="color:var(--gris);font-weight:300">(pour le jeu d'association)</span></label>
-      <input type="text" id="categorie" placeholder="Ex : soccer, natation, hockey..."/>
-    </div>
     <div class="form-row">
       <div class="form-group">
         <label>Image</label>
@@ -248,16 +244,51 @@ input[type=text]:focus { border-color: var(--bleu); }
           <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
         </div>
       </div>
+      
       <div class="form-group">
-        <label>Audio (prononciation)</label>
-        <div class="rec-row">
-          <button class="app-btn" id="rec-btn" onclick="toggleRecord()">▶ Enregistrer</button>
-          <span id="rec-status" style="display:none" class="rec-row">
-            <span class="rec-dot"></span>
-            <span class="timer" id="rec-timer">0:00</span>
-          </span>
+        <label style="font-weight:600;color:var(--bleu)">Expressions (jusqu'à 5)</label>
+        <p style="font-size:0.78rem;color:var(--gris);margin-bottom:8px">Entrez le texte et l'audio pour chaque expression</p>
+        
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 1</span>
+          <input type="text" id="label1" placeholder="Ex: Bonjour !" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(1)" id="rec-extra1">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra1" onclick="playExtra(1)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra1').click()">📁</button>
+          <input type="file" id="file-extra1" accept="audio/*" style="display:none" onchange="handleFileExtra(1, event)"/>
         </div>
-        <div style="font-size:0.78rem;color:var(--gris);margin-top:6px" id="audio-status"></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 2</span>
+          <input type="text" id="label2" placeholder="Ex: Ça va bien ?" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(2)" id="rec-extra2">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra2" onclick="playExtra(2)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra2').click()">📁</button>
+          <input type="file" id="file-extra2" accept="audio/*" style="display:none" onchange="handleFileExtra(2, event)"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 3</span>
+          <input type="text" id="label3" placeholder="Ex: Et toi ?" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(3)" id="rec-extra3">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra3" onclick="playExtra(3)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra3').click()">📁</button>
+          <input type="file" id="file-extra3" accept="audio/*" style="display:none" onchange="handleFileExtra(3, event)"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 4</span>
+          <input type="text" id="label4" placeholder="(optionnel)" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(4)" id="rec-extra4">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra4" onclick="playExtra(4)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra4').click()">📁</button>
+          <input type="file" id="file-extra4" accept="audio/*" style="display:none" onchange="handleFileExtra(4, event)"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 5</span>
+          <input type="text" id="label5" placeholder="(optionnel)" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(5)" id="rec-extra5">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra5" onclick="playExtra(5)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra5').click()">📁</button>
+          <input type="file" id="file-extra5" accept="audio/*" style="display:none" onchange="handleFileExtra(5, event)"/>
+        </div>
       </div>
     </div>
     <div class="sep"></div>
@@ -265,6 +296,7 @@ input[type=text]:focus { border-color: var(--bleu); }
       <button class="app-btn primary" onclick="saveCard()">Ajouter la carte</button>
       <span id="save-msg" class="success-msg" style="display:none"></span>
       <span id="save-err" class="err-msg" style="display:none"></span>
+      <span id="rec-status" style="display:none"><span class="rec-dot"></span><span id="rec-timer">0:00</span></span>
     </div>
   </div>
 
@@ -304,23 +336,42 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let cartes = [];
-let currentCol = 'demander-batiment';
-
-window.changerSection = function(col, titre, btnId) {
-  ['btn-demander-batiment','btn-demander-quartier','btn-demander-ville','btn-donner-batiment','btn-donner-ville'].forEach(id => {
-    const b = document.getElementById(id); if(b){ b.style.background='transparent'; b.style.color='white'; b.style.borderColor='rgba(255,255,255,0.4)'; b.style.fontWeight='normal'; }
-  });
-  const active = document.getElementById(btnId);
-  active.style.background = 'white'; active.style.color = 'var(--bleu)'; active.style.borderColor = 'white'; active.style.fontWeight = '500';
-  currentCol = col;
-  document.getElementById('section-title').textContent = titre;
-  document.getElementById('card-grid').innerHTML = '<div class="empty-grid"><p>Chargement...</p></div>';
-  cartes = [];
-  loadCards();
-};
 let mediaRecorder = null, chunks = [], recording = false;
 let timerInterval = null, seconds = 0;
 let pendingAudio = null, pendingImage = null, currentAudio = null;
+let extraBlobs = { 1: null, 2: null, 3: null, 4: null, 5: null };
+let extraRecorder = null, extraChunks = [], extraRecording = false, extraSlot = null;
+
+window.toggleRecordExtra = async function(slot) {
+  if (extraRecording && extraSlot === slot) {
+    extraRecorder.stop(); extraRecording = false; extraSlot = null;
+    document.getElementById('rec-extra' + slot).textContent = '🎙';
+  } else {
+    if (extraRecording) { extraRecorder.stop(); document.getElementById('rec-extra' + extraSlot).textContent = '🎙'; }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    extraChunks = [];
+    extraRecorder = new MediaRecorder(stream);
+    extraRecorder.ondataavailable = e => extraChunks.push(e.data);
+    extraRecorder.onstop = () => {
+      extraBlobs[slot] = new Blob(extraChunks, { type: 'audio/webm' });
+      document.getElementById('play-extra' + slot).disabled = false;
+      stream.getTracks().forEach(t => t.stop());
+    };
+    extraRecorder.start(); extraRecording = true; extraSlot = slot;
+    document.getElementById('rec-extra' + slot).textContent = '⏹';
+  }
+};
+
+window.playExtra = function(slot) {
+  const blob = extraBlobs[slot]; if (!blob) return;
+  new Audio(URL.createObjectURL(blob)).play();
+};
+
+window.handleFileExtra = function(slot, e) {
+  const file = e.target.files[0]; if (!file) return;
+  extraBlobs[slot] = file;
+  document.getElementById('play-extra' + slot).disabled = false;
+};
 
 window.handleImage = function(e) {
   const file = e.target.files[0];
@@ -356,13 +407,13 @@ function startRecord() {
     mediaRecorder.ondataavailable = e => chunks.push(e.data);
     mediaRecorder.onstop = () => {
       pendingAudio = new Blob(chunks, { type: 'audio/webm' });
-      document.getElementById('audio-status').textContent = '✓ Audio enregistré';
+      // audio-status supprimé
     };
     mediaRecorder.start();
     recording = true; seconds = 0;
-    document.getElementById('rec-btn').textContent = '■ Arrêter';
+    // rec-btn supprimé
     document.getElementById('rec-btn').classList.add('rec-active');
-    document.getElementById('rec-status').style.display = 'flex';
+    // rec-status supprimé
     timerInterval = setInterval(() => {
       seconds++;
       document.getElementById('rec-timer').textContent = Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
@@ -373,39 +424,45 @@ function startRecord() {
 function stopRecord() {
   if (mediaRecorder) { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
   recording = false; clearInterval(timerInterval);
-  document.getElementById('rec-btn').textContent = '▶ Enregistrer';
-  document.getElementById('rec-btn').classList.remove('rec-active');
-  document.getElementById('rec-status').style.display = 'none';
+  // rec-btn supprimé
+  // rec-btn supprimé
+  // rec-status supprimé
 }
 
 window.saveCard = async function() {
-  const mot = document.getElementById('mot').value.trim();
-  if (!mot) { alert('Veuillez entrer un mot.'); return; }
   if (!pendingImage) { alert('Veuillez choisir une image.'); return; }
-  if (!pendingAudio) { alert('Veuillez enregistrer un audio.'); return; }
+  // audio principal optionnel
   const saveMsg = document.getElementById('save-msg');
   const saveErr = document.getElementById('save-err');
   saveMsg.style.display = 'none'; saveErr.style.display = 'none';
   saveMsg.textContent = 'Sauvegarde...'; saveMsg.style.display = 'inline';
   try {
-    const audioUrl = await blobToDataUrl(pendingAudio);
-    await addDoc(collection(db, currentCol || 'demander-batiment'), {
-      mot,
-      categorie: document.getElementById('categorie').value.trim().toLowerCase(),
+    const data = {
       image: pendingImage,
-      audio: audioUrl,
       date: new Date().toLocaleDateString('fr-CA')
-    });
+    };
+    for (let i = 1; i <= 5; i++) {
+      const blob = extraBlobs[i];
+      const label = document.getElementById('label' + i)?.value?.trim();
+      if (blob) {
+        data['audio' + i] = await blobToDataUrl(blob);
+        data['label' + i] = label || ('Expression ' + i);
+      }
+    }
+    await addDoc(collection(db, currentCol), data);
     await loadCards();
     saveMsg.textContent = '✓ Carte ajoutée !';
-    document.getElementById('mot').value = '';
-    document.getElementById('categorie').value = '';
-    // Réinitialiser la zone image (recrée l'input pour permettre un 2e upload sans recharger)
     const imgZone = document.getElementById('img-zone');
     imgZone.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
     imgZone.classList.remove('has-file');
-    document.getElementById('audio-status').textContent = '';
+    // audio-status supprimé
     pendingAudio = null; pendingImage = null;
+    extraBlobs = { 1: null, 2: null, 3: null, 4: null, 5: null };
+    [1,2,3,4,5].forEach(i => {
+      if (document.getElementById('label' + i)) document.getElementById('label' + i).value = '';
+      if (document.getElementById('play-extra' + i)) document.getElementById('play-extra' + i).disabled = true;
+      if (document.getElementById('rec-extra' + i)) document.getElementById('rec-extra' + i).textContent = '🎙';
+    });
     setTimeout(() => saveMsg.style.display = 'none', 3000);
   } catch(e) {
     saveMsg.style.display = 'none';
@@ -425,8 +482,17 @@ function blobToDataUrl(blob) {
 
 async function loadCards() {
   try {
-    const snap = await getDocs(collection(db, currentCol || 'demander-batiment'));
-    cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snap = await getDocs(collection(db, currentCol));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Trier selon l'ordre sauvegardé si présent
+    const savedOrder = JSON.parse(localStorage.getItem('cartes-order') || '[]');
+    if (savedOrder.length) {
+      cartes = savedOrder.map(id => docs.find(d => d.id === id)).filter(Boolean);
+      // Ajouter les nouvelles cartes pas encore dans l'ordre
+      docs.forEach(d => { if (!cartes.find(c => c.id === d.id)) cartes.push(d); });
+    } else {
+      cartes = docs;
+    }
     document.getElementById('card-count').textContent = cartes.length + ' carte' + (cartes.length !== 1 ? 's' : '');
     renderCards();
   } catch(e) {
@@ -435,9 +501,10 @@ async function loadCards() {
 }
 
 function saveOrder() {
-  // ordre non utilisé dans cet admin
+  localStorage.setItem('cartes-order', JSON.stringify(cartes.map(c => c.id)));
   const el = document.getElementById('order-saving');
-  if (el) { el.style.display = 'inline'; setTimeout(() => el.style.display = 'none', 2000); }
+  el.style.display = 'inline';
+  setTimeout(() => el.style.display = 'none', 2000);
 }
 
 function renderCards() {
@@ -570,7 +637,7 @@ window.saveReRecord = async function() {
   const audioUrl = await blobToDataUrl(blob);
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, currentCol, reRecId), { audio: audioUrl });
+    await updateDoc(firestoreDoc(db, 'demander-donner-directions', reRecId), { audio: audioUrl });
     document.getElementById('re-status').textContent = '✓ Sauvegardé !';
     setTimeout(() => { closeReRecord(); loadCards(); }, 1200);
   } catch(err) {
@@ -635,7 +702,7 @@ window.printSelected = function() {
 
   const qrPromises = selected.map((c) => {
     return new Promise(resolve => {
-      const url = base + '/carte.html?id=' + c.id + '&col=' + currentCol + '';
+      const url = base + '/carte.html?id=' + c.id + '&col=demander-donner-directions';
       const div = document.createElement('div');
       tempDiv.appendChild(div);
       new QRCode(div, { text: url, width: 300, height: 300, colorDark: '#1a3a5c', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
@@ -673,10 +740,25 @@ window.printSelected = function() {
             try { doc.addImage(group[i].carte.image, 'JPEG', x, y, cellW, imgH, '', 'FAST'); } catch(e) {}
           }
           const mots = group[i].carte.mot.split('/').map(s => s.trim());
-          doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(26, 58, 92);
-          const lineH = 6, totalH = mots.length * lineH;
-          const startY = y + imgH + (cellH - imgH - totalH) / 2 + 5;
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(26, 58, 92);
+          const lineH = 5.5, totalTextH = mots.length * lineH;
+          const startY = y + imgH + 4;
           mots.forEach((m, mi) => doc.text(m, x + cellW/2, startY + mi * lineH, { align: 'center' }));
+
+          // Expressions label1-label5
+          const expressions = [];
+          for (let ei = 1; ei <= 5; ei++) {
+            const lbl = group[i].carte['label' + ei];
+            if (lbl && lbl.trim()) expressions.push(lbl.trim());
+          }
+          if (expressions.length) {
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(80, 80, 80);
+            const exprStartY = startY + mots.length * lineH + 2;
+            expressions.forEach((ex, ei) => {
+              if (exprStartY + ei * 4.5 < y + cellH - 2)
+                doc.text('• ' + ex, x + cellW/2, exprStartY + ei * 4.5, { align: 'center' });
+            });
+          }
         }
       }
 
@@ -715,7 +797,7 @@ window.printSelected = function() {
 
 window.openQR = function(e, id, mot) {
   e.stopPropagation();
-  const url = window.location.origin + '/carte.html?id=' + id + '&col=' + currentCol + '';
+  const url = window.location.origin + '/carte.html?id=' + id + '&col=demander-donner-directions';
   document.getElementById('qr-mot-label').textContent = mot.replace('/', ' / ');
   document.getElementById('qr-url-text').textContent = url;
   document.getElementById('qr-canvas').innerHTML = '';
@@ -763,7 +845,7 @@ window.saveCategorie = async function() {
   document.getElementById('categorie-status').textContent = 'Sauvegarde...';
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, currentCol, id), { categorie: newCat });
+    await updateDoc(firestoreDoc(db, 'demander-donner-directions', id), { categorie: newCat });
     document.getElementById('categorie-status').textContent = '✓ Catégorie mise à jour !';
     setTimeout(() => { closeCategorie(); loadCards(); }, 900);
   } catch(err) {
@@ -791,7 +873,7 @@ window.saveRename = async function() {
   document.getElementById('rename-status').textContent = 'Sauvegarde...';
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, currentCol, id), { mot: newMot });
+    await updateDoc(firestoreDoc(db, 'demander-donner-directions', id), { mot: newMot });
     document.getElementById('rename-status').textContent = '✓ Renommé !';
     setTimeout(() => { closeRename(); loadCards(); }, 900);
   } catch(err) {
@@ -809,7 +891,6 @@ window.deleteCard = async function(e, id) {
 };
 
 loadCards();
-
 </script>
 <!-- BARRE D'IMPRESSION -->
 <div class="print-bar" id="print-bar">
@@ -820,10 +901,8 @@ loadCards();
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
-</script>
-<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js">
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <!-- MODAL QR CODE -->
 <div class="qr-modal-overlay" id="qr-modal" style="display:none">
