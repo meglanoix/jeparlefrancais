@@ -200,6 +200,16 @@ input[type=text]:focus { border-color: var(--bleu); }
 .tab.active { background: var(--bleu); color: var(--blanc); border-color: var(--bleu); font-weight: 500; }
 .form-tabs { background: var(--creme); border: 1px solid rgba(26,58,92,0.1); border-radius: 10px; padding: 10px 12px; margin-bottom: 1.25rem; }
 .form-tabs-title { font-size: 0.78rem; font-weight: 600; color: var(--bleu); margin-bottom: 8px; }
+.exp-row { display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(26,58,92,0.07); }
+.exp-row:last-child { border-bottom: none; }
+.exp-num { font-size: 0.78rem; color: var(--gris); text-align: center; }
+.exp-row input[type=text] { width: 100%; padding: 7px 10px; font-size: 0.85rem; }
+.exp-btns { display: flex; gap: 5px; }
+.exp-mini { width: 32px; height: 32px; border-radius: 7px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--creme); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; padding: 0; }
+.exp-mini:hover { border-color: var(--bleu); }
+.exp-mini.on { background: #fdf2f2; border-color: rgba(192,57,43,0.35); color: var(--rouge); }
+.exp-mini:disabled { opacity: 0.3; cursor: not-allowed; }
+.exp-new { font-size: 0.7rem; color: var(--vert); margin-left: 4px; }
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELGPLZQGVN"></script>
@@ -331,6 +341,20 @@ input[type=text]:focus { border-color: var(--bleu); }
   </div>
   <div class="grid" id="card-grid">
     <div class="empty-grid"><p>Chargement des cartes...</p></div>
+  </div>
+</div>
+
+
+<div class="rec-modal-overlay" id="exp-modal" style="display:none">
+  <div class="rec-modal-box" style="max-width:620px;text-align:left">
+    <h3>Modifier les expressions</h3>
+    <p>Reecrivez le texte ou reenregistrez l'audio de chaque enonce, individuellement.</p>
+    <div id="exp-rows"></div>
+    <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em;margin-top:0.75rem" id="exp-status"></div>
+    <div class="rec-modal-btns" style="justify-content:flex-end">
+      <button class="app-btn" onclick="closeExpressions()">Annuler</button>
+      <button class="app-btn primary" onclick="saveExpressions()">Enregistrer les modifications</button>
+    </div>
   </div>
 </div>
 
@@ -609,6 +633,9 @@ function renderCards() {
           <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4);margin-top:4px" onclick="openCategorie(event,'${c.id}','${(c.categorie||'').replace(/'/g,"\\'")}')">
             🏷 Catégorie${c.categorie ? ': '+c.categorie : ''}
           </button>
+          <button class="overlay-btn play" style="background:var(--blanc);color:var(--bleu)" onclick="openExpressions(event,'${c.id}')">
+            &#127911; Expressions
+          </button>
           <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}',this.dataset.mot)" data-mot="${(c.mot || '').replace(/'/g, '&#39;')}">
             ⬛ QR Code
           </button>
@@ -712,11 +739,131 @@ window.saveReRecord = async function() {
   const audioUrl = await blobToDataUrl(blob);
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, 'demander-donner-directions', reRecId), { audio: audioUrl });
+    await updateDoc(firestoreDoc(db, ordreCol(), reRecId), { audio: audioUrl });
     document.getElementById('re-status').textContent = '✓ Sauvegardé !';
     setTimeout(() => { closeReRecord(); loadCards(); }, 1200);
   } catch(err) {
     document.getElementById('re-status').textContent = 'Erreur : ' + err.message;
+  }
+};
+
+// --- Edition individuelle des expressions (multi-audio) ---
+let expCarteId = null;
+let expData = {};            // { 1: {label, audio, modifie}, ... }
+let expRecorder = null, expChunks = [], expRecSlot = null;
+
+window.openExpressions = function(e, id) {
+  e.stopPropagation();
+  const c = cartes.find(x => x.id === id);
+  if (!c) return;
+  expCarteId = id;
+  expData = {};
+  for (let i = 1; i <= 5; i++) {
+    expData[i] = { label: c['label' + i] || '', audio: c['audio' + i] || '', modifie: false };
+  }
+  expStopRec();
+  document.getElementById('exp-status').textContent = '';
+  renderExpRows();
+  document.getElementById('exp-modal').style.display = 'flex';
+};
+
+window.closeExpressions = function() {
+  expStopRec();
+  document.getElementById('exp-modal').style.display = 'none';
+  expCarteId = null;
+};
+
+function renderExpRows() {
+  const wrap = document.getElementById('exp-rows');
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    const d = expData[i];
+    const enReg = expRecSlot === i;
+    html += '<div class="exp-row">'
+      + '<div class="exp-num">' + i + '</div>'
+      + '<div><input type="text" id="exp-label-' + i + '" value="' + (d.label || '').replace(/"/g, '&quot;') + '" placeholder="(vide)"/>'
+      + (d.modifie ? '<span class="exp-new">nouvel audio</span>' : '') + '</div>'
+      + '<div class="exp-btns">'
+      + '<button class="exp-mini" onclick="expPlay(' + i + ')" ' + (d.audio ? '' : 'disabled') + ' title="Ecouter">&#9654;</button>'
+      + '<button class="exp-mini' + (enReg ? ' on' : '') + '" onclick="expToggleRec(' + i + ')" title="Reenregistrer">' + (enReg ? '&#9632;' : '&#9679;') + '</button>'
+      + '<button class="exp-mini" onclick="expClear(' + i + ')" ' + (d.audio ? '' : 'disabled') + ' title="Supprimer l\'audio">&#10005;</button>'
+      + '</div></div>';
+  }
+  wrap.innerHTML = html;
+}
+
+function lireChamps() {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('exp-label-' + i);
+    if (el) expData[i].label = el.value.trim();
+  }
+}
+
+window.expPlay = function(i) {
+  const d = expData[i];
+  if (!d.audio) return;
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  currentAudio = new Audio(d.audio);
+  currentAudio.play();
+};
+
+window.expClear = function(i) {
+  lireChamps();
+  expData[i].audio = '';
+  expData[i].modifie = true;
+  renderExpRows();
+};
+
+window.expToggleRec = function(i) {
+  if (expRecSlot === i) { expStopRec(); return; }
+  lireChamps();
+  if (expRecSlot !== null) expStopRec();
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    expRecorder = new MediaRecorder(stream);
+    expChunks = [];
+    expRecorder.ondataavailable = ev => expChunks.push(ev.data);
+    expRecorder.onstop = async () => {
+      const blob = new Blob(expChunks, { type: 'audio/webm' });
+      if (blob.size > 0) {
+        expData[i].audio = await blobToDataUrl(blob);
+        expData[i].modifie = true;
+      }
+      expRecSlot = null;
+      renderExpRows();
+    };
+    expRecorder.start();
+    expRecSlot = i;
+    renderExpRows();
+  }).catch(() => alert('Acces au microphone refuse.'));
+};
+
+function expStopRec() {
+  if (expRecorder && expRecorder.state === 'recording') {
+    expRecorder.stop();
+    expRecorder.stream.getTracks().forEach(t => t.stop());
+  } else {
+    expRecSlot = null;
+  }
+}
+
+window.saveExpressions = async function() {
+  if (expRecSlot !== null) { alert('Arretez l\'enregistrement en cours avant de sauvegarder.'); return; }
+  lireChamps();
+  const st = document.getElementById('exp-status');
+  st.textContent = 'Enregistrement...';
+  const maj = {};
+  for (let i = 1; i <= 5; i++) {
+    const d = expData[i];
+    maj['label' + i] = d.label || '';
+    maj['audio' + i] = d.audio || '';
+  }
+  try {
+    const { updateDoc, doc: fsDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await updateDoc(fsDoc(db, ordreCol(), expCarteId), maj);
+    st.textContent = 'Sauvegarde !';
+    setTimeout(() => { closeExpressions(); loadCards(); }, 900);
+  } catch (err) {
+    st.textContent = 'Erreur : ' + err.message;
   }
 };
 
@@ -920,7 +1067,7 @@ window.saveCategorie = async function() {
   document.getElementById('categorie-status').textContent = 'Sauvegarde...';
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, 'demander-donner-directions', id), { categorie: newCat });
+    await updateDoc(firestoreDoc(db, ordreCol(), id), { categorie: newCat });
     document.getElementById('categorie-status').textContent = '✓ Catégorie mise à jour !';
     setTimeout(() => { closeCategorie(); loadCards(); }, 900);
   } catch(err) {
@@ -948,7 +1095,7 @@ window.saveRename = async function() {
   document.getElementById('rename-status').textContent = 'Sauvegarde...';
   try {
     const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(firestoreDoc(db, 'demander-donner-directions', id), { mot: newMot });
+    await updateDoc(firestoreDoc(db, ordreCol(), id), { mot: newMot });
     document.getElementById('rename-status').textContent = '✓ Renommé !';
     setTimeout(() => { closeRename(); loadCards(); }, 900);
   } catch(err) {
