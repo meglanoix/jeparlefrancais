@@ -90,6 +90,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 </div>
 
 <script type="module">
+function parOrdreCartes(a, b) {
+  const oa = typeof a.ordre === 'number' ? a.ordre : 9999;
+  const ob = typeof b.ordre === 'number' ? b.ordre : 9999;
+  return oa - ob;
+}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
@@ -147,7 +152,7 @@ async function load() {
   try {
     const snaps = await Promise.all(sections.map(s => getDocs(collection(db, s))));
     document.getElementById('loading').style.display = 'none';
-    sections.forEach((s, i) => renderCards(snaps[i].docs.map(d => ({ id: d.id, ...d.data() })), 'grid-' + s));
+    sections.forEach((s, i) => renderCards(snaps[i].docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdreCartes), 'grid-' + s));
   } catch(e) {
     document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.';
   }

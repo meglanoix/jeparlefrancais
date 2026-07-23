@@ -100,6 +100,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
   </button>
 </div>
 <script type="module">
+function parOrdreCartes(a, b) {
+  const oa = typeof a.ordre === 'number' ? a.ordre : 9999;
+  const ob = typeof b.ordre === 'number' ? b.ordre : 9999;
+  return oa - ob;
+}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
@@ -119,7 +124,7 @@ let cache = {}, vueActive = VUES[0], currentAudio = null, activePoint = null, to
 async function loadVue(vue) {
   if (!cache[vue.id]) {
     const snap = await getDocs(collection(db, vue.col));
-    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdreCartes);
     cache[vue.id] = { img: docs.find(d => d.type === 'image-corps') || null, parties: docs.filter(d => d.type !== 'image-corps' && d.mot && d.x !== undefined) };
   }
   return cache[vue.id];
