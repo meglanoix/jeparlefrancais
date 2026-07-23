@@ -119,11 +119,11 @@ function renderCards() {
   grid.innerHTML = cartes.map((c, i) => `
     <div class="card" id="card-${i}" onclick="playCard(${i})">
       <div class="card-img">
-        ${c.image ? `<img src="${c.image}" alt="${c.mot}"/>` : `<div class="emoji-placeholder">🔄</div>`}
+        ${c.image ? `<img src="${c.image}" alt="${c.mot || ''}"/>` : `<div class="emoji-placeholder">🔄</div>`}
         <div class="play-overlay"><div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
       </div>
       <div class="card-body">
-        <div class="card-word">${c.mot.split("/").map(s=>s.trim()).join("<br/>")}</div>
+        <div class="card-word">${(c.mot || '').split("/").map(s=>s.trim()).join("<br/>")}</div>
         <div class="card-audio-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
       </div>
     </div>`).join('');

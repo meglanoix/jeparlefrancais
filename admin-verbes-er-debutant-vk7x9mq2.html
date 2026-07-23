@@ -455,6 +455,14 @@ function saveOrder() {
 }
 
 
+function titreCarte(c) {
+  if (c.mot) return c.mot.split('/').map(s => s.trim()).join('<br/>');
+  const labels = [];
+  for (let i = 1; i <= 5; i++) { if (c['label' + i]) labels.push(c['label' + i]); }
+  if (labels.length) return labels.join('<br/>');
+  return '<span style="color:#999">(sans texte)</span>';
+}
+
 function renderCards() {
   const grid = document.getElementById('card-grid');
   if (!cartes.length) {
@@ -464,28 +472,28 @@ function renderCards() {
   grid.innerHTML = cartes.map((c, i) => `
     <div class="card" id="card-${i}">
       <div class="card-img">
-        ${c.image ? `<img src="${c.image}" alt="${c.mot}"/>` : `<div class="emoji-placeholder">🏃</div>`}
+        ${c.image ? `<img src="${c.image}" alt="${c.mot || ''}"/>` : `<div class="emoji-placeholder">🏃</div>`}
         <div class="card-checkbox" onclick="toggleSelect(event, ${i})"></div>
         <div class="card-overlay-btns">
           <button class="overlay-btn play" onclick="playCard(event,${i})">
             <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Écouter
           </button>
-          <button class="overlay-btn rec" onclick="openReRecord(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
+          <button class="overlay-btn rec" onclick="openReRecord(event,'${c.id}',this.dataset.mot)" data-mot="${(c.mot || '').replace(/'/g, '&#39;')}">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="10"/></svg> Réenregistrer
           </button>
           <button class="overlay-btn del" onclick="deleteCard(event,'${c.id}')">
             ✕ Supprimer
           </button>
-          <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4)" onclick="openRename(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
+          <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4)" onclick="openRename(event,'${c.id}',this.dataset.mot)" data-mot="${(c.mot || '').replace(/'/g, '&#39;')}">
             ✏ Renommer
           </button>
-          <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}',this.dataset.mot)" data-mot="${c.mot.replace(/'/g, '&#39;')}">
+          <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}',this.dataset.mot)" data-mot="${(c.mot || '').replace(/'/g, '&#39;')}">
             ⬛ QR Code
           </button>
         </div>
       </div>
       <div class="card-body">
-        <div class="card-word">${c.mot.split("/").map(s=>s.trim()).join("<br/>")}</div>
+        <div class="card-word">${titreCarte(c)}</div>
         ${c.date ? `<div class="card-meta">Ajouté le ${c.date}</div>` : ''}
         <div class="card-audio-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
         <div class="move-btns">

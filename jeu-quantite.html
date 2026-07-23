@@ -201,7 +201,7 @@ function afficherQuestion() {
   grid.innerHTML = q.choix.map((c, i) => `
     <div class="choice" id="choice-${i}" onclick="choisir(${i}, '${c.id}')">
       ${c.image ? `<img class="choice-img" src="${c.image}" alt=""/>` : `<div class="choice-img-placeholder">🧃</div>`}
-      <div class="choice-mot">${c.mot.split('/').map(s => s.trim()).join(' / ')}</div>
+      <div class="choice-mot">${(c.mot || '').split('/').map(s => s.trim()).join(' / ')}</div>
     </div>
   `).join('');
 }
