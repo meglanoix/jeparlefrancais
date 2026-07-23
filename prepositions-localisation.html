@@ -126,8 +126,13 @@ async function load() {
       getDocs(collection(db, 'prepositions-avance'))
     ]);
     document.getElementById('loading').style.display = 'none';
-    renderCards(snapD.docs.map(d => ({ id: d.id, ...d.data() })), 'grid-debutant');
-    renderCards(snapA.docs.map(d => ({ id: d.id, ...d.data() })), 'grid-avance');
+    const parOrdre = (a, b) => {
+      const oa = (a.ordre === undefined || a.ordre === null) ? 9999 : a.ordre;
+      const ob = (b.ordre === undefined || b.ordre === null) ? 9999 : b.ordre;
+      return oa - ob;
+    };
+    renderCards(snapD.docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdre), 'grid-debutant');
+    renderCards(snapA.docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdre), 'grid-avance');
   } catch(e) {
     document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.';
   }

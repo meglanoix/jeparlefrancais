@@ -428,6 +428,11 @@ async function loadCards() {
   try {
     const snap = await getDocs(collection(db, currentCol || 'prepositions-debutant'));
     cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    cartes.sort((a, b) => {
+      const oa = (a.ordre === undefined || a.ordre === null) ? 9999 : a.ordre;
+      const ob = (b.ordre === undefined || b.ordre === null) ? 9999 : b.ordre;
+      return oa - ob;
+    });
     document.getElementById('card-count').textContent = cartes.length + ' carte' + (cartes.length !== 1 ? 's' : '');
     renderCards();
   } catch(e) {
@@ -435,10 +440,24 @@ async function loadCards() {
   }
 }
 
-function saveOrder() {
-  // ordre non utilisé dans cet admin
+let saveOrderTimer = null;
+async function saveOrder() {
   const el = document.getElementById('order-saving');
-  if (el) { el.style.display = 'inline'; setTimeout(() => el.style.display = 'none', 2000); }
+  if (el) { el.textContent = 'Enregistrement...'; el.style.display = 'inline'; }
+  clearTimeout(saveOrderTimer);
+  saveOrderTimer = setTimeout(async () => {
+    try {
+      const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      await Promise.all(cartes.map((c, i) =>
+        c.ordre === i ? null : updateDoc(firestoreDoc(db, currentCol, c.id), { ordre: i })
+      ).filter(Boolean));
+      cartes.forEach((c, i) => c.ordre = i);
+      if (el) { el.textContent = 'Ordre enregistré'; setTimeout(() => el.style.display = 'none', 2000); }
+    } catch (err) {
+      console.error('saveOrder', err);
+      if (el) { el.textContent = "Erreur d'enregistrement"; }
+    }
+  }, 600);
 }
 
 function renderCards() {
