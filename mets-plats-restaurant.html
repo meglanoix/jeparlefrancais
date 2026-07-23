@@ -83,6 +83,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 </div>
 
 <script type="module">
+function parOrdreCartes(a, b) {
+  const oa = typeof a.ordre === 'number' ? a.ordre : 9999;
+  const ob = typeof b.ordre === 'number' ? b.ordre : 9999;
+  return oa - ob;
+}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const firebaseConfig = {
@@ -135,7 +140,7 @@ window.jouerAudio = function(id, audioUrl) {
 async function loadCartes() {
   try {
     const snap = await getDocs(collection(db, 'mets-plats-restaurant'));
-    const cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const cartes = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdreCartes);
 
     const dejeuner = cartes.filter(c => c.categorie === 'dejeuner');
     const autres = cartes.filter(c => c.categorie !== 'dejeuner');
