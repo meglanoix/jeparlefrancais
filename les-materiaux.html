@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Le verbe aller | JeParle Français</title>
+<title>Les matériaux | JeParle Français</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -64,9 +64,15 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 </nav>
 <div class="page-header">
   <div class="page-header-inner">
-    <p class="page-eyebrow">Vocabulaire · Verbes irréguliers</p>
-    <h1>Le verbe aller</h1>
+    <p class="page-eyebrow">Les vêtements · Les matériaux</p>
+    <h1>Les matériaux</h1>
     <p>Cliquez sur une image pour entendre la prononciation</p>
+    <div style="margin-top:1.25rem">
+      <a href="jeu-materiaux.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
+        🎯 Testez vos connaissances !
+      </a>
+      </a>
+    </div>
   </div>
 </div>
 <div class="main">
@@ -95,7 +101,7 @@ const db = getFirestore(app);
 let cartes = [], currentAudio = null;
 async function loadCards() {
   try {
-    const snap = await getDocs(collection(db, 'verbe-aller'));
+    const snap = await getDocs(collection(db, 'materiaux'));
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdreCartes);
     cartes = docs;
     renderCards();
@@ -109,7 +115,7 @@ function renderCards() {
   grid.innerHTML = cartes.map((c, i) => `
     <div class="card" id="card-${i}" onclick="playCard(${i})">
       <div class="card-img">
-        ${c.image ? `<img src="${c.image}" alt="${c.mot || ''}"/>` : `<div class="emoji-placeholder">🚶</div>`}
+        ${c.image ? `<img src="${c.image}" alt="${c.mot || ''}"/>` : `<div class="emoji-placeholder">🏙</div>`}
         <div class="play-overlay"><div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
       </div>
       <div class="card-body">

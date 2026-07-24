@@ -103,11 +103,7 @@ async function loadCards() {
   try {
     const snap = await getDocs(collection(db, 'les-symptomes'));
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdreCartes);
-    const savedOrder = JSON.parse(localStorage.getItem('les-symptomes-order') || '[]');
-    if (savedOrder.length) {
-      cartes = savedOrder.map(id => docs.find(d => d.id === id)).filter(Boolean);
-      docs.forEach(d => { if (!cartes.find(c => c.id === d.id)) cartes.push(d); });
-    } else { cartes = docs; }
+    cartes = docs;
     renderCards();
   } catch(e) {
     document.getElementById('card-grid').innerHTML = '<div class="empty-grid"><p>Erreur de connexion. Veuillez réessayer.</p></div>';
