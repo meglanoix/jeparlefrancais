@@ -29,9 +29,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .card { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
 .card:hover { transform: translateY(-4px); box-shadow: var(--ombre); }
 .card.playing { border: 2px solid var(--vert); }
-.card-img { width: 100%; aspect-ratio: 4/3; background: var(--creme); position: relative; }
+.card-img { width: 100%; aspect-ratio: 16/7; background: var(--creme); position: relative; }
 .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.card-img .emoji-placeholder { font-size: 5rem; width: 100%; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: var(--creme); }
+.card-img .emoji-placeholder { font-size: 5rem; width: 100%; aspect-ratio: 16/7; display: flex; align-items: center; justify-content: center; background: var(--creme); }
 .play-overlay { position: absolute; inset: 0; background: rgba(26,58,92,0.35); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
 .card:hover .play-overlay { opacity: 1; }
 .card.playing .play-overlay { opacity: 1; background: rgba(26,122,74,0.35); }
