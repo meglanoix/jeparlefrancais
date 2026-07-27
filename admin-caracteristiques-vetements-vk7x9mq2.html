@@ -307,10 +307,11 @@ let cartes = [];
 let currentCol = 'caracteristiques-vetements';
 
 window.changerSection = function(col, titre, btnId) {
-  const profs = document.getElementById('btn-vetements');
-  const unites = document.getElementById('btn-accessoires');
-  profs.style.background = 'transparent'; profs.style.color = 'white'; profs.style.borderColor = 'rgba(255,255,255,0.4)'; profs.style.fontWeight = 'normal';
-  unites.style.background = 'transparent'; unites.style.color = 'white'; unites.style.borderColor = 'rgba(255,255,255,0.4)'; unites.style.fontWeight = 'normal';
+  ['btn-caracteristiques', 'btn-adjectifs'].forEach(id => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.style.background = 'transparent'; b.style.color = 'white'; b.style.borderColor = 'rgba(255,255,255,0.4)'; b.style.fontWeight = 'normal';
+  });
   const active = document.getElementById(btnId);
   active.style.background = 'white'; active.style.color = 'var(--bleu)'; active.style.borderColor = 'white'; active.style.fontWeight = '500';
   currentCol = col;
