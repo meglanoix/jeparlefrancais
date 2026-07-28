@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Testez vos connaissances – Aime ou n'aime pas | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.page-header { background: var(--bleu); padding: 100px 5vw 50px; position: relative; overflow: hidden; }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
+.page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.6); font-weight: 300; }
+.main { max-width: 600px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
+.progress-bar-wrap { height: 6px; background: rgba(26,58,92,0.12); border-radius: 99px; margin-bottom: 0.5rem; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--vert); border-radius: 99px; transition: width 0.4s ease; }
+.progress-label { font-size: 0.82rem; color: var(--gris); margin-bottom: 1.5rem; display: flex; justify-content: space-between; }
+.score-badge { font-weight: 500; color: var(--vert); }
+.audio-card { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); padding: 2.5rem 2rem; text-align: center; margin-bottom: 1.75rem; }
+.audio-label { font-size: 0.78rem; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gris); margin-bottom: 1.5rem; }
+.play-btn { width: 96px; height: 96px; border-radius: 50%; background: var(--bleu); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; transition: all 0.2s; box-shadow: 0 4px 16px rgba(26,58,92,0.25); }
+.play-btn:hover { transform: scale(1.05); }
+.play-btn.playing { background: var(--vert); }
+.play-btn svg { width: 38px; height: 38px; fill: white; margin-left: 5px; }
+.play-btn.playing svg { margin-left: 0; }
+.replay-hint { font-size: 0.82rem; color: var(--gris); margin-top: 1rem; }
+.thumbs-label { font-size: 0.9rem; color: var(--gris); text-align: center; margin-bottom: 1rem; }
+.thumbs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.thumb { background: var(--blanc); border: 2px solid rgba(26,58,92,0.12); border-radius: 20px; padding: 2.5rem 1rem; cursor: pointer; transition: all 0.15s; font-size: 4rem; line-height: 1; }
+.thumb:hover { border-color: var(--bleu); transform: translateY(-2px); }
+.thumb:active { transform: scale(0.97); }
+.thumb.correct { border-color: var(--vert); background: rgba(26,122,74,0.08); box-shadow: 0 0 0 3px rgba(26,122,74,0.15); }
+.thumb.wrong { border-color: var(--rouge); background: rgba(192,57,43,0.08); box-shadow: 0 0 0 3px rgba(192,57,43,0.15); }
+.thumb.disabled { pointer-events: none; }
+.thumb.dim { opacity: 0.4; }
+.feedback { text-align: center; min-height: 32px; font-size: 1.05rem; font-weight: 500; margin: 1.5rem 0 0.5rem; }
+.feedback.bon { color: var(--vert); }
+.feedback.mauvais { color: var(--rouge); }
+.loading-msg { text-align: center; color: var(--gris); padding: 3rem 1rem; }
+.score-final { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); padding: 3rem 2rem; text-align: center; }
+.score-final h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--bleu); margin-bottom: 0.5rem; }
+.score-final .score-num { font-size: 3rem; font-weight: 500; color: var(--vert); margin: 1rem 0; }
+.score-final p { color: var(--gris); margin-bottom: 2rem; }
+.btn-rejouer { background: var(--bleu); color: var(--blanc); border: none; border-radius: 10px; padding: 0.85rem 2rem; font-size: 0.95rem; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.btn-rejouer:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="exprimer-gouts.html">
+    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Retour
+  </a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">Exprimer ses goûts · Jeu</p>
+    <h1>Aime ou n'aime pas ?</h1>
+    <p>Écoutez et choisissez le bon pouce</p>
+  </div>
+</div>
+
+<div class="main">
+  <div id="loading" class="loading-msg">Chargement...</div>
+
+  <div id="jeu" style="display:none">
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label">
+      <span id="progress-text">Question 1</span>
+      <span class="score-badge" id="score-text">0 point</span>
+    </div>
+
+    <div class="audio-card">
+      <div class="audio-label">Écoutez attentivement</div>
+      <button class="play-btn" id="play-btn" onclick="rejouerAudio()">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <div class="replay-hint">Cliquez pour réécouter</div>
+    </div>
+
+    <div class="thumbs-label">La personne aime-t-elle ce vêtement ?</div>
+    <div class="thumbs-grid">
+      <button class="thumb" id="thumb-oui" onclick="repondre('oui')">👍</button>
+      <button class="thumb" id="thumb-non" onclick="repondre('non')">👎</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="score-final" id="score-final" style="display:none">
+    <h2>Bravo !</h2>
+    <div class="score-num" id="score-final-num">0 / 10</div>
+    <p id="score-final-msg"></p>
+    <button class="btn-rejouer" onclick="startGame()">🔄 Rejouer</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let cartes = [], questions = [], qIndex = 0, score = 0, answered = false, currentAudio = null;
+const TOTAL = 10;
+
+function audiosDeCarte(c) {
+  const out = [];
+  if (c.audio && c.audio.length > 10) out.push(c.audio);
+  for (let i = 1; i <= 5; i++) {
+    const a = c['audio' + i];
+    if (a && a.length > 10) out.push(a);
+  }
+  return out;
+}
+
+async function loadCartes() {
+  try {
+    const snap = await getDocs(collection(db, 'exprimer-gouts'));
+    cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(c => (c.categorie === 'oui' || c.categorie === 'non') && audiosDeCarte(c).length > 0);
+    if (cartes.length < 2) {
+      document.getElementById('loading').textContent = "Ajoutez d'abord des cartes avec un audio et une réponse 👍/👎 dans l'admin.";
+      return;
+    }
+    document.getElementById('loading').style.display = 'none';
+    startGame();
+  } catch (e) {
+    document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.';
+  }
+}
+
+window.startGame = function() {
+  score = 0; qIndex = 0; answered = false;
+  document.getElementById('score-final').style.display = 'none';
+  document.getElementById('jeu').style.display = 'block';
+
+  const shuffled = shuffle([...cartes]);
+  // 10 questions (ou moins si peu de cartes), un audio au hasard par carte
+  const base = shuffled.length >= TOTAL ? shuffled.slice(0, TOTAL) : shuffled;
+  questions = base.map(c => {
+    const audios = audiosDeCarte(c);
+    return { audio: audios[Math.floor(Math.random() * audios.length)], reponse: c.categorie };
+  });
+  afficherQuestion();
+};
+
+function afficherQuestion() {
+  answered = false;
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const q = questions[qIndex];
+
+  document.getElementById('progress-fill').style.width = ((qIndex) / questions.length * 100) + '%';
+  document.getElementById('progress-text').textContent = 'Question ' + (qIndex + 1) + ' / ' + questions.length;
+  document.getElementById('score-text').textContent = score + (score === 1 ? ' point' : ' points');
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+
+  ['thumb-oui', 'thumb-non'].forEach(id => {
+    const t = document.getElementById(id);
+    t.className = 'thumb';
+  });
+
+  // jouer l'audio automatiquement
+  jouerAudio(q.audio);
+}
+
+function jouerAudio(url) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  const btn = document.getElementById('play-btn');
+  currentAudio = new Audio(url);
+  btn.classList.add('playing');
+  currentAudio.play().catch(() => {});
+  currentAudio.onended = () => btn.classList.remove('playing');
+}
+
+window.rejouerAudio = function() {
+  const q = questions[qIndex];
+  if (q) jouerAudio(q.audio);
+};
+
+window.repondre = function(choix) {
+  if (answered) return;
+  answered = true;
+  const q = questions[qIndex];
+  const bon = choix === q.reponse;
+  if (bon) score++;
+
+  const oui = document.getElementById('thumb-oui');
+  const non = document.getElementById('thumb-non');
+  const bonId = q.reponse === 'oui' ? oui : non;
+  const choisi = choix === 'oui' ? oui : non;
+
+  bonId.classList.add('correct', 'disabled');
+  if (!bon) choisi.classList.add('wrong', 'disabled');
+  (choix === 'oui' ? non : oui).classList.add('disabled');
+  if (bon) (choix === 'oui' ? non : oui).classList.add('dim');
+
+  const fb = document.getElementById('feedback');
+  fb.textContent = bon ? '✓ Bonne réponse !' : '✗ La bonne réponse était ' + (q.reponse === 'oui' ? '👍' : '👎');
+  fb.className = 'feedback ' + (bon ? 'bon' : 'mauvais');
+  document.getElementById('score-text').textContent = score + (score === 1 ? ' point' : ' points');
+
+  setTimeout(() => {
+    qIndex++;
+    if (qIndex < questions.length) afficherQuestion();
+    else finJeu();
+  }, 1600);
+}
+
+function finJeu() {
+  document.getElementById('jeu').style.display = 'none';
+  const sf = document.getElementById('score-final');
+  sf.style.display = 'block';
+  document.getElementById('score-final-num').textContent = score + ' / ' + questions.length;
+  const pct = score / questions.length;
+  let msg = 'Continuez à pratiquer, vous progressez !';
+  if (pct === 1) msg = 'Parfait ! Vous maîtrisez les expressions.';
+  else if (pct >= 0.7) msg = 'Très bien ! Encore un petit effort.';
+  document.getElementById('score-final-msg').textContent = msg;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+loadCartes();
+</script>
+</body>
+</html>

@@ -241,8 +241,11 @@ input[type=text]:focus { border-color: var(--bleu); }
       <input type="text" id="mot" placeholder="Ex : le soccer"/>
     </div>
     <div class="form-group" style="margin-bottom:1rem">
-      <label>Catégorie <span style="color:var(--gris);font-weight:300">(pour le jeu d'association)</span></label>
-      <input type="text" id="categorie" placeholder="Ex : soccer, natation, hockey..."/>
+      <label>Réponse du jeu <span style="color:var(--gris);font-weight:300">(👍 OUI = aime / 👎 NON = n'aime pas)</span></label>
+      <select id="categorie" style="width:100%;padding:9px 10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-size:0.9rem;background:var(--blanc);font-family:'DM Sans',sans-serif">
+        <option value="oui">👍 OUI — la personne aime</option>
+        <option value="non">👎 NON — la personne n'aime pas</option>
+      </select>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -606,7 +609,7 @@ function renderCards() {
             ✏ Renommer
           </button>
           <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4);margin-top:4px" onclick="openCategorie(event,'${c.id}','${(c.categorie||'').replace(/'/g,"\\'")}')">
-            🏷 Catégorie${c.categorie ? ': '+c.categorie : ''}
+            🏷 ${c.categorie === 'oui' ? '👍 Aime' : (c.categorie === 'non' ? '👎 Aime pas' : 'Réponse ?')}
           </button>
           <button class="overlay-btn play" style="background:var(--blanc);color:var(--bleu)" onclick="openExpressions(event,'${c.id}')">
             &#127911; Expressions
@@ -1139,10 +1142,12 @@ loadCards();
 <div class="rec-modal-overlay" id="categorie-modal" style="display:none">
   <div class="rec-modal-box">
     <h3>Modifier la catégorie</h3>
-    <p style="color:var(--gris);font-size:0.85rem;margin-bottom:1.25rem">Entrez la catégorie pour le jeu d'association</p>
+    <p style="color:var(--gris);font-size:0.85rem;margin-bottom:1.25rem">👍 OUI = la personne aime · 👎 NON = la personne n'aime pas</p>
     <input type="hidden" id="categorie-id"/>
-    <input type="text" id="categorie-input" placeholder="Ex : soccer, natation, hockey..." style="width:100%;margin-bottom:0.75rem"
-      onkeydown="if(event.key==='Enter') saveCategorie()"/>
+    <select id="categorie-input" style="width:100%;margin-bottom:0.75rem;padding:9px 10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-size:0.9rem;background:var(--blanc);font-family:'DM Sans',sans-serif">
+      <option value="oui">👍 OUI — la personne aime</option>
+      <option value="non">👎 NON — la personne n'aime pas</option>
+    </select>
     <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em;margin-bottom:0.75rem" id="categorie-status"></div>
     <div class="rec-modal-btns">
       <button class="app-btn" onclick="closeCategorie()">Annuler</button>
