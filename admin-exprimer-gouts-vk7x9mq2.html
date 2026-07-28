@@ -237,10 +237,6 @@ input[type=text]:focus { border-color: var(--bleu); }
       Ajouter une nouvelle carte
     </div>
     <div class="form-group" style="margin-bottom:1rem">
-      <label>Mot en français</label>
-      <input type="text" id="mot" placeholder="Ex : le soccer"/>
-    </div>
-    <div class="form-group" style="margin-bottom:1rem">
       <label>Réponse du jeu <span style="color:var(--gris);font-weight:300">(👍 OUI = aime / 👎 NON = n'aime pas)</span></label>
       <select id="categorie" style="width:100%;padding:9px 10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-size:0.9rem;background:var(--blanc);font-family:'DM Sans',sans-serif">
         <option value="oui">👍 OUI — la personne aime</option>
@@ -455,8 +451,6 @@ function stopRecord() {
 }
 
 window.saveCard = async function() {
-  const mot = document.getElementById('mot').value.trim();
-  if (!mot) { alert('Veuillez entrer un mot.'); return; }
   if (!pendingImage) { alert('Veuillez choisir une image.'); return; }
   // audio principal optionnel
   const saveMsg = document.getElementById('save-msg');
@@ -465,7 +459,6 @@ window.saveCard = async function() {
   saveMsg.textContent = 'Sauvegarde...'; saveMsg.style.display = 'inline';
   try {
     const data = {
-      mot,
       categorie: document.getElementById('categorie').value.trim().toLowerCase(),
       image: pendingImage,
       date: new Date().toLocaleDateString('fr-CA')
@@ -481,7 +474,6 @@ window.saveCard = async function() {
     await addDoc(collection(db, 'exprimer-gouts'), data);
     await loadCards();
     saveMsg.textContent = '✓ Carte ajoutée !';
-    document.getElementById('mot').value = '';
     document.getElementById('categorie').value = '';
     const imgZone = document.getElementById('img-zone');
     imgZone.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
@@ -604,9 +596,6 @@ function renderCards() {
           </button>
           <button class="overlay-btn del" onclick="deleteCard(event,'${c.id}')">
             ✕ Supprimer
-          </button>
-          <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4)" onclick="openRename(event,'${c.id}',this.dataset.mot)" data-mot="${(c.mot || '').replace(/'/g, '&#39;')}">
-            ✏ Renommer
           </button>
           <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4);margin-top:4px" onclick="openCategorie(event,'${c.id}','${(c.categorie||'').replace(/'/g,"\\'")}')">
             🏷 ${c.categorie === 'oui' ? '👍 Aime' : (c.categorie === 'non' ? '👎 Aime pas' : 'Réponse ?')}
