@@ -143,9 +143,9 @@ async function loadCartes() {
   try {
     const snap = await getDocs(collection(db, 'jeu-description-physique'));
     cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .filter(c => c.audio && c.image && c.audio && c.image);
+      .filter(c => c.audio && c.image);
     if (cartes.length < 3) {
-      document.getElementById('loading').textContent = 'Pas assez de cartes déjeuner avec image et audio. Ajoutez du contenu dans l\'admin.';
+      document.getElementById('loading').textContent = 'Pas assez de personnes avec image et audio. Ajoutez du contenu dans l\'admin.';
       return;
     }
     document.getElementById('loading').style.display = 'none';
@@ -162,8 +162,15 @@ window.startGame = function() {
 
   const shuffled = shuffle([...cartes]);
   questions = shuffled.slice(0, 10).map(bonneCarte => {
-    const autres = cartes.filter(c => c.id !== bonneCarte.id);
-    const mauvais = shuffle(autres).slice(0, 2);
+    // Distracteurs du meme genre (categorie) que la bonne reponse
+    const memeGenre = cartes.filter(c => c.id !== bonneCarte.id
+      && bonneCarte.categorie && c.categorie === bonneCarte.categorie);
+    let mauvais = shuffle(memeGenre).slice(0, 2);
+    // Complement si pas assez de cartes du meme genre
+    if (mauvais.length < 2) {
+      const reste = cartes.filter(c => c.id !== bonneCarte.id && !mauvais.includes(c));
+      mauvais = mauvais.concat(shuffle(reste).slice(0, 2 - mauvais.length));
+    }
     const choix = shuffle([bonneCarte, ...mauvais]);
     return { bonneCarte, correctId: bonneCarte.id, choix };
   });
