@@ -140,7 +140,8 @@ async function loadCartes() {
     const snap = await getDocs(collection(db, 'exprimer-gouts'));
     cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .filter(c => (c.categorie === 'oui' || c.categorie === 'non') && audiosDeCarte(c).length > 0);
-    if (cartes.length < 2) {
+    const totalAudios = cartes.reduce((n, c) => n + audiosDeCarte(c).length, 0);
+    if (cartes.length < 1 || totalAudios < 2) {
       document.getElementById('loading').textContent = "Ajoutez d'abord des cartes avec un audio et une réponse 👍/👎 dans l'admin.";
       return;
     }
@@ -156,13 +157,14 @@ window.startGame = function() {
   document.getElementById('score-final').style.display = 'none';
   document.getElementById('jeu').style.display = 'block';
 
-  const shuffled = shuffle([...cartes]);
-  // 10 questions (ou moins si peu de cartes), un audio au hasard par carte
-  const base = shuffled.length >= TOTAL ? shuffled.slice(0, TOTAL) : shuffled;
-  questions = base.map(c => {
-    const audios = audiosDeCarte(c);
-    return { audio: audios[Math.floor(Math.random() * audios.length)], reponse: c.categorie };
+  // Chaque audio de chaque carte devient une question possible
+  let pool = [];
+  cartes.forEach(c => {
+    audiosDeCarte(c).forEach(a => pool.push({ audio: a, reponse: c.categorie }));
   });
+  pool = shuffle(pool);
+  // Eviter de rejouer deux fois le meme audio a la suite
+  questions = pool.slice(0, Math.min(TOTAL, pool.length));
   afficherQuestion();
 };
 
