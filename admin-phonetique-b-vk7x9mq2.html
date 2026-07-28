@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Phonétique : la lettre B | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --phon: #4a5d8a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: var(--bleu); box-shadow: var(--ombre); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--blanc); text-decoration: none; }
+.nav-view-link { color: rgba(255,255,255,0.7); font-size: 0.85rem; text-decoration: none; }
+.nav-view-link:hover { color: #fff; }
+.page-header { background: var(--phon); padding: 90px 5vw 40px; }
+.page-eyebrow { font-size: 0.72rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.5rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: var(--blanc); }
+.page-header p { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 0.3rem; }
+.main { max-width: 900px; margin: 0 auto; padding: 2.5rem 5vw 6rem; }
+.panel { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); padding: 1.75rem; margin-bottom: 2rem; }
+.panel-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+label { font-size: 0.8rem; color: var(--gris); display: block; margin-bottom: 5px; }
+input[type=text] { width: 100%; padding: 9px 11px; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; background: var(--blanc); }
+.field { margin-bottom: 1rem; }
+.row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.row > * { flex: 1; min-width: 200px; }
+.btn { background: var(--creme); border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; cursor: pointer; color: var(--bleu); }
+.btn:hover { border-color: var(--phon); }
+.btn.primary { background: var(--bleu); color: var(--blanc); border-color: var(--bleu); }
+.btn.rec.on { background: #fdf2f2; border-color: rgba(192,57,43,0.4); color: var(--rouge); }
+.btn.mini { padding: 6px 10px; font-size: 0.8rem; }
+.upload-zone { border: 1.5px dashed rgba(26,58,92,0.2); border-radius: 8px; padding: 1.25rem; text-align: center; color: var(--gris); cursor: pointer; font-size: 0.85rem; }
+.upload-zone.has { border-color: var(--vert); color: var(--vert); }
+.aud-line { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.aud-state { font-size: 0.78rem; color: var(--gris); }
+.aud-state.ok { color: var(--vert); }
+.sep { height: 1px; background: rgba(26,58,92,0.08); margin: 1.25rem 0; }
+.son-col { flex: 1; min-width: 240px; border: 1px solid rgba(26,58,92,0.1); border-radius: 10px; padding: 1rem; }
+.son-col h4 { font-size: 0.85rem; color: var(--bleu); margin-bottom: 0.75rem; }
+.ex-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 6px; align-items: center; margin-bottom: 6px; }
+.ex-row input { width: 100%; }
+.msg { font-size: 0.85rem; margin-left: 8px; }
+.msg.ok { color: var(--vert); }
+.msg.err { color: var(--rouge); }
+.regle-item { border: 1px solid rgba(26,58,92,0.1); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; background: #fcfaf7; }
+.regle-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 0.75rem; }
+.regle-head .txt { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--bleu); }
+.chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chip { background: var(--creme); border: 1px solid rgba(26,58,92,0.12); border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; color: var(--bleu); }
+.empty { color: var(--gris); font-size: 0.9rem; padding: 0.5rem 0; }
+.hint { font-size: 0.8rem; color: var(--gris); margin-bottom: 0.75rem; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="admin-vk7x9mq2-accueil.html">← Panneau admin</a>
+  <a class="nav-view-link" href="phonetique-b.html" target="_blank">Voir la page ↗</a>
+</nav>
+
+<div class="page-header">
+  <p class="page-eyebrow">⚙ Phonétique</p>
+  <h1>La lettre B</h1>
+  <p>Modifiez l'en-tête (le son) et ajoutez des règles avec leurs exemples.</p>
+</div>
+
+<div class="main">
+
+  <!-- ===== EN-TÊTE ===== -->
+  <div class="panel">
+    <div class="panel-title">🔊 L'en-tête (le son)</div>
+    <div class="field">
+      <label>Titre de la lettre</label>
+      <input type="text" id="e-titre" placeholder="Ex : b/B"/>
+    </div>
+    <div class="field">
+      <label>Phrase d'introduction</label>
+      <input type="text" id="e-phrase" placeholder="Ex : La lettre b/B se prononce [b]"/>
+    </div>
+    <div class="row">
+      <div class="son-col">
+        <h4>Son 1</h4>
+        <div class="field"><label>Symbole</label><input type="text" id="e-sym1" placeholder="Ex : [b]"/></div>
+        <div class="field">
+          <label>Schéma de la bouche</label>
+          <div class="upload-zone" id="e-img1-zone" onclick="document.getElementById('e-img1').click()">Choisir une image
+            <input type="file" id="e-img1" accept="image/*" style="display:none" onchange="handleImg(event,'e-img1')"/></div>
+        </div>
+        <label>Audio du son 1</label>
+        <div class="aud-line">
+          <button class="btn rec mini" id="rec-e1" onclick="toggleRec('e-audio1','rec-e1')">● Enregistrer</button>
+          <button class="btn mini" onclick="document.getElementById('file-e1').click()">📁</button>
+          <input type="file" id="file-e1" accept="audio/*" style="display:none" onchange="handleAudioFile(event,'e-audio1','st-e1')"/>
+          <span class="aud-state" id="st-e1"></span>
+        </div>
+      </div>
+      <div class="son-col">
+        <h4>Son 2 <span style="color:var(--gris);font-weight:300">(optionnel)</span></h4>
+        <div class="field"><label>Symbole</label><input type="text" id="e-sym2" placeholder="Ex : [ɑ]"/></div>
+        <div class="field">
+          <label>Schéma de la bouche</label>
+          <div class="upload-zone" id="e-img2-zone" onclick="document.getElementById('e-img2').click()">Choisir une image
+            <input type="file" id="e-img2" accept="image/*" style="display:none" onchange="handleImg(event,'e-img2')"/></div>
+        </div>
+        <label>Audio du son 2</label>
+        <div class="aud-line">
+          <button class="btn rec mini" id="rec-e2" onclick="toggleRec('e-audio2','rec-e2')">● Enregistrer</button>
+          <button class="btn mini" onclick="document.getElementById('file-e2').click()">📁</button>
+          <input type="file" id="file-e2" accept="audio/*" style="display:none" onchange="handleAudioFile(event,'e-audio2','st-e2')"/>
+          <span class="aud-state" id="st-e2"></span>
+        </div>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <button class="btn primary" onclick="saveEntete()">Enregistrer l'en-tête</button>
+    <span class="msg" id="msg-entete"></span>
+  </div>
+
+  <!-- ===== NOUVELLE RÈGLE ===== -->
+  <div class="panel">
+    <div class="panel-title">➕ Ajouter une règle</div>
+    <div class="hint">Une règle = une phrase (« Elle se prononce souvent [a] ») avec son audio, plus une liste d'exemples (syllabes ou mots), chacun avec son audio.</div>
+    <div class="field">
+      <label>Phrase de la règle</label>
+      <input type="text" id="r-phrase" placeholder="Ex : Elle se prononce souvent [a]"/>
+    </div>
+    <label>Audio de la phrase</label>
+    <div class="aud-line">
+      <button class="btn rec mini" id="rec-r" onclick="toggleRec('r-audio','rec-r')">● Enregistrer</button>
+      <button class="btn mini" onclick="document.getElementById('file-r').click()">📁</button>
+      <input type="file" id="file-r" accept="audio/*" style="display:none" onchange="handleAudioFile(event,'r-audio','st-r')"/>
+      <span class="aud-state" id="st-r"></span>
+    </div>
+    <div class="sep"></div>
+    <label>Exemples (texte + audio)</label>
+    <div class="hint">Ajoutez chaque syllabe ou mot avec son audio, puis « Ajouter l'exemple ».</div>
+    <div class="aud-line" style="align-items:flex-end">
+      <div style="flex:1;min-width:160px"><input type="text" id="ex-texte" placeholder="Ex : ba  ou  lame"/></div>
+      <button class="btn rec mini" id="rec-ex" onclick="toggleRec('ex-audio','rec-ex')">● Enregistrer</button>
+      <button class="btn mini" onclick="document.getElementById('file-ex').click()">📁</button>
+      <input type="file" id="file-ex" accept="audio/*" style="display:none" onchange="handleAudioFile(event,'ex-audio','st-ex')"/>
+      <span class="aud-state" id="st-ex"></span>
+      <button class="btn" onclick="ajouterExemple()">+ Ajouter l'exemple</button>
+    </div>
+    <div class="chip-list" id="ex-preview"></div>
+    <div class="sep"></div>
+    <button class="btn primary" onclick="saveRegle()">Enregistrer la règle</button>
+    <span class="msg" id="msg-regle"></span>
+  </div>
+
+  <!-- ===== RÈGLES EXISTANTES ===== -->
+  <div class="panel">
+    <div class="panel-title">📋 Les règles actuelles</div>
+    <div id="liste-regles"><p class="empty">Chargement...</p></div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = 'phonetique-b';
+
+// --- stockage temporaire des blobs/images en cours de saisie ---
+const buffers = {}; // id -> dataURL
+let enteteId = null;
+let exemplesEnCours = [];
+
+// --- helpers audio/image ---
+function blobToDataUrl(blob) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+}
+window.handleImg = async function(ev, key) {
+  const f = ev.target.files[0]; if (!f) return;
+  buffers[key] = await blobToDataUrl(f);
+  const z = document.getElementById(key + '-zone');
+  if (z) { z.classList.add('has'); z.firstChild.textContent = '✓ Image choisie'; }
+};
+window.handleAudioFile = async function(ev, key, stId) {
+  const f = ev.target.files[0]; if (!f) return;
+  buffers[key] = await blobToDataUrl(f);
+  const st = document.getElementById(stId); if (st) { st.textContent = '✓ Audio importé'; st.className = 'aud-state ok'; }
+};
+
+// enregistrement micro
+let mediaRecorder = null, chunks = [], recTarget = null, recBtnId = null;
+window.toggleRec = function(key, btnId) {
+  const btn = document.getElementById(btnId);
+  if (mediaRecorder && mediaRecorder.state === 'recording' && recBtnId === btnId) {
+    mediaRecorder.stop(); return;
+  }
+  if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); }
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    mediaRecorder = new MediaRecorder(stream); chunks = []; recTarget = key; recBtnId = btnId;
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.onstop = async () => {
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      if (blob.size > 0) buffers[key] = await blobToDataUrl(blob);
+      stream.getTracks().forEach(t => t.stop());
+      btn.classList.remove('on'); btn.textContent = '● Enregistrer';
+      const stId = 'st-' + btnId.split('-')[1];
+      const st = document.getElementById(stId); if (st) { st.textContent = '✓ Enregistré'; st.className = 'aud-state ok'; }
+    };
+    mediaRecorder.start(); btn.classList.add('on'); btn.textContent = '■ Arrêter';
+  }).catch(() => alert('Micro inaccessible.'));
+};
+
+// --- EN-TÊTE ---
+window.saveEntete = async function() {
+  const msg = document.getElementById('msg-entete');
+  msg.textContent = 'Enregistrement...'; msg.className = 'msg';
+  const data = {
+    type: 'entete',
+    titre: document.getElementById('e-titre').value.trim(),
+    phrase: document.getElementById('e-phrase').value.trim(),
+    symbole1: document.getElementById('e-sym1').value.trim(),
+    symbole2: document.getElementById('e-sym2').value.trim()
+  };
+  if (buffers['e-audio1'] !== undefined) data.audio1 = buffers['e-audio1'];
+  if (buffers['e-audio2'] !== undefined) data.audio2 = buffers['e-audio2'];
+  if (buffers['e-img1'] !== undefined) data.image1 = buffers['e-img1'];
+  if (buffers['e-img2'] !== undefined) data.image2 = buffers['e-img2'];
+  try {
+    if (enteteId) await updateDoc(doc(db, COL, enteteId), data);
+    else { const ref = await addDoc(collection(db, COL), data); enteteId = ref.id; }
+    msg.textContent = '✓ En-tête enregistré'; msg.className = 'msg ok';
+    setTimeout(() => msg.textContent = '', 2500);
+  } catch (e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
+};
+
+// --- EXEMPLES ---
+window.ajouterExemple = function() {
+  const texte = document.getElementById('ex-texte').value.trim();
+  if (!texte) { alert('Entrez le texte de l\'exemple.'); return; }
+  if (buffers['ex-audio'] === undefined) { alert('Enregistrez ou importez l\'audio de l\'exemple.'); return; }
+  exemplesEnCours.push({ texte, audio: buffers['ex-audio'] });
+  delete buffers['ex-audio'];
+  document.getElementById('ex-texte').value = '';
+  document.getElementById('st-ex').textContent = '';
+  renderExPreview();
+};
+function renderExPreview() {
+  const box = document.getElementById('ex-preview');
+  box.innerHTML = exemplesEnCours.map((x, i) =>
+    `<span class="chip">${x.texte} <span style="cursor:pointer;color:var(--rouge)" onclick="retirerExemple(${i})">✕</span></span>`).join('');
+}
+window.retirerExemple = function(i) { exemplesEnCours.splice(i, 1); renderExPreview(); };
+
+// --- RÈGLE ---
+window.saveRegle = async function() {
+  const msg = document.getElementById('msg-regle');
+  const phrase = document.getElementById('r-phrase').value.trim();
+  if (!phrase) { alert('Entrez la phrase de la règle.'); return; }
+  msg.textContent = 'Enregistrement...'; msg.className = 'msg';
+  const snap = await getDocs(collection(db, COL));
+  const nbRegles = snap.docs.filter(d => d.data().type === 'regle').length;
+  const data = {
+    type: 'regle', phrase, ordre: nbRegles,
+    audio: buffers['r-audio'] || '',
+    exemples: exemplesEnCours.slice()
+  };
+  try {
+    await addDoc(collection(db, COL), data);
+    msg.textContent = '✓ Règle ajoutée'; msg.className = 'msg ok';
+    document.getElementById('r-phrase').value = '';
+    document.getElementById('st-r').textContent = '';
+    delete buffers['r-audio'];
+    exemplesEnCours = []; renderExPreview();
+    loadRegles();
+    setTimeout(() => msg.textContent = '', 2500);
+  } catch (e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
+};
+
+// --- LISTE / SUPPRESSION / RÉORDRE ---
+let regles = [];
+async function loadAll() {
+  const snap = await getDocs(collection(db, COL));
+  const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const e = docs.find(d => d.type === 'entete');
+  if (e) {
+    enteteId = e.id;
+    document.getElementById('e-titre').value = e.titre || '';
+    document.getElementById('e-phrase').value = e.phrase || '';
+    document.getElementById('e-sym1').value = e.symbole1 || '';
+    document.getElementById('e-sym2').value = e.symbole2 || '';
+    if (e.audio1) { const s = document.getElementById('st-e1'); s.textContent = '✓ Audio enregistré'; s.className = 'aud-state ok'; }
+    if (e.audio2) { const s = document.getElementById('st-e2'); s.textContent = '✓ Audio enregistré'; s.className = 'aud-state ok'; }
+    if (e.image1) { const z = document.getElementById('e-img1-zone'); z.classList.add('has'); z.firstChild.textContent = '✓ Image enregistrée'; }
+    if (e.image2) { const z = document.getElementById('e-img2-zone'); z.classList.add('has'); z.firstChild.textContent = '✓ Image enregistrée'; }
+  }
+  renderRegles(docs.filter(d => d.type === 'regle').sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99)));
+}
+async function loadRegles() {
+  const snap = await getDocs(collection(db, COL));
+  renderRegles(snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.type === 'regle').sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99)));
+}
+function renderRegles(list) {
+  regles = list;
+  const box = document.getElementById('liste-regles');
+  if (!list.length) { box.innerHTML = '<p class="empty">Aucune règle pour le moment.</p>'; return; }
+  box.innerHTML = list.map((r, i) => {
+    const ex = Array.isArray(r.exemples) ? r.exemples : [];
+    const chips = ex.map(x => `<span class="chip">${x.texte}</span>`).join('') || '<span class="empty">Aucun exemple</span>';
+    return `<div class="regle-item">
+      <div class="regle-head">
+        <div class="txt">${r.phrase || ''}</div>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button class="btn mini" onclick="monter(${i})" ${i === 0 ? 'disabled' : ''}>↑</button>
+          <button class="btn mini" onclick="descendre(${i})" ${i === list.length - 1 ? 'disabled' : ''}>↓</button>
+          <button class="btn mini" style="color:var(--rouge)" onclick="suppr('${r.id}')">✕</button>
+        </div>
+      </div>
+      <div class="chip-list">${chips}</div>
+    </div>`;
+  }).join('');
+}
+window.suppr = async function(id) {
+  if (!confirm('Supprimer cette règle ?')) return;
+  await deleteDoc(doc(db, COL, id));
+  loadRegles();
+};
+async function reordonner() {
+  await Promise.all(regles.map((r, i) => updateDoc(doc(db, COL, r.id), { ordre: i })));
+  loadRegles();
+}
+window.monter = function(i) { if (i <= 0) return; [regles[i-1], regles[i]] = [regles[i], regles[i-1]]; reordonner(); };
+window.descendre = function(i) { if (i >= regles.length - 1) return; [regles[i+1], regles[i]] = [regles[i], regles[i+1]]; reordonner(); };
+
+loadAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>La lettre B | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --phon: #4a5d8a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.page-header { background: var(--phon); padding: 100px 5vw 40px; position: relative; overflow: hidden; }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.12) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.2rem); color: var(--blanc); }
+.main { max-width: 820px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
+.loading-msg { text-align: center; color: var(--gris); padding: 3rem 1rem; }
+.play-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--phon); color: var(--blanc); border: none; border-radius: 25px; padding: 9px 18px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: opacity 0.2s; vertical-align: middle; }
+.play-btn:hover { opacity: 0.88; }
+.play-btn.playing { background: var(--vert); }
+.play-btn svg { width: 14px; height: 14px; fill: currentColor; }
+.play-mini { width: 34px; height: 34px; border-radius: 50%; padding: 0; justify-content: center; }
+.play-mini svg { margin-left: 1px; }
+.entete-card { background: var(--blanc); border-radius: 18px; border: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); padding: 2rem; margin-bottom: 2.5rem; }
+.entete-phrase { font-size: 1.15rem; color: var(--bleu); font-weight: 500; margin-bottom: 1.5rem; line-height: 1.5; }
+.entete-sons { display: flex; gap: 2rem; flex-wrap: wrap; }
+.son-item { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.son-schema { width: 150px; height: 130px; border-radius: 14px; background: var(--creme); object-fit: cover; border: 1px solid rgba(26,58,92,0.08); }
+.son-schema-vide { width: 150px; height: 130px; border-radius: 14px; background: var(--creme); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: rgba(26,58,92,0.2); border: 1px dashed rgba(26,58,92,0.15); }
+.son-symbole { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--phon); font-weight: 700; }
+.regle { margin-bottom: 2.25rem; }
+.regle-phrase { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; flex-wrap: wrap; }
+.regle-texte { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); }
+.exemples-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.ex-chip { background: var(--blanc); border: 1px solid rgba(26,58,92,0.1); border-radius: 12px; padding: 0.85rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: var(--ombre); cursor: pointer; transition: all 0.15s; }
+.ex-chip:hover { border-color: var(--phon); transform: translateY(-2px); }
+.ex-chip.playing { border-color: var(--vert); background: rgba(26,122,74,0.05); }
+.ex-texte { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--bleu); font-weight: 700; }
+.ex-play { width: 28px; height: 28px; border-radius: 50%; background: var(--phon); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ex-play svg { width: 11px; height: 11px; fill: white; margin-left: 1px; }
+.vide { color: var(--gris); font-size: 0.92rem; padding: 0.5rem 0; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="phonetique.html">
+    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    La phonétique
+  </a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">La phonétique · La lettre</p>
+    <h1 id="titre-lettre">La lettre B</h1>
+  </div>
+</div>
+
+<div class="main">
+  <div id="loading" class="loading-msg">Chargement...</div>
+  <div id="contenu" style="display:none">
+    <div id="bloc-entete"></div>
+    <div id="bloc-regles"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = 'phonetique-b';
+
+let currentAudio = null, currentEl = null;
+
+function parOrdre(a, b) {
+  const oa = typeof a.ordre === 'number' ? a.ordre : 9999;
+  const ob = typeof b.ordre === 'number' ? b.ordre : 9999;
+  return oa - ob;
+}
+function esc(s) { return (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+window._jouer = function(url, el) {
+  if (!url) return;
+  if (currentAudio) { currentAudio.pause(); if (currentEl) currentEl.classList.remove('playing'); }
+  currentAudio = new Audio(url);
+  currentEl = el;
+  if (el) el.classList.add('playing');
+  currentAudio.play().catch(() => {});
+  currentAudio.onended = () => { if (el) el.classList.remove('playing'); currentAudio = null; };
+};
+
+const btnSVG = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+
+async function load() {
+  try {
+    const snap = await getDocs(collection(db, COL));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('contenu').style.display = 'block';
+
+    const e = docs.find(d => d.type === 'entete');
+    const bE = document.getElementById('bloc-entete');
+    if (e) {
+      if (e.titre) document.getElementById('titre-lettre').textContent = 'La lettre ' + e.titre;
+      let sons = '';
+      for (let i = 1; i <= 2; i++) {
+        const audio = e['audio' + i], img = e['image' + i], sym = e['symbole' + i];
+        if (!audio && !img && !sym) continue;
+        const schema = img ? `<img class="son-schema" src="${img}" alt="Schéma"/>` : `<div class="son-schema-vide">👄</div>`;
+        sons += `<div class="son-item">
+          ${schema}
+          <div class="son-symbole">${esc(sym) || ''}</div>
+          <button class="play-btn play-mini" onclick="_jouer('${audio || ''}', this)">${btnSVG}</button>
+        </div>`;
+      }
+      bE.innerHTML = `<div class="entete-card">
+        ${e.phrase ? `<div class="entete-phrase">${esc(e.phrase)}</div>` : ''}
+        <div class="entete-sons">${sons}</div>
+      </div>`;
+    }
+
+    const regles = docs.filter(d => d.type === 'regle').sort(parOrdre);
+    const bR = document.getElementById('bloc-regles');
+    if (!regles.length && !e) { bR.innerHTML = '<p class="vide">Contenu à venir.</p>'; return; }
+    bR.innerHTML = regles.map(r => {
+      const ex = Array.isArray(r.exemples) ? r.exemples : [];
+      const chips = ex.map(x => `
+        <div class="ex-chip" onclick="_jouer('${x.audio || ''}', this)">
+          <span class="ex-texte">${esc(x.texte)}</span>
+          <span class="ex-play">${btnSVG}</span>
+        </div>`).join('');
+      return `<div class="regle">
+        <div class="regle-phrase">
+          <span class="regle-texte">${esc(r.phrase)}</span>
+          ${r.audio ? `<button class="play-btn play-mini" onclick="_jouer('${r.audio}', this)">${btnSVG}</button>` : ''}
+        </div>
+        ${chips ? `<div class="exemples-grid">${chips}</div>` : ''}
+      </div>`;
+    }).join('');
+
+  } catch (err) {
+    document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.';
+  }
+}
+load();
+</script>
+</body>
+</html>
