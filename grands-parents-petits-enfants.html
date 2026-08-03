@@ -40,6 +40,14 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 @keyframes lueur { 0%,100% { box-shadow: 0 0 0 3px rgba(26,122,74,0.18); } 50% { box-shadow: 0 0 0 6px rgba(26,122,74,0.30); } }
 .person.inactive { opacity: 0.4; cursor: default; pointer-events: none; }
 .person.playing { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.25); }
+
+.arbre-viewport { position: relative; width: 100%; max-width: 860px; margin: 0 auto; height: 460px; overflow: hidden; border: 1px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); touch-action: none; cursor: grab; }
+.arbre-viewport.dragging { cursor: grabbing; }
+.arbre-viewport .arbre-zone { position: absolute; top: 0; left: 0; transform-origin: 0 0; margin: 0; max-width: none; width: 640px; }
+.zoom-controls { position: absolute; right: 10px; bottom: 10px; z-index: 5; display: flex; flex-direction: column; gap: 6px; }
+.zoom-controls button { width: 38px; height: 38px; border-radius: 9px; border: 1.5px solid rgba(26,58,92,0.15); background: rgba(255,255,255,0.95); color: var(--bleu); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(26,58,92,0.12); }
+.zoom-controls button:hover { border-color: var(--bleu); }
+.zoom-hint { text-align: center; font-size: 0.8rem; color: var(--gris); margin-top: 0.6rem; }
 </style>
 </head>
 <body>
@@ -234,6 +242,119 @@ function reinit() {
 }
 
 charger();
+
+// ---- Zoom + déplacement (pincer / molette / glisser) ----
+(function() {
+  const zone = document.getElementById('arbre-zone');
+  if (!zone) return;
+  // envelopper la zone dans un viewport
+  const vp = document.createElement('div');
+  vp.className = 'arbre-viewport';
+  zone.parentNode.insertBefore(vp, zone);
+  vp.appendChild(zone);
+  // contrôles
+  const ctr = document.createElement('div');
+  ctr.className = 'zoom-controls';
+  ctr.innerHTML = '<button type="button" data-z="in">+</button><button type="button" data-z="out">\u2212</button><button type="button" data-z="reset">\u21BB</button>';
+  vp.appendChild(ctr);
+  const hint = document.createElement('div');
+  hint.className = 'zoom-hint';
+  hint.textContent = 'Pincez ou utilisez la molette pour zoomer, glissez pour vous déplacer.';
+  vp.parentNode.insertBefore(hint, vp.nextSibling);
+
+  let scale = 1, tx = 0, ty = 0;
+  const MIN = 0.4, MAX = 3;
+  function apply() { zone.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')'; }
+  function reset() {
+    // ajuster pour que l'arbre remplisse joliment le viewport
+    const zw = zone.offsetWidth || 720, vw = vp.clientWidth;
+    scale = Math.min(1, vw / zw);
+    tx = (vw - zw * scale) / 2; ty = 10;
+    apply();
+  }
+  window.__resetArbre = reset;
+
+  ctr.addEventListener('click', e => {
+    const z = e.target.getAttribute('data-z'); if (!z) return;
+    const cx = vp.clientWidth / 2, cy = vp.clientHeight / 2;
+    if (z === 'reset') { reset(); return; }
+    const f = z === 'in' ? 1.25 : 0.8;
+    zoomAt(cx, cy, f);
+  });
+
+  function zoomAt(px, py, f) {
+    const ns = Math.max(MIN, Math.min(MAX, scale * f));
+    const r = ns / scale;
+    tx = px - (px - tx) * r; ty = py - (py - ty) * r;
+    scale = ns; apply();
+  }
+
+  vp.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = vp.getBoundingClientRect();
+    zoomAt(e.clientX - rect.left, e.clientY - rect.top, e.deltaY < 0 ? 1.12 : 0.89);
+  }, { passive: false });
+
+  // --- glisser (souris + tactile) + distinction clic ---
+  let dragging = false, moved = false, sx = 0, sy = 0, stx = 0, sty = 0;
+  const pts = new Map();
+  let pinchStart = 0, pinchScale = 1;
+
+  vp.addEventListener('pointerdown', e => {
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) {
+      dragging = true; moved = false;
+      sx = e.clientX; sy = e.clientY; stx = tx; sty = ty;
+      vp.classList.add('dragging');
+    } else if (pts.size === 2) {
+      const a = [...pts.values()];
+      pinchStart = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
+      pinchScale = scale;
+    }
+    vp.setPointerCapture(e.pointerId);
+  });
+  vp.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 2) {
+      const a = [...pts.values()];
+      const d = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
+      if (pinchStart > 0) {
+        const rect = vp.getBoundingClientRect();
+        const mx = (a[0].x + a[1].x) / 2 - rect.left, my = (a[0].y + a[1].y) / 2 - rect.top;
+        const target = pinchScale * (d / pinchStart);
+        const f = target / scale;
+        zoomAt(mx, my, f);
+      }
+      moved = true;
+      return;
+    }
+    if (dragging) {
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) moved = true;
+      tx = stx + dx; ty = sty + dy; apply();
+    }
+  });
+  function up(e) {
+    pts.delete(e.pointerId);
+    if (pts.size < 2) pinchStart = 0;
+    if (pts.size === 0) { dragging = false; vp.classList.remove('dragging'); }
+  }
+  vp.addEventListener('pointerup', up);
+  vp.addEventListener('pointercancel', up);
+
+  // supprime le clic-personne si on a glissé
+  vp.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
+
+  // reset après chaque rendu de l'arbre
+  const obs = new MutationObserver(() => { /* garder la vue */ });
+  obs.observe(zone, { childList: true });
+
+  // premier centrage quand l'arbre apparaît
+  const waitShow = setInterval(() => {
+    if (zone.offsetWidth > 0 && vp.clientWidth > 0) { reset(); clearInterval(waitShow); }
+  }, 120);
+})();
 </script>
 </body>
 </html>
