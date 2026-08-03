@@ -11,7 +11,10 @@
 :root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
 .nav-logo span { color: var(--rouge); }
 .page-header { background: var(--bleu); padding: 100px 5vw 44px; position: relative; overflow: hidden; }
@@ -46,7 +49,13 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 </style>
 </head>
 <body>
-<nav><a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a></nav>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour à l'accueil
+  </a>
+</nav>
 <div class="page-header">
   <div class="page-header-inner">
     <p class="page-eyebrow">La famille</p>
@@ -73,12 +82,13 @@ async function charger() {
   try {
     const snap = await getDocs(collection(db, 'famille'));
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    personnes = docs.filter(d => d.type === 'personne').sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99));
+    const MES_IDS = ['p1', 'p2', 'p3', 'p4'];   // Jean, Alice, Mathieu, Sandra uniquement
+    personnes = docs.filter(d => d.type === 'personne' && MES_IDS.includes(d.id)).sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99));
     relations = {};
     personnes.forEach(p => { relations[p.id] = {}; });
     docs.filter(d => d.type === 'relation').forEach(r => { if (relations[r.de]) relations[r.de][r.vers] = r.audio; });
-    ARBRE.parents = personnes.filter(p => p.role === 'parent').map(p => p.id);
-    ARBRE.enfants = personnes.filter(p => p.role === 'enfant').map(p => p.id);
+    ARBRE.parents = personnes.filter(p => p.id === 'p1' || p.id === 'p2').map(p => p.id);
+    ARBRE.enfants = personnes.filter(p => p.id === 'p3' || p.id === 'p4').map(p => p.id);
     if (personnes.length === 0) { document.getElementById('loading').textContent = "Aucune famille configurée. Ajoutez les personnes dans l'admin."; return; }
     document.getElementById('loading').style.display = 'none';
     document.getElementById('consigne').style.display = 'block';

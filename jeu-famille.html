@@ -96,6 +96,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
     <div class="score-num" id="score-final-num">0 / 10</div>
     <p id="score-final-msg"></p>
     <button class="btn-rejouer" onclick="startGame()">🔄 Rejouer</button>
+        <a href="index.html" style="display:inline-block;margin-top:0.75rem;padding:0.85rem 2rem;background:var(--creme);color:var(--bleu);border-radius:10px;text-decoration:none;font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid rgba(26,58,92,0.15);transition:opacity 0.2s" onmouseover="this.style.opacity=0.75" onmouseout="this.style.opacity=1">🏠 Page d'accueil</a>
   </div>
 </div>
 <script type="module">
@@ -112,10 +113,11 @@ async function charger() {
   try {
     const snap = await getDocs(collection(db, 'famille'));
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    personnes = docs.filter(d => d.type === 'personne' && (d.role === 'parent' || d.role === 'enfant')).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+    const MES_IDS = ['p1', 'p2', 'p3', 'p4'];
+    personnes = docs.filter(d => d.type === 'personne' && MES_IDS.includes(d.id)).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
     const ids = new Set(personnes.map(p => p.id));
-    ARBRE.parents = personnes.filter(p => p.role === 'parent').map(p => p.id);
-    ARBRE.enfants = personnes.filter(p => p.role === 'enfant').map(p => p.id);
+    ARBRE.parents = personnes.filter(p => p.id === 'p1' || p.id === 'p2').map(p => p.id);
+    ARBRE.enfants = personnes.filter(p => p.id === 'p3' || p.id === 'p4').map(p => p.id);
     // pool de questions : chaque relation avec audioQuestion, si les 2 personnes sont dans cet arbre
     pool = docs.filter(d => d.type === 'relation' && d.audioQuestion && ids.has(d.de) && ids.has(d.vers))
       .map(d => ({ audio: d.audioQuestion, reference: d.vers, reponse: d.de }));
