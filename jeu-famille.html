@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jeu – La famille rapprochée | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.page-header { background: var(--bleu); padding: 100px 5vw 44px; position: relative; overflow: hidden; }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
+.page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.65); font-weight: 300; }
+.main { max-width: 760px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
+.progress-label { font-size: 0.85rem; color: var(--gris); margin-bottom: 1rem; display: flex; justify-content: space-between; }
+.score-badge { font-weight: 500; color: var(--vert); }
+.play-zone { text-align: center; margin-bottom: 1.5rem; }
+.play-btn { width: 84px; height: 84px; border-radius: 50%; background: var(--bleu); border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: transform 0.2s; box-shadow: 0 4px 16px rgba(26,58,92,0.25); }
+.play-btn:hover { transform: scale(1.05); }
+.play-btn.playing { background: var(--vert); }
+.play-btn svg { width: 34px; height: 34px; fill: white; margin-left: 4px; }
+.play-btn.playing svg { margin-left: 0; }
+.replay-hint { font-size: 0.82rem; color: var(--gris); margin-top: 0.75rem; }
+.consigne { text-align: center; font-size: 1rem; color: var(--bleu); font-weight: 500; min-height: 1.5em; margin-bottom: 1.5rem; }
+.arbre { max-width: 620px; margin: 0 auto; }
+.arbre-rang { display: flex; justify-content: center; gap: clamp(30px, 12vw, 120px); }
+.couple-wrap { position: relative; display: flex; justify-content: center; gap: clamp(30px, 12vw, 120px); }
+.couple-wrap::before { content: ''; position: absolute; top: 50%; left: 25%; right: 25%; height: 3px; background: rgba(26,58,92,0.25); z-index: 0; }
+.connecteurs { position: relative; height: 46px; }
+.connecteurs::before { content: ''; position: absolute; top: 0; left: 50%; width: 3px; height: 23px; background: rgba(26,58,92,0.25); transform: translateX(-50%); }
+.connecteurs::after { content: ''; position: absolute; top: 23px; left: 25%; right: 25%; height: 3px; background: rgba(26,58,92,0.25); }
+.connecteurs .branche { position: absolute; top: 23px; width: 3px; height: 23px; background: rgba(26,58,92,0.25); }
+.connecteurs .branche.gauche { left: 25%; }
+.connecteurs .branche.droite { right: 25%; transform: translateX(3px); }
+.person { position: relative; z-index: 1; background: var(--blanc); border: 2.5px solid rgba(26,58,92,0.10); border-radius: 16px; padding: 10px 10px 14px; cursor: pointer; text-align: center; width: clamp(120px, 34vw, 150px); transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s; }
+.person .photo { width: 100%; aspect-ratio: 1/1; border-radius: 10px; background: var(--creme); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+.person .photo img { width: 100%; height: 100%; object-fit: cover; }
+.person .photo .ph { font-size: 2.6rem; color: rgba(26,58,92,0.25); }
+.person .nom { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--bleu); }
+.person.reference { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.30); animation: pulseRouge 1.2s ease-in-out infinite; }
+@keyframes pulseRouge { 0%,100% { box-shadow: 0 0 0 3px rgba(192,57,43,0.25); } 50% { box-shadow: 0 0 0 6px rgba(192,57,43,0.38); } }
+.person.choisissable:hover { transform: translateY(-2px); border-color: var(--bleu); }
+.person.correct { border-color: var(--vert); box-shadow: 0 0 0 3px rgba(26,122,74,0.30); }
+.person.wrong { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.30); }
+.person.fige { pointer-events: none; }
+.feedback { text-align: center; min-height: 32px; font-size: 1.05rem; font-weight: 500; margin: 1.5rem 0 0; }
+.feedback.bon { color: var(--vert); }
+.feedback.mauvais { color: var(--rouge); }
+.loading-msg { text-align: center; color: var(--gris); padding: 3rem 1rem; }
+.score-final { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); padding: 3rem 2rem; text-align: center; }
+.score-final h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--bleu); margin-bottom: 0.5rem; }
+.score-final .score-num { font-size: 3rem; font-weight: 500; color: var(--vert); margin: 1rem 0; }
+.score-final p { color: var(--gris); margin-bottom: 2rem; }
+.btn-rejouer { background: var(--bleu); color: var(--blanc); border: none; border-radius: 10px; padding: 0.85rem 2rem; font-size: 0.95rem; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.btn-rejouer:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="la-famille.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Retour</a>
+</nav>
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">La famille rapprochée · Jeu</p>
+    <h1>Qui est-ce ?</h1>
+    <p>Écoutez la question et cliquez sur la bonne personne.</p>
+  </div>
+</div>
+<div class="main">
+  <div id="loading" class="loading-msg">Chargement...</div>
+  <div id="jeu" style="display:none">
+    <div class="progress-label"><span id="progress-text">Question 1</span><span class="score-badge" id="score-text">0 point</span></div>
+    <div class="play-zone">
+      <button class="play-btn" id="play-btn" onclick="rejouer()"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+      <div class="replay-hint">Cliquez pour réécouter</div>
+    </div>
+    <div class="consigne" id="consigne">Cliquez sur la bonne personne</div>
+    <div class="arbre" id="arbre"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+  <div class="score-final" id="score-final" style="display:none">
+    <h2>Bravo !</h2>
+    <div class="score-num" id="score-final-num">0 / 10</div>
+    <p id="score-final-msg"></p>
+    <button class="btn-rejouer" onclick="startGame()">🔄 Rejouer</button>
+  </div>
+</div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let personnes = [], ARBRE = { parents: [], enfants: [] }, pool = [], questions = [], qIndex = 0, score = 0, answered = false, lecture = null;
+const TOTAL = 10;
+
+async function charger() {
+  try {
+    const snap = await getDocs(collection(db, 'famille'));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    personnes = docs.filter(d => d.type === 'personne' && (d.role === 'parent' || d.role === 'enfant')).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+    const ids = new Set(personnes.map(p => p.id));
+    ARBRE.parents = personnes.filter(p => p.role === 'parent').map(p => p.id);
+    ARBRE.enfants = personnes.filter(p => p.role === 'enfant').map(p => p.id);
+    // pool de questions : chaque relation avec audioQuestion, si les 2 personnes sont dans cet arbre
+    pool = docs.filter(d => d.type === 'relation' && d.audioQuestion && ids.has(d.de) && ids.has(d.vers))
+      .map(d => ({ audio: d.audioQuestion, reference: d.vers, reponse: d.de }));
+    if (pool.length === 0) {
+      document.getElementById('loading').textContent = "Aucune question enregistrée. Ajoutez des audios de question dans l'admin.";
+      return;
+    }
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('jeu').style.display = 'block';
+    startGame();
+  } catch (e) { document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.'; }
+}
+
+function pById(id) { return personnes.find(p => p.id === id); }
+
+window.startGame = function() {
+  score = 0; qIndex = 0; answered = false;
+  document.getElementById('score-final').style.display = 'none';
+  document.getElementById('jeu').style.display = 'block';
+  questions = shuffle([...pool]).slice(0, Math.min(TOTAL, pool.length));
+  afficher();
+};
+
+function carteHTML(id, q) {
+  const p = pById(id);
+  const cls = ['person'];
+  if (id === q.reference) cls.push('reference');
+  else cls.push('choisissable');
+  const img = p.image ? `<img src="${p.image}" alt="${p.nom}"/>` : `<span class="ph">👤</span>`;
+  const clickable = id !== q.reference;
+  return `<div class="${cls.join(' ')}" data-id="${id}" ${clickable ? `onclick="repondre('${id}')"` : ''}>
+    <div class="photo">${img}</div><div class="nom">${p.nom}</div></div>`;
+}
+
+function afficher() {
+  answered = false;
+  const q = questions[qIndex];
+  document.getElementById('progress-text').textContent = 'Question ' + (qIndex + 1) + ' / ' + questions.length;
+  document.getElementById('score-text').textContent = score + (score === 1 ? ' point' : ' points');
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  const parents = ARBRE.parents.map(id => carteHTML(id, q)).join('');
+  const enfants = ARBRE.enfants.map(id => carteHTML(id, q)).join('');
+  let html = `<div class="couple-wrap">${parents}</div>`;
+  if (ARBRE.enfants.length) html += `<div class="connecteurs"><span class="branche gauche"></span><span class="branche droite"></span></div><div class="arbre-rang">${enfants}</div>`;
+  document.getElementById('arbre').innerHTML = html;
+  jouer(q.audio);
+}
+
+function jouer(url) {
+  if (lecture) { lecture.pause(); lecture = null; }
+  const btn = document.getElementById('play-btn');
+  lecture = new Audio(url); btn.classList.add('playing');
+  lecture.play().catch(()=>{});
+  lecture.onended = () => btn.classList.remove('playing');
+}
+window.rejouer = () => { const q = questions[qIndex]; if (q) jouer(q.audio); };
+
+window.repondre = function(id) {
+  if (answered) return;
+  answered = true;
+  const q = questions[qIndex];
+  const bon = id === q.reponse;
+  if (bon) score++;
+  document.querySelectorAll('.person').forEach(el => el.classList.add('fige'));
+  const bonne = document.querySelector('.person[data-id="' + q.reponse + '"]');
+  if (bonne) bonne.classList.add('correct');
+  if (!bon) { const ch = document.querySelector('.person[data-id="' + id + '"]'); if (ch) ch.classList.add('wrong'); }
+  const fb = document.getElementById('feedback');
+  fb.textContent = bon ? '✓ Bonne réponse !' : '✗ La bonne réponse était ' + pById(q.reponse).nom;
+  fb.className = 'feedback ' + (bon ? 'bon' : 'mauvais');
+  document.getElementById('score-text').textContent = score + (score === 1 ? ' point' : ' points');
+  setTimeout(() => { qIndex++; if (qIndex < questions.length) afficher(); else fin(); }, 1700);
+};
+
+function fin() {
+  document.getElementById('jeu').style.display = 'none';
+  const sf = document.getElementById('score-final'); sf.style.display = 'block';
+  document.getElementById('score-final-num').textContent = score + ' / ' + questions.length;
+  const pct = score / questions.length;
+  let msg = 'Continuez à pratiquer !';
+  if (pct === 1) msg = 'Parfait ! Vous connaissez bien la famille.';
+  else if (pct >= 0.7) msg = 'Très bien !';
+  document.getElementById('score-final-msg').textContent = msg;
+}
+
+function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+charger();
+</script>
+</body>
+</html>

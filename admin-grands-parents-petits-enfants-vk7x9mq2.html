@@ -113,7 +113,8 @@ const EXCLUS = new Set(['p1|p5', 'p5|p1', 'p1|p6', 'p6|p1']);
 function paireExclue(a, b) { return EXCLUS.has(a + '|' + b); }
 
 let relations = {};
-IDS.forEach(a => { relations[a] = {}; });
+let questions = {};
+IDS.forEach(a => { relations[a] = {}; questions[a] = {}; });
 
 function pById(id) { return personnes.find(p => p.id === id); }
 function blobToDataUrl(blob) { return new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob); }); }
@@ -151,7 +152,7 @@ async function charger() {
       if (local) { local.nom = pd.nom; local.image = pd.image || null; if (pd.role) local.role = pd.role; }
     });
     docs.filter(d => d.type === 'relation').forEach(r => {
-      if (relations[r.de]) relations[r.de][r.vers] = r.audio;
+      if (relations[r.de]) { relations[r.de][r.vers] = r.audio; if (r.audioQuestion) questions[r.de][r.vers] = r.audioQuestion; }
     });
     document.getElementById('loading').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -188,6 +189,14 @@ function renderRelations() {
         <label class="mini">📁<input type="file" accept="audio/*" style="display:none" onchange="majAudio(event,'${a.id}','${b.id}')"/></label>
         <span class="check" id="chk-${a.id}-${b.id}">${has ? '✓' : ''}</span>
       </div>`);
+      const hasQ = !!questions[a.id][b.id];
+      rows.push(`<div class="rel-row" style="border-bottom:1px solid rgba(26,58,92,0.12);padding-bottom:12px;margin-bottom:4px">
+        <div class="rel-desc" style="color:var(--rouge)">🎮 Question du jeu <span>(« Qui est le/la … de ${b.nom} ? » — réponse : ${a.nom})</span></div>
+        <button class="mini" id="recq-${a.id}-${b.id}" onclick="toggleRecQ('${a.id}','${b.id}')">🎤 Question</button>
+        <button class="mini" onclick="ecouterQ('${a.id}','${b.id}')" ${hasQ ? '' : 'disabled'}>▶️</button>
+        <label class="mini">📁<input type="file" accept="audio/*" style="display:none" onchange="majAudioQ(event,'${a.id}','${b.id}')"/></label>
+        <span class="check" id="chkq-${a.id}-${b.id}">${hasQ ? '✓' : ''}</span>
+      </div>`);
     });
     if (rows.length) html += `<div class="rel-group"><h3>Quand on clique sur ${a.nom}</h3>${rows.join('')}</div>`;
   });
@@ -207,6 +216,22 @@ window.majAudio = async (e, a, b) => {
   renderRelations();
 };
 window.ecouter = (a, b) => { const url = relations[a][b]; if (url) new Audio(url).play(); };
+window.majAudioQ = async (e, a, b) => { const f = e.target.files[0]; if (!f) return; questions[a][b] = await blobToDataUrl(f); renderRelations(); };
+window.ecouterQ = (a, b) => { const url = questions[a][b]; if (url) new Audio(url).play(); };
+let recorderQ = null, recChunksQ = [], recSlotQ = null;
+window.toggleRecQ = (a, b) => {
+  const slot = a + '-' + b;
+  const btn = document.getElementById('recq-' + slot);
+  if (recSlotQ === slot) { recorderQ.stop(); recorderQ.stream.getTracks().forEach(t => t.stop()); return; }
+  if (recorderQ && recorderQ.state === 'recording') { recorderQ.stop(); recorderQ.stream.getTracks().forEach(t => t.stop()); }
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    recorderQ = new MediaRecorder(stream); recChunksQ = []; recSlotQ = slot;
+    btn.classList.add('rec-on'); btn.textContent = '⏹ Arrêter';
+    recorderQ.ondataavailable = ev => recChunksQ.push(ev.data);
+    recorderQ.onstop = async () => { const blob = new Blob(recChunksQ, { type: 'audio/webm' }); if (blob.size > 0) questions[a][b] = await blobToDataUrl(blob); recSlotQ = null; renderRelations(); };
+    recorderQ.start();
+  }).catch(() => alert('Accès au micro refusé.'));
+};
 
 let recorder = null, recChunks = [], recSlot = null;
 window.toggleRec = (a, b) => {
@@ -241,13 +266,16 @@ window.sauvegarder = async function() {
       for (const b of IDS) {
         if (a === b || paireExclue(a, b)) continue;
         const audio = relations[a][b];
-        if (audio) {
+        if (audio || questions[a][b]) {
           if (audio.length > 1040000) {
             st.style.color = 'var(--rouge)';
             st.textContent = "L'audio " + pById(a).nom + ' → ' + pById(b).nom + ' est trop long. Réenregistrez-le plus court.';
             return;
           }
-          await setDoc(doc(db, 'famille', 'rel-' + a + '-' + b), { type: 'relation', de: a, vers: b, audio });
+          const relDoc = { type: 'relation', de: a, vers: b };
+          if (audio) relDoc.audio = audio;
+          if (questions[a][b]) relDoc.audioQuestion = questions[a][b];
+          await setDoc(doc(db, 'famille', 'rel-' + a + '-' + b), relDoc);
         }
       }
     }

@@ -47,6 +47,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
     <p class="page-eyebrow">La famille · Les grands-parents et les petits-enfants</p>
     <h1>Les grands-parents et les petits-enfants</h1>
     <p>Cliquez sur une personne, puis sur une autre pour entendre leur lien de parenté.</p>
+    <div id="jeu-btn-wrap" style="margin-top:1.25rem;display:none">
+      <a href="jeu-grands-parents-petits-enfants.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">🎮 Jeu : Qui est-ce ?</a>
+    </div>
   </div>
 </div>
 
@@ -108,6 +111,7 @@ async function charger() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('consigne').style.display = 'block';
     document.getElementById('arbre-zone').style.display = 'block';
+    if (docs.some(d => d.type === 'relation' && d.audioQuestion)) document.getElementById('jeu-btn-wrap').style.display = 'block';
     render();
     window.addEventListener('resize', positionner);
   } catch (e) {
