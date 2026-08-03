@@ -41,7 +41,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .person.inactive { opacity: 0.4; cursor: default; pointer-events: none; }
 .person.playing { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.25); }
 
-.arbre-viewport { position: relative; width: 100%; max-width: 860px; margin: 0 auto; height: 460px; overflow: hidden; border: 1px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); touch-action: none; cursor: grab; }
+.arbre-viewport { position: relative; width: 100%; max-width: 980px; margin: 0 auto; height: 600px; overflow: hidden; border: 1px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); touch-action: none; cursor: grab; }
 .arbre-viewport.dragging { cursor: grabbing; }
 .arbre-viewport .arbre-zone { position: absolute; top: 0; left: 0; transform-origin: 0 0; margin: 0; max-width: none; width: 860px; }
 .zoom-controls { position: absolute; right: 10px; bottom: 10px; z-index: 5; display: flex; flex-direction: column; gap: 6px; }
@@ -279,10 +279,13 @@ charger();
   const MIN = 0.4, MAX = 3;
   function apply() { zone.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')'; }
   function reset() {
-    // ajuster pour que l'arbre remplisse joliment le viewport
-    const zw = zone.offsetWidth || 720, vw = vp.clientWidth;
-    scale = Math.min(1, vw / zw);
-    tx = (vw - zw * scale) / 2; ty = 10;
+    // ajuster pour que l'arbre remplisse joliment le viewport (marge légère)
+    const zw = zone.offsetWidth || 720, zh = zone.offsetHeight || 600;
+    const vw = vp.clientWidth, vh = vp.clientHeight;
+    const fit = Math.min(vw / zw, vh / zh) * 0.96;
+    scale = Math.max(MIN, Math.min(MAX, fit));
+    tx = (vw - zw * scale) / 2; ty = (vh - zh * scale) / 2;
+    if (ty < 8) ty = 8;
     apply();
   }
   window.__resetArbre = reset;
@@ -314,6 +317,7 @@ charger();
   let pinchStart = 0, pinchScale = 1;
 
   vp.addEventListener('pointerdown', e => {
+    if (e.target.closest('.zoom-controls')) return;
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pts.size === 1) {
       dragging = true; moved = false;
