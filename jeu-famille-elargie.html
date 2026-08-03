@@ -351,7 +351,6 @@ charger();
       pinchStart = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
       pinchScale = scale;
     }
-    vp.setPointerCapture(e.pointerId);
   });
   vp.addEventListener('pointermove', e => {
     if (!pts.has(e.pointerId)) return;
@@ -371,8 +370,11 @@ charger();
     }
     if (dragging) {
       const dx = e.clientX - sx, dy = e.clientY - sy;
-      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) moved = true;
-      tx = stx + dx; ty = sty + dy; apply();
+      if (!moved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+        moved = true;
+        try { vp.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+      if (moved) { tx = stx + dx; ty = sty + dy; apply(); }
     }
   });
   function up(e) {
