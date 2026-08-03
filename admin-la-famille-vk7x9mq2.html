@@ -85,10 +85,10 @@ const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", auth
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let personnes = [
-  { id: 'jean',    nom: 'Jean',    role: 'parent', ordre: 0, image: null },
-  { id: 'alice',   nom: 'Alice',   role: 'parent', ordre: 1, image: null },
-  { id: 'mathieu', nom: 'Mathieu', role: 'enfant', ordre: 2, image: null },
-  { id: 'sandra',  nom: 'Sandra',  role: 'enfant', ordre: 3, image: null },
+  { id: 'p1', nom: 'Jean',    role: 'parent', ordre: 0, image: null },
+  { id: 'p2', nom: 'Alice',   role: 'parent', ordre: 1, image: null },
+  { id: 'p3', nom: 'Mathieu', role: 'enfant', ordre: 2, image: null },
+  { id: 'p4', nom: 'Sandra',  role: 'enfant', ordre: 3, image: null },
 ];
 const IDS = personnes.map(p => p.id);
 let relations = {};

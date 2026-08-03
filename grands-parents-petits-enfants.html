@@ -74,18 +74,18 @@ const db = getFirestore(app);
 
 // Disposition fixe de l'arbre (croquis) : col en % de la largeur, row = rangée
 const LAYOUT = {
-  claude:  { col: 60, row: 0 },
-  marie:   { col: 85, row: 0 },
-  jean:    { col: 18, row: 1 },
-  alice:   { col: 72, row: 1 },
-  mathieu: { col: 30, row: 2 },
-  sandra:  { col: 60, row: 2 },
+  p5:  { col: 60, row: 0 },
+  p6:  { col: 85, row: 0 },
+  p1:  { col: 18, row: 1 },
+  p2:  { col: 72, row: 1 },
+  p3:  { col: 30, row: 2 },
+  p4:  { col: 60, row: 2 },
 };
-const COUPLES = [ ['claude','marie'], ['jean','alice'] ];
+const COUPLES = [ ['p5','p6'], ['p1','p2'] ];
 const FILIATIONS = [
-  { enfant: 'alice',   parents: ['claude','marie'] },
-  { enfant: 'mathieu', parents: ['jean','alice'] },
-  { enfant: 'sandra',  parents: ['jean','alice'] },
+  { enfant: 'p2', parents: ['p5','p6'] },
+  { enfant: 'p3', parents: ['p1','p2'] },
+  { enfant: 'p4', parents: ['p1','p2'] },
 ];
 const ROW_Y = [70, 250, 430];
 const CARD_W = 130, CARD_H = 150, ZONE_H = 590;
