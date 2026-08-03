@@ -476,6 +476,14 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
         <div class="hero-card-arrow">▾</div>
       </div>
 
+      <!-- La famille -->
+      <div class="hero-card" onclick="toggleHeroCard(this,'famille')" style="background:rgba(140,70,110,0.85);">
+        <div class="hero-card-icon">👨‍👩‍👧‍👦</div>
+        <div class="hero-card-title">La famille</div>
+        <div class="hero-card-sub">Les liens de parenté</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -530,6 +538,7 @@ const heroContents = {
   passe: `<div class="hcd-cat">⏪ Raconter au passé</div><a href="participes-passes-3e-groupe.html">Les participes passés des verbes du 3e groupe</a><a href="verbes-etre-passe.html">Les verbes avec l'auxiliaire être</a><a href="raconter-fin-semaine.html">Raconter sa fin de semaine</a><a href="moments-importants.html">Les moments importants de sa vie</a>`,
   sante: `<div class="hcd-cat">🏥 La santé</div><a href="corps-humain.html">Les parties du corps</a><div class="hcd-divider"></div><div class="hcd-cat">🤒 Les symptômes et les maladies</div><a href="les-symptomes.html">Les symptômes</a><a href="maladies-courantes.html">Les maladies courantes</a><a href="symptomes-maladies-graves.html">Les symptômes et maladies graves</a><div class="hcd-divider"></div><div class="hcd-cat">💊 La pharmacie</div><a href="types-medicaments.html">Les types de médicaments</a><div class="hcd-divider"></div><div class="hcd-cat">🩺 Chez le docteur</div><a href="questions-docteur.html">Les questions du docteur</a><a href="consignes-docteur.html">Les consignes du docteur</a><a href="actes-medicaux.html">Les actes médicaux</a><div class="hcd-divider"></div><div class="hcd-cat">🏨 L'hôpital</div><a href="l-hopital.html">L'hôpital</a>`,
   meteo: `<div class="hcd-cat">🌤 La météo</div><a href="conditions-meteorologiques.html">Les conditions météorologiques</a><a href="decrire-conditions-meteo.html">Décrire une condition météorologique</a><a href="meteo-hasardeuse.html">La météo hasardeuse</a><div class="hcd-divider"></div><div class="hcd-cat">🚗 La circulation</div><a href="la-circulation.html">La circulation</a>`,
+  famille: `<div class="hcd-cat">👨‍👩‍👧‍👦 La famille</div><a href="la-famille.html">La famille rapprochée</a>`,
   invitation: `<div class="hcd-cat">🎉 L'invitation et la conversation informelle</div><a href="l-invitation.html">L'invitation</a><a href="conversation-informelle.html">La conversation informelle</a>`
 };
 let activeCard = null;
