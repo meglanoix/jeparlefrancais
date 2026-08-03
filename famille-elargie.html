@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Les grands-parents et les petits-enfants | JeParle Français</title>
+<title>La famille élargie | JeParle Français</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -53,11 +53,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 
 <div class="page-header">
   <div class="page-header-inner">
-    <p class="page-eyebrow">La famille · Les grands-parents et les petits-enfants</p>
-    <h1>Les grands-parents et les petits-enfants</h1>
+    <p class="page-eyebrow">La famille · La famille élargie</p>
+    <h1>La famille élargie</h1>
     <p>Cliquez sur une personne, puis sur une autre pour entendre leur lien de parenté.</p>
     <div id="jeu-btn-wrap" style="margin-top:1.25rem;display:none">
-      <a href="jeu-grands-parents-petits-enfants.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">🎮 Jeu : Qui est-ce ?</a>
+      <a href="jeu-famille-elargie.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">🎮 Jeu : Qui est-ce ?</a>
     </div>
   </div>
 </div>
@@ -84,25 +84,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Disposition fixe de l'arbre (6 personnes). col = % de largeur, row = rangée.
+// Disposition fixe de l'arbre élargi. col = % de largeur, row = rangée.
+// p9 (jumelles) = une seule entité affichée en DEUX images (p9 et p9b -> même données).
 const LAYOUT = {
-  p5:  { col: 60, row: 0 },   // Claude
-  p6:  { col: 85, row: 0 },   // Marie
-  p1:  { col: 18, row: 1 },   // Jean
-  p2:  { col: 72, row: 1 },   // Alice
-  p3:  { col: 30, row: 2 },   // Mathieu
-  p4:  { col: 60, row: 2 },   // Sandra
+  p5:  { col: 50, row: 0 },   // Claude
+  p6:  { col: 72, row: 0 },   // Marie
+  p7:  { col: 12, row: 1 },   // Marc
+  p8:  { col: 30, row: 1 },   // Philippe
+  p2:  { col: 62, row: 1 },   // Alice
+  p1:  { col: 84, row: 1 },   // Jean
+  p9:  { col: 10, row: 2 },   // Josée (jumelle)
+  p9b: { col: 26, row: 2 },   // Véronique (2e image, mêmes données que p9)
+  p3:  { col: 56, row: 2 },   // Mathieu
+  p4:  { col: 78, row: 2 },   // Sandra
 };
-const ALIAS = {};
+// carte-alias -> entité réelle (les deux images des jumelles = p9)
+const ALIAS = { p9b: 'p9' };
 function reel(id) { return ALIAS[id] || id; }
-const COUPLES = [ ['p5','p6','marie'], ['p1','p2','marie'] ];
+
+// couples : [a, b, type] où type = 'marie' (💍) ou 'couple' (❤️)
+const COUPLES = [ ['p5','p6','marie'], ['p7','p8','couple'], ['p2','p1','marie'] ];
+// filiations : enfant descend du couple [parentA, parentB]
 const FILIATIONS = [
-  { enfant: 'p2', parents: ['p5','p6'] },
-  { enfant: 'p3', parents: ['p1','p2'] },
-  { enfant: 'p4', parents: ['p1','p2'] },
+  { enfant: 'p7', parents: ['p5','p6'] },   // Marc, fils de Claude+Marie (à gauche)
+  { enfant: 'p2', parents: ['p5','p6'] },   // Alice, fille de Claude+Marie (à droite)
+  { enfant: 'p9', parents: ['p7','p8'] },   // jumelles, filles de Marc+Philippe
+  { enfant: 'p3', parents: ['p2','p1'] },   // Mathieu, fils d'Alice+Jean
+  { enfant: 'p4', parents: ['p2','p1'] },   // Sandra, fille d'Alice+Jean
 ];
-const ROW_Y = [70, 250, 430];
-const CARD_W = 130, CARD_H = 150, ZONE_H = 590;
+const ROW_Y = [70, 260, 450];
+const CARD_W = 118, CARD_H = 138, ZONE_H = 620;
 
 let personnes = {}, relations = {}, selected = null, lecture = null;
 

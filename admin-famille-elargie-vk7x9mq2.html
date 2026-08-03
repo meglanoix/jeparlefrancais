@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin – Les grands-parents et les petits-enfants | JeParle Français</title>
+<title>Admin – La famille élargie | JeParle Français</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -50,13 +50,14 @@ input[type=text] { width: 100%; padding: 7px 9px; border: 1.5px solid rgba(26,58
 </style>
 </head>
 <body>
+<script type="module" src="admin-auth.js"></script>
 <nav>
   <a class="nav-logo" href="admin-vk7x9mq2-accueil.html">JeParle<span>Français</span> · Admin</a>
-  <a class="nav-view-link" href="grands-parents-petits-enfants.html" target="_blank">Voir la page publique ↗</a>
+  <a class="nav-view-link" href="famille-elargie.html" target="_blank">Voir la page publique ↗</a>
 </nav>
 <div class="page-header">
   <p class="eyebrow">⚙ Panneau d'administration</p>
-  <h1>Les grands-parents et les petits-enfants</h1>
+  <h1>La famille élargie</h1>
   <p>Définissez les personnes, puis enregistrez l'audio de chaque lien de parenté. Seuls les liens qui existent sont listés — Jean n'a volontairement aucun lien avec Claude et Marie.</p>
 </div>
 
@@ -101,15 +102,25 @@ const db = getFirestore(app);
 let personnes = [
   { id: 'p5', nom: 'Claude',  role: 'grandparent', ordre: 0, image: null },
   { id: 'p6', nom: 'Marie',   role: 'grandparent', ordre: 1, image: null },
-  { id: 'p1', nom: 'Jean',    role: 'parent', ordre: 2, image: null },
-  { id: 'p2', nom: 'Alice',   role: 'parent', ordre: 3, image: null },
-  { id: 'p3', nom: 'Mathieu', role: 'enfant', ordre: 4, image: null },
-  { id: 'p4', nom: 'Sandra',  role: 'enfant', ordre: 5, image: null },
+  { id: 'p7', nom: 'Marc',    role: 'parent', ordre: 2, image: null },
+  { id: 'p8', nom: 'Philippe', role: 'parent', ordre: 3, image: null },
+  { id: 'p1', nom: 'Jean',    role: 'parent', ordre: 4, image: null },
+  { id: 'p2', nom: 'Alice',   role: 'parent', ordre: 5, image: null },
+  { id: 'p9', nom: 'Josée et Véronique', role: 'enfant', ordre: 6, image: null },
+  { id: 'p3', nom: 'Mathieu', role: 'enfant', ordre: 7, image: null },
+  { id: 'p4', nom: 'Sandra',  role: 'enfant', ordre: 8, image: null },
 ];
 const IDS = personnes.map(p => p.id);
 
 // Paires EXCLUES (aucun lien) : Jean <-> Claude et Jean <-> Marie, dans les deux sens
-const EXCLUS = new Set(['p1|p5', 'p5|p1', 'p1|p6', 'p6|p1']);
+const EXCLUS = new Set([
+  // beaux-fils vers grands-parents
+  'p1|p5', 'p5|p1', 'p1|p6', 'p6|p1', 'p8|p5', 'p5|p8', 'p8|p6', 'p6|p8',
+  // beaux-frères / belles-sœurs (conjoints d'une fratrie)
+  'p7|p1', 'p1|p7',   // Marc ↔ Jean
+  'p2|p8', 'p8|p2',   // Alice ↔ Philippe
+  'p8|p1', 'p1|p8'    // Philippe ↔ Jean
+]);
 function paireExclue(a, b) { return EXCLUS.has(a + '|' + b); }
 
 let relations = {};

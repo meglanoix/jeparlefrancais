@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Jeu – Les grands-parents et les petits-enfants | JeParle Français</title>
+<title>Jeu – La famille élargie | JeParle Français</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -69,12 +69,12 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 <body>
 <nav>
   <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
-  <a class="nav-back" href="grands-parents-petits-enfants.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Retour</a>
+  <a class="nav-back" href="famille-elargie.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Retour</a>
 </nav>
 
 <div class="page-header">
   <div class="page-header-inner">
-    <p class="page-eyebrow">Les grands-parents et les petits-enfants · Jeu</p>
+    <p class="page-eyebrow">La famille élargie · Jeu</p>
     <h1>Qui est-ce ?</h1>
     <p>Écoutez la question et cliquez sur la bonne personne.</p>
   </div>
@@ -111,18 +111,19 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const LAYOUT = {
-  p5:{col:60,row:0}, p6:{col:85,row:0},
-  p1:{col:18,row:1}, p2:{col:72,row:1},
-  p3:{col:30,row:2}, p4:{col:60,row:2}
+  p5:{col:50,row:0}, p6:{col:72,row:0},
+  p7:{col:12,row:1}, p8:{col:30,row:1}, p2:{col:62,row:1}, p1:{col:84,row:1},
+  p9:{col:10,row:2}, p9b:{col:26,row:2}, p3:{col:56,row:2}, p4:{col:78,row:2}
 };
-const ALIAS = {};
+const ALIAS = { p9b: 'p9' };
 function reel(id) { return ALIAS[id] || id; }
-const COUPLES = [ ['p5','p6','marie'], ['p1','p2','marie'] ];
+const COUPLES = [ ['p5','p6','marie'], ['p7','p8','couple'], ['p2','p1','marie'] ];
 const FILIATIONS = [
-  {enfant:'p2',parents:['p5','p6']}, {enfant:'p3',parents:['p1','p2']}, {enfant:'p4',parents:['p1','p2']}
+  {enfant:'p7',parents:['p5','p6']}, {enfant:'p2',parents:['p5','p6']},
+  {enfant:'p9',parents:['p7','p8']}, {enfant:'p3',parents:['p2','p1']}, {enfant:'p4',parents:['p2','p1']}
 ];
-const ROW_Y = [70, 250, 430];
-const CARD_W = 130, CARD_H = 150, ZONE_H = 590;
+const ROW_Y = [70, 260, 450];
+const CARD_W = 118, CARD_H = 138, ZONE_H = 620;
 
 let personnes = {}, pool = [], questions = [], qIndex = 0, score = 0, answered = false, lecture = null;
 const TOTAL = 10;
