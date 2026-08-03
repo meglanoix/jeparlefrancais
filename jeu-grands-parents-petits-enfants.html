@@ -246,7 +246,7 @@ function jouer(url) {
 }
 window.rejouer = () => { const q = questions[qIndex]; if (q) jouer(q.audio); };
 
-window.repondre = function(id) {
+function repondre(id) {
   if (answered) return;
   answered = true;
   const q = questions[qIndex];
