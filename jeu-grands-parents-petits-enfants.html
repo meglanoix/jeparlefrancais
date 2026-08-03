@@ -99,6 +99,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
     <div class="score-num" id="score-final-num">0 / 10</div>
     <p id="score-final-msg"></p>
     <button class="btn-rejouer" onclick="startGame()">🔄 Rejouer</button>
+        <a href="index.html" style="display:inline-block;margin-top:0.75rem;padding:0.85rem 2rem;background:var(--creme);color:var(--bleu);border-radius:10px;text-decoration:none;font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid rgba(26,58,92,0.15);transition:opacity 0.2s" onmouseover="this.style.opacity=0.75" onmouseout="this.style.opacity=1">🏠 Page d'accueil</a>
   </div>
 </div>
 
@@ -109,11 +110,20 @@ const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", auth
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const LAYOUT = { p5:{col:60,row:0}, p6:{col:85,row:0}, p1:{col:18,row:1}, p2:{col:72,row:1}, p3:{col:30,row:2}, p4:{col:60,row:2} };
-const COUPLES = [ ['p5','p6'], ['p1','p2'] ];
-const FILIATIONS = [ {enfant:'p2',parents:['p5','p6']}, {enfant:'p3',parents:['p1','p2']}, {enfant:'p4',parents:['p1','p2']} ];
-const ROW_Y = [70, 250, 430];
-const CARD_W = 130, CARD_H = 150, ZONE_H = 590;
+const LAYOUT = {
+  p5:{col:50,row:0}, p6:{col:72,row:0},
+  p7:{col:12,row:1}, p8:{col:30,row:1}, p2:{col:62,row:1}, p1:{col:84,row:1},
+  p9:{col:10,row:2}, p9b:{col:26,row:2}, p3:{col:56,row:2}, p4:{col:78,row:2}
+};
+const ALIAS = { p9b: 'p9' };
+function reel(id) { return ALIAS[id] || id; }
+const COUPLES = [ ['p5','p6','marie'], ['p7','p8','couple'], ['p2','p1','marie'] ];
+const FILIATIONS = [
+  {enfant:'p7',parents:['p5','p6']}, {enfant:'p2',parents:['p5','p6']},
+  {enfant:'p9',parents:['p7','p8']}, {enfant:'p3',parents:['p2','p1']}, {enfant:'p4',parents:['p2','p1']}
+];
+const ROW_Y = [70, 260, 450];
+const CARD_W = 118, CARD_H = 138, ZONE_H = 620;
 
 let personnes = {}, pool = [], questions = [], qIndex = 0, score = 0, answered = false, lecture = null;
 const TOTAL = 10;
@@ -162,13 +172,15 @@ function render(q) {
   const zone = document.getElementById('arbre-zone');
   zone.style.height = ZONE_H + 'px';
   zone.querySelectorAll('.person').forEach(n => n.remove());
-  Object.keys(LAYOUT).forEach(id => {
+  Object.keys(LAYOUT).forEach(slot => {
+    const id = reel(slot);
     if (!personnes[id]) return;
     const p = personnes[id];
     const cls = ['person'];
     if (id === q.reference) cls.push('reference');
     const div = document.createElement('div');
     div.className = cls.join(' ');
+    div.dataset.slot = slot;
     div.dataset.id = id;
     div.style.width = CARD_W + 'px';
     if (id !== q.reference) div.onclick = () => repondre(id);
@@ -183,29 +195,39 @@ function positionner() {
   const zone = document.getElementById('arbre-zone');
   const W = zone.clientWidth;
   const centres = {};
-  Object.keys(LAYOUT).forEach(id => {
-    if (!personnes[id]) return;
-    const card = zone.querySelector('.person[data-id="' + id + '"]');
+  Object.keys(LAYOUT).forEach(slot => {
+    const card = zone.querySelector('.person[data-slot="' + slot + '"]');
     if (!card) return;
-    const cx = LAYOUT[id].col / 100 * W;
-    const y = ROW_Y[LAYOUT[id].row];
+    const cx = LAYOUT[slot].col / 100 * W;
+    const y = ROW_Y[LAYOUT[slot].row];
     card.style.left = (cx - CARD_W / 2) + 'px';
     card.style.top = y + 'px';
-    centres[id] = { x: cx, top: y, cy: y + CARD_H / 2 };
+    centres[slot] = { x: cx, top: y, cy: y + CARD_H / 2 };
   });
   const svg = document.getElementById('liens');
   svg.setAttribute('viewBox', '0 0 ' + W + ' ' + ZONE_H);
   svg.style.height = ZONE_H + 'px';
-  let lines = '';
+  let lines = '', symbols = '';
   const L = (x1,y1,x2,y2) => { lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; };
-  COUPLES.forEach(([a,b]) => { if (centres[a] && centres[b]) L(centres[a].x, centres[a].cy, centres[b].x, centres[b].cy); });
+  const coupleMid = {};
+  COUPLES.forEach(([a,b,type]) => {
+    if (!centres[a] || !centres[b]) return;
+    L(centres[a].x, centres[a].cy, centres[b].x, centres[b].cy);
+    const mx=(centres[a].x+centres[b].x)/2, my=centres[a].cy;
+    coupleMid[a+'+'+b] = { x: mx, y: my };
+    const emoji = type === 'marie' ? '💍' : '❤️';
+    symbols += `<circle cx="${mx}" cy="${my}" r="15" fill="#f9f5ef" stroke="rgba(26,58,92,0.25)" stroke-width="2"/>`;
+    symbols += `<text x="${mx}" y="${my+6}" text-anchor="middle" font-size="16">${emoji}</text>`;
+  });
   FILIATIONS.forEach(f => {
     const [pa,pb]=f.parents;
-    if (!centres[pa]||!centres[pb]||!centres[f.enfant]) return;
-    const midX=(centres[pa].x+centres[pb].x)/2, coupleY=centres[pa].cy, enf=centres[f.enfant], midY=(coupleY+enf.top)/2;
-    L(midX,coupleY,midX,midY); L(midX,midY,enf.x,midY); L(enf.x,midY,enf.x,enf.top);
+    const mid = coupleMid[pa+'+'+pb] || coupleMid[pb+'+'+pa];
+    const enf = centres[f.enfant];
+    if (!mid || !enf) return;
+    const midY=(mid.y+enf.top)/2;
+    L(mid.x, mid.y+18, mid.x, midY); L(mid.x, midY, enf.x, midY); L(enf.x, midY, enf.x, enf.top);
   });
-  svg.innerHTML = lines;
+  svg.innerHTML = lines + symbols;
 }
 
 function jouer(url) {

@@ -11,7 +11,10 @@
 :root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
 .nav-logo span { color: var(--rouge); }
 .page-header { background: var(--bleu); padding: 100px 5vw 44px; position: relative; overflow: hidden; }
@@ -40,7 +43,13 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 </style>
 </head>
 <body>
-<nav><a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a></nav>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour à l'accueil
+  </a>
+</nav>
 
 <div class="page-header">
   <div class="page-header-inner">
@@ -75,23 +84,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Disposition fixe de l'arbre (croquis) : col en % de la largeur, row = rangée
+// Disposition fixe de l'arbre élargi. col = % de largeur, row = rangée.
+// p9 (jumelles) = une seule entité affichée en DEUX images (p9 et p9b -> même données).
 const LAYOUT = {
-  p5:  { col: 60, row: 0 },
-  p6:  { col: 85, row: 0 },
-  p1:  { col: 18, row: 1 },
-  p2:  { col: 72, row: 1 },
-  p3:  { col: 30, row: 2 },
-  p4:  { col: 60, row: 2 },
+  p5:  { col: 50, row: 0 },   // Claude
+  p6:  { col: 72, row: 0 },   // Marie
+  p7:  { col: 12, row: 1 },   // Marc
+  p8:  { col: 30, row: 1 },   // Philippe
+  p2:  { col: 62, row: 1 },   // Alice
+  p1:  { col: 84, row: 1 },   // Jean
+  p9:  { col: 10, row: 2 },   // Josée (jumelle)
+  p9b: { col: 26, row: 2 },   // Véronique (2e image, mêmes données que p9)
+  p3:  { col: 56, row: 2 },   // Mathieu
+  p4:  { col: 78, row: 2 },   // Sandra
 };
-const COUPLES = [ ['p5','p6'], ['p1','p2'] ];
+// carte-alias -> entité réelle (les deux images des jumelles = p9)
+const ALIAS = { p9b: 'p9' };
+function reel(id) { return ALIAS[id] || id; }
+
+// couples : [a, b, type] où type = 'marie' (💍) ou 'couple' (❤️)
+const COUPLES = [ ['p5','p6','marie'], ['p7','p8','couple'], ['p2','p1','marie'] ];
+// filiations : enfant descend du couple [parentA, parentB]
 const FILIATIONS = [
-  { enfant: 'p2', parents: ['p5','p6'] },
-  { enfant: 'p3', parents: ['p1','p2'] },
-  { enfant: 'p4', parents: ['p1','p2'] },
+  { enfant: 'p7', parents: ['p5','p6'] },   // Marc, fils de Claude+Marie (à gauche)
+  { enfant: 'p2', parents: ['p5','p6'] },   // Alice, fille de Claude+Marie (à droite)
+  { enfant: 'p9', parents: ['p7','p8'] },   // jumelles, filles de Marc+Philippe
+  { enfant: 'p3', parents: ['p2','p1'] },   // Mathieu, fils d'Alice+Jean
+  { enfant: 'p4', parents: ['p2','p1'] },   // Sandra, fille d'Alice+Jean
 ];
-const ROW_Y = [70, 250, 430];
-const CARD_W = 130, CARD_H = 150, ZONE_H = 590;
+const ROW_Y = [70, 260, 450];
+const CARD_W = 118, CARD_H = 138, ZONE_H = 620;
 
 let personnes = {}, relations = {}, selected = null, lecture = null;
 
@@ -100,9 +122,9 @@ async function charger() {
     const snap = await getDocs(collection(db, 'famille'));
     const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     docs.filter(d => d.type === 'personne').forEach(p => { personnes[p.id] = p; });
-    Object.keys(LAYOUT).forEach(id => { relations[id] = {}; });
     docs.filter(d => d.type === 'relation').forEach(r => {
-      if (relations[r.de]) relations[r.de][r.vers] = r.audio;
+      if (!relations[r.de]) relations[r.de] = {};
+      relations[r.de][r.vers] = r.audio;
     });
     if (Object.keys(personnes).length === 0) {
       document.getElementById('loading').textContent = "Aucune famille configurée. Ajoutez les personnes dans l'admin.";
@@ -125,7 +147,8 @@ function render() {
   const zone = document.getElementById('arbre-zone');
   zone.style.height = ZONE_H + 'px';
   zone.querySelectorAll('.person').forEach(n => n.remove());
-  Object.keys(LAYOUT).forEach(id => {
+  Object.keys(LAYOUT).forEach(slot => {
+    const id = reel(slot);
     if (!personnes[id]) return;
     const p = personnes[id];
     const cls = ['person'];
@@ -135,6 +158,7 @@ function render() {
     else cls.push('inactive');
     const div = document.createElement('div');
     div.className = cls.join(' ');
+    div.dataset.slot = slot;
     div.dataset.id = id;
     div.style.width = CARD_W + 'px';
     div.onclick = () => clicPersonne(id);
@@ -148,38 +172,44 @@ function render() {
 function positionner() {
   const zone = document.getElementById('arbre-zone');
   const W = zone.clientWidth;
-  const centres = {};
-  Object.keys(LAYOUT).forEach(id => {
-    if (!personnes[id]) return;
-    const card = zone.querySelector('.person[data-id="' + id + '"]');
+  const centres = {};   // par slot
+  Object.keys(LAYOUT).forEach(slot => {
+    const card = zone.querySelector('.person[data-slot="' + slot + '"]');
     if (!card) return;
-    const cx = LAYOUT[id].col / 100 * W;
-    const y = ROW_Y[LAYOUT[id].row];
+    const cx = LAYOUT[slot].col / 100 * W;
+    const y = ROW_Y[LAYOUT[slot].row];
     card.style.left = (cx - CARD_W / 2) + 'px';
     card.style.top = y + 'px';
-    centres[id] = { x: cx, top: y, bottom: y + CARD_H, cy: y + CARD_H / 2 };
+    centres[slot] = { x: cx, top: y, bottom: y + CARD_H, cy: y + CARD_H / 2 };
   });
   const svg = document.getElementById('liens');
   svg.setAttribute('viewBox', '0 0 ' + W + ' ' + ZONE_H);
   svg.style.height = ZONE_H + 'px';
-  let lines = '';
+  let lines = '', symbols = '';
   const L = (x1, y1, x2, y2) => { lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; };
-  COUPLES.forEach(([a, b]) => {
+  // couples : trait + symbole au milieu
+  const coupleMid = {};
+  COUPLES.forEach(([a, b, type]) => {
     if (!centres[a] || !centres[b]) return;
     L(centres[a].x, centres[a].cy, centres[b].x, centres[b].cy);
+    const mx = (centres[a].x + centres[b].x) / 2, my = centres[a].cy;
+    coupleMid[a + '+' + b] = { x: mx, y: my };
+    const emoji = type === 'marie' ? '💍' : '❤️';
+    symbols += `<circle cx="${mx}" cy="${my}" r="15" fill="#f9f5ef" stroke="rgba(26,58,92,0.25)" stroke-width="2"/>`;
+    symbols += `<text x="${mx}" y="${my + 6}" text-anchor="middle" font-size="16">${emoji}</text>`;
   });
+  // filiations : du milieu du couple parent vers le haut de l'enfant
   FILIATIONS.forEach(f => {
     const [pa, pb] = f.parents;
-    if (!centres[pa] || !centres[pb] || !centres[f.enfant]) return;
-    const midX = (centres[pa].x + centres[pb].x) / 2;
-    const coupleY = centres[pa].cy;
+    const mid = coupleMid[pa + '+' + pb] || coupleMid[pb + '+' + pa];
     const enf = centres[f.enfant];
-    const midY = (coupleY + enf.top) / 2;
-    L(midX, coupleY, midX, midY);
-    L(midX, midY, enf.x, midY);
+    if (!mid || !enf) return;
+    const midY = (mid.y + enf.top) / 2;
+    L(mid.x, mid.y + 18, mid.x, midY);   // sous le symbole
+    L(mid.x, midY, enf.x, midY);
     L(enf.x, midY, enf.x, enf.top);
   });
-  svg.innerHTML = lines;
+  svg.innerHTML = lines + symbols;
 }
 
 function clicPersonne(id) {
