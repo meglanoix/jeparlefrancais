@@ -65,7 +65,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .btn-rejouer { background: var(--bleu); color: var(--blanc); border: none; border-radius: 10px; padding: 0.85rem 2rem; font-size: 0.95rem; font-family: 'DM Sans', sans-serif; cursor: pointer; }
 .btn-rejouer:hover { opacity: 0.85; }
 
-.arbre-viewport { position: relative; width: 100%; max-width: 980px; margin: 0 auto; height: 600px; overflow: hidden; border: 1px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); touch-action: none; cursor: grab; }
+.arbre-viewport { position: relative; width: 100%; max-width: 1200px; margin: 0 auto; height: 680px; overflow: hidden; border: 1px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); touch-action: none; cursor: grab; }
 .arbre-viewport.dragging { cursor: grabbing; }
 .arbre-viewport .arbre-zone { position: absolute; top: 0; left: 0; transform-origin: 0 0; margin: 0; max-width: none; width: 1100px; }
 .zoom-controls { position: absolute; right: 10px; bottom: 10px; z-index: 5; display: flex; flex-direction: column; gap: 6px; }
@@ -119,22 +119,23 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const LAYOUT = {
-  p5:{col:60,row:0}, p6:{col:72,row:0},
-  p10:{col:8,row:1}, p11:{col:20,row:1}, p7:{col:32,row:1}, p8:{col:44,row:1}, p2:{col:66,row:1}, p1:{col:78,row:1},
-  p12:{col:8,row:2}, p9:{col:26,row:2}, p3:{col:62,row:2}, p4:{col:74,row:2}
+  p5:{col:44,row:0}, p6:{col:55,row:0}, p13:{col:78,row:0}, p14:{col:89,row:0},
+  p10:{col:7,row:1}, p11:{col:18,row:1}, p7:{col:29,row:1}, p8:{col:40,row:1}, p2:{col:66,row:1}, p1:{col:84,row:1},
+  p12:{col:7,row:2}, p9:{col:23,row:2}, p3:{col:66,row:2}, p4:{col:84,row:2}
 };
 const ALIAS = {};
 function reel(id) { return ALIAS[id] || id; }
 const COUPLES = [
-  ['p5','p6','marie'], ['p10','p11','marie'], ['p11','p7','divorce'], ['p7','p8','couple'], ['p2','p1','marie']
+  ['p5','p6','marie'], ['p13','p14','marie'], ['p10','p11','marie'], ['p11','p7','divorce'], ['p7','p8','couple'], ['p2','p1','marie']
 ];
 const FILIATIONS = [
   {enfant:'p7',parents:['p5','p6']}, {enfant:'p2',parents:['p5','p6']},
+  {enfant:'p1',parents:['p13','p14']},
   {enfant:'p12',parents:['p10','p11']}, {enfant:'p9',parents:['p7','p11']},
   {enfant:'p3',parents:['p2','p1']}, {enfant:'p4',parents:['p2','p1']}
 ];
 const ROW_Y = [70, 280, 490];
-const CARD_W = 108, CARD_H = 128, ZONE_H = 660;
+const CARD_W = 104, CARD_H = 124, ZONE_H = 660;
 
 let personnes = {}, pool = [], questions = [], qIndex = 0, score = 0, answered = false, lecture = null;
 const TOTAL = 10;
@@ -309,10 +310,10 @@ charger();
     // ajuster pour que l'arbre remplisse joliment le viewport (marge légère)
     const zw = zone.offsetWidth || 720, zh = zone.offsetHeight || 600;
     const vw = vp.clientWidth, vh = vp.clientHeight;
-    const fit = Math.min(vw / zw, vh / zh) * 0.96;
+    const fit = (vw / zw) * 0.99;
     scale = Math.max(MIN, Math.min(MAX, fit));
-    tx = (vw - zw * scale) / 2; ty = (vh - zh * scale) / 2;
-    if (ty < 8) ty = 8;
+    tx = (vw - zw * scale) / 2;
+    ty = Math.max(8, (vh - zh * scale) / 2);
     apply();
   }
   window.__resetArbre = reset;

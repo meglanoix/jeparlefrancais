@@ -102,16 +102,18 @@ const db = getFirestore(app);
 let personnes = [
   { id: 'p5', nom: 'Claude',  role: 'grandparent', ordre: 0, image: null },
   { id: 'p6', nom: 'Marie',   role: 'grandparent', ordre: 1, image: null },
-  { id: 'p10', nom: 'Éric',   role: 'parent', ordre: 2, image: null },
-  { id: 'p11', nom: 'Claire', role: 'parent', ordre: 3, image: null },
-  { id: 'p7', nom: 'Marc',    role: 'parent', ordre: 4, image: null },
-  { id: 'p8', nom: 'Philippe', role: 'parent', ordre: 5, image: null },
-  { id: 'p1', nom: 'Jean',    role: 'parent', ordre: 6, image: null },
-  { id: 'p2', nom: 'Alice',   role: 'parent', ordre: 7, image: null },
-  { id: 'p12', nom: 'Martin', role: 'enfant', ordre: 8, image: null },
-  { id: 'p9', nom: 'Josée et Véronique', role: 'enfant', ordre: 9, image: null },
-  { id: 'p3', nom: 'Mathieu', role: 'enfant', ordre: 10, image: null },
-  { id: 'p4', nom: 'Sandra',  role: 'enfant', ordre: 11, image: null },
+  { id: 'p13', nom: 'Renald', role: 'grandparent', ordre: 2, image: null },
+  { id: 'p14', nom: 'Claudette', role: 'grandparent', ordre: 3, image: null },
+  { id: 'p10', nom: 'Éric',   role: 'parent', ordre: 4, image: null },
+  { id: 'p11', nom: 'Claire', role: 'parent', ordre: 5, image: null },
+  { id: 'p7', nom: 'Marc',    role: 'parent', ordre: 6, image: null },
+  { id: 'p8', nom: 'Philippe', role: 'parent', ordre: 7, image: null },
+  { id: 'p1', nom: 'Jean',    role: 'parent', ordre: 8, image: null },
+  { id: 'p2', nom: 'Alice',   role: 'parent', ordre: 9, image: null },
+  { id: 'p12', nom: 'Martin', role: 'enfant', ordre: 10, image: null },
+  { id: 'p9', nom: 'Josée et Véronique', role: 'enfant', ordre: 11, image: null },
+  { id: 'p3', nom: 'Mathieu', role: 'enfant', ordre: 12, image: null },
+  { id: 'p4', nom: 'Sandra',  role: 'enfant', ordre: 13, image: null },
 ];
 const IDS = personnes.map(p => p.id);
 
@@ -126,6 +128,10 @@ const EXCLUS = new Set([
   'p10|p2', 'p2|p10', 'p10|p1', 'p1|p10',   // Éric ↔ Alice / Jean
   'p10|p3', 'p3|p10', 'p10|p4', 'p4|p10',   // Éric ↔ Mathieu / Sandra
   'p10|p8', 'p8|p10',                        // Éric ↔ Philippe (déjà ci-dessus, sûreté)
+  // Renald & Claudette (parents de Jean) : aucun lien avec l'autre côté
+  'p13|p10','p10|p13','p13|p11','p11|p13','p13|p7','p7|p13','p13|p8','p8|p13','p13|p12','p12|p13','p13|p9','p9|p13',
+  'p14|p10','p10|p14','p14|p11','p11|p14','p14|p7','p7|p14','p14|p8','p8|p14','p14|p12','p12|p14','p14|p9','p9|p14',
+  'p13|p5','p5|p13','p13|p6','p6|p13','p14|p5','p5|p14','p14|p6','p6|p14',   // pas de lien avec Claude/Marie
 ]);
 function paireExclue(a, b) { return EXCLUS.has(a + '|' + b); }
 
