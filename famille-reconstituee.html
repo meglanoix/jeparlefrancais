@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>La famille reconstituée | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.page-header { background: var(--bleu); padding: 100px 5vw 44px; position: relative; overflow: hidden; }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
+.page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.65); font-weight: 300; max-width: 620px; }
+.main { max-width: 820px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
+.consigne { text-align: center; font-size: 1.05rem; color: var(--bleu); font-weight: 500; min-height: 1.6em; margin-bottom: 1.5rem; transition: color 0.2s; }
+
+.arbre-zone { position: relative; width: 100%; max-width: 720px; margin: 0 auto; }
+#liens { position: absolute; inset: 0; width: 100%; pointer-events: none; z-index: 0; }
+#liens line { stroke: rgba(26,58,92,0.28); stroke-width: 3; }
+.person { position: absolute; z-index: 1; background: var(--blanc); border: 2.5px solid rgba(26,58,92,0.10); border-radius: 14px; padding: 8px 8px 10px; cursor: pointer; text-align: center; transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s; }
+.person .photo { width: 100%; aspect-ratio: 1/1; border-radius: 9px; background: var(--creme); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 7px; }
+.person .photo img { width: 100%; height: 100%; object-fit: cover; }
+.person .photo .ph { font-size: 2rem; color: rgba(26,58,92,0.25); }
+.person .nom { font-family: 'Playfair Display', serif; font-size: 1.02rem; color: var(--bleu); line-height: 1.1; }
+.person:hover { transform: translateY(-2px); }
+.person.selected { border-color: var(--bleu); box-shadow: 0 0 0 3px rgba(26,58,92,0.15); }
+.person.cible { border-color: var(--vert); box-shadow: 0 0 0 3px rgba(26,122,74,0.22); animation: lueur 1.2s ease-in-out infinite; }
+@keyframes lueur { 0%,100% { box-shadow: 0 0 0 3px rgba(26,122,74,0.18); } 50% { box-shadow: 0 0 0 6px rgba(26,122,74,0.30); } }
+.person.inactive { opacity: 0.4; cursor: default; pointer-events: none; }
+.person.playing { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.25); }
+
+.arbre-viewport { position: relative; width: 100%; max-width: 980px; margin: 0 auto; height: 600px; overflow: hidden; border: 1px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); touch-action: none; cursor: grab; }
+.arbre-viewport.dragging { cursor: grabbing; }
+.arbre-viewport .arbre-zone { position: absolute; top: 0; left: 0; transform-origin: 0 0; margin: 0; max-width: none; width: 1100px; }
+.zoom-controls { position: absolute; right: 10px; bottom: 10px; z-index: 5; display: flex; flex-direction: column; gap: 6px; }
+.zoom-controls button { width: 38px; height: 38px; border-radius: 9px; border: 1.5px solid rgba(26,58,92,0.15); background: rgba(255,255,255,0.95); color: var(--bleu); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(26,58,92,0.12); }
+.zoom-controls button:hover { border-color: var(--bleu); }
+.zoom-hint { text-align: center; font-size: 0.8rem; color: var(--gris); margin-top: 0.6rem; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour à l'accueil
+  </a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">La famille · La famille reconstituée</p>
+    <h1>La famille reconstituée</h1>
+    <p>Cliquez sur une personne, puis sur une autre pour entendre leur lien de parenté.</p>
+    <div id="jeu-btn-wrap" style="margin-top:1.25rem;display:none">
+      <a href="jeu-famille-reconstituee.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">🎮 Jeu : Qui est-ce ?</a>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div id="loading" style="text-align:center;color:var(--gris);padding:2rem">Chargement...</div>
+  <div class="consigne" id="consigne" style="display:none">Cliquez sur une personne</div>
+  <div class="arbre-zone" id="arbre-zone" style="display:none">
+    <svg id="liens" preserveAspectRatio="none"></svg>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Disposition fixe de l'arbre élargi. col = % de largeur, row = rangée.
+// p9 = les jumelles, une seule case « Josée et Véronique ».
+const LAYOUT = {
+  p5:  { col: 60, row: 0 },   // Claude
+  p6:  { col: 72, row: 0 },   // Marie
+  p10: { col: 8,  row: 1 },   // Éric
+  p11: { col: 20, row: 1 },   // Claire (ex de Marc, mariée à Éric)
+  p7:  { col: 32, row: 1 },   // Marc
+  p8:  { col: 44, row: 1 },   // Philippe
+  p2:  { col: 66, row: 1 },   // Alice
+  p1:  { col: 78, row: 1 },   // Jean
+  p12: { col: 8,  row: 2 },   // Martin (fils d'Éric+Claire)
+  p9:  { col: 26, row: 2 },   // Josée et Véronique (filles de Marc+Claire)
+  p3:  { col: 62, row: 2 },   // Mathieu
+  p4:  { col: 74, row: 2 },   // Sandra
+};
+const ALIAS = {};
+const SLOT_NOM = {};
+function reel(id) { return ALIAS[id] || id; }
+
+// couples : [a, b, type] : 'marie' (💍), 'couple' (❤️), 'divorce' (💔 trait pointillé)
+const COUPLES = [
+  ['p5','p6','marie'],
+  ['p10','p11','marie'],   // Éric + Claire
+  ['p11','p7','divorce'],  // Claire ex de Marc
+  ['p7','p8','couple'],    // Marc + Philippe
+  ['p2','p1','marie'],     // Alice + Jean
+];
+// filiations : enfant descend du couple [parentA, parentB]
+const FILIATIONS = [
+  { enfant: 'p7', parents: ['p5','p6'] },   // Marc, fils de Claude+Marie
+  { enfant: 'p2', parents: ['p5','p6'] },   // Alice, fille de Claude+Marie
+  { enfant: 'p12', parents: ['p10','p11'] },// Martin, fils d'Éric+Claire
+  { enfant: 'p9', parents: ['p7','p11'] },  // jumelles, filles de Marc+Claire
+  { enfant: 'p3', parents: ['p2','p1'] },   // Mathieu, fils d'Alice+Jean
+  { enfant: 'p4', parents: ['p2','p1'] },   // Sandra, fille d'Alice+Jean
+];
+const ROW_Y = [70, 280, 490];
+const CARD_W = 108, CARD_H = 128, ZONE_H = 660;
+
+let personnes = {}, relations = {}, selected = null, lecture = null;
+
+async function charger() {
+  try {
+    const snap = await getDocs(collection(db, 'famille'));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    docs.filter(d => d.type === 'personne').forEach(p => { personnes[p.id] = p; });
+    docs.filter(d => d.type === 'relation').forEach(r => {
+      if (!relations[r.de]) relations[r.de] = {};
+      relations[r.de][r.vers] = r.audio;
+    });
+    if (Object.keys(personnes).length === 0) {
+      document.getElementById('loading').textContent = "Aucune famille configurée. Ajoutez les personnes dans l'admin.";
+      return;
+    }
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('consigne').style.display = 'block';
+    document.getElementById('arbre-zone').style.display = 'block';
+    if (docs.some(d => d.type === 'relation' && d.audioQuestion)) document.getElementById('jeu-btn-wrap').style.display = 'block';
+    render();
+    window.addEventListener('resize', positionner);
+  } catch (e) {
+    document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.';
+  }
+}
+
+function nom(id) { return personnes[id] ? personnes[id].nom : id; }
+
+function render() {
+  const zone = document.getElementById('arbre-zone');
+  zone.style.height = ZONE_H + 'px';
+  zone.querySelectorAll('.person').forEach(n => n.remove());
+  Object.keys(LAYOUT).forEach(slot => {
+    const id = reel(slot);
+    if (!personnes[id]) return;
+    const p = personnes[id];
+    const cls = ['person'];
+    if (selected === null) { /* étape 1 */ }
+    else if (id === selected) cls.push('selected');
+    else if (relations[selected] && relations[selected][id]) cls.push('cible');
+    else cls.push('inactive');
+    const div = document.createElement('div');
+    div.className = cls.join(' ');
+    div.dataset.slot = slot;
+    div.dataset.id = id;
+    div.style.width = CARD_W + 'px';
+    div.onclick = () => clicPersonne(id);
+    const img = p.image ? `<img src="${p.image}" alt="${p.nom}"/>` : `<span class="ph">👤</span>`;
+    const affiche = SLOT_NOM[slot] || p.nom;
+    div.innerHTML = `<div class="photo">${img}</div><div class="nom">${affiche}</div>`;
+    zone.appendChild(div);
+  });
+  positionner();
+}
+
+function positionner() {
+  const zone = document.getElementById('arbre-zone');
+  const W = zone.clientWidth;
+  const centres = {};   // par slot
+  Object.keys(LAYOUT).forEach(slot => {
+    const card = zone.querySelector('.person[data-slot="' + slot + '"]');
+    if (!card) return;
+    const cx = LAYOUT[slot].col / 100 * W;
+    const y = ROW_Y[LAYOUT[slot].row];
+    card.style.left = (cx - CARD_W / 2) + 'px';
+    card.style.top = y + 'px';
+    centres[slot] = { x: cx, top: y, bottom: y + CARD_H, cy: y + CARD_H / 2 };
+  });
+  const svg = document.getElementById('liens');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + ZONE_H);
+  svg.style.height = ZONE_H + 'px';
+  let lines = '', symbols = '';
+  const L = (x1, y1, x2, y2, dash) => { lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"${dash ? ' stroke-dasharray="6 5"' : ''}/>`; };
+  // couples : trait + symbole au milieu
+  const coupleMid = {};
+  COUPLES.forEach(([a, b, type]) => {
+    if (!centres[a] || !centres[b]) return;
+    const divorce = type === 'divorce';
+    L(centres[a].x, centres[a].cy, centres[b].x, centres[b].cy, divorce);
+    const mx = (centres[a].x + centres[b].x) / 2, my = centres[a].cy;
+    coupleMid[a + '+' + b] = { x: mx, y: my };
+    const emoji = type === 'marie' ? '💍' : (type === 'divorce' ? '💔' : '❤️');
+    symbols += `<circle cx="${mx}" cy="${my}" r="15" fill="#f9f5ef" stroke="rgba(26,58,92,0.25)" stroke-width="2"/>`;
+    symbols += `<text x="${mx}" y="${my + 6}" text-anchor="middle" font-size="16">${emoji}</text>`;
+  });
+  // filiations : du milieu du couple parent vers le haut de l'enfant
+  FILIATIONS.forEach(f => {
+    const [pa, pb] = f.parents;
+    const mid = coupleMid[pa + '+' + pb] || coupleMid[pb + '+' + pa];
+    const enf = centres[f.enfant];
+    if (!mid || !enf) return;
+    const midY = (mid.y + enf.top) / 2;
+    L(mid.x, mid.y + 18, mid.x, midY);   // sous le symbole
+    L(mid.x, midY, enf.x, midY);
+    L(enf.x, midY, enf.x, enf.top);
+  });
+  svg.innerHTML = lines + symbols;
+}
+
+function clicPersonne(id) {
+  if (selected === null) {
+    selected = id;
+    document.getElementById('consigne').textContent =
+      'Sur qui ' + nom(id) + ' a-t-il/elle un lien ? Cliquez sur une case verte.';
+    render();
+  } else {
+    if (id === selected) return;
+    const audio = relations[selected] && relations[selected][id];
+    if (!audio) return;
+    jouer(selected, id, audio);
+  }
+}
+
+function jouer(a, b, url) {
+  if (lecture) { lecture.pause(); lecture = null; }
+  render();
+  const cible = document.querySelector('.person[data-id="' + b + '"]');
+  if (cible) cible.classList.add('playing');
+  document.getElementById('consigne').textContent = '🔊 ' + nom(a) + ' → ' + nom(b);
+  lecture = new Audio(url);
+  lecture.play().catch(() => {});
+  lecture.onended = reinit;
+  lecture.onerror = () => setTimeout(reinit, 400);
+}
+
+function reinit() {
+  selected = null; lecture = null;
+  document.getElementById('consigne').textContent = 'Cliquez sur une personne';
+  render();
+}
+
+charger();
+
+// ---- Zoom + déplacement (pincer / molette / glisser) ----
+(function() {
+  const zone = document.getElementById('arbre-zone');
+  if (!zone) return;
+  // envelopper la zone dans un viewport
+  const vp = document.createElement('div');
+  vp.className = 'arbre-viewport';
+  zone.parentNode.insertBefore(vp, zone);
+  vp.appendChild(zone);
+  // contrôles
+  const ctr = document.createElement('div');
+  ctr.className = 'zoom-controls';
+  ctr.innerHTML = '<button type="button" data-z="in">+</button><button type="button" data-z="out">\u2212</button><button type="button" data-z="reset">\u21BB</button>';
+  vp.appendChild(ctr);
+  const hint = document.createElement('div');
+  hint.className = 'zoom-hint';
+  hint.textContent = 'Pincez ou utilisez la molette pour zoomer, glissez pour vous déplacer.';
+  vp.parentNode.insertBefore(hint, vp.nextSibling);
+
+  let scale = 1, tx = 0, ty = 0;
+  const MIN = 0.4, MAX = 3;
+  function apply() { zone.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')'; }
+  function reset() {
+    // ajuster pour que l'arbre remplisse joliment le viewport (marge légère)
+    const zw = zone.offsetWidth || 720, zh = zone.offsetHeight || 600;
+    const vw = vp.clientWidth, vh = vp.clientHeight;
+    const fit = Math.min(vw / zw, vh / zh) * 0.96;
+    scale = Math.max(MIN, Math.min(MAX, fit));
+    tx = (vw - zw * scale) / 2; ty = (vh - zh * scale) / 2;
+    if (ty < 8) ty = 8;
+    apply();
+  }
+  window.__resetArbre = reset;
+
+  ctr.addEventListener('click', e => {
+    const z = e.target.getAttribute('data-z'); if (!z) return;
+    const cx = vp.clientWidth / 2, cy = vp.clientHeight / 2;
+    if (z === 'reset') { reset(); return; }
+    const f = z === 'in' ? 1.25 : 0.8;
+    zoomAt(cx, cy, f);
+  });
+
+  function zoomAt(px, py, f) {
+    const ns = Math.max(MIN, Math.min(MAX, scale * f));
+    const r = ns / scale;
+    tx = px - (px - tx) * r; ty = py - (py - ty) * r;
+    scale = ns; apply();
+  }
+
+  vp.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = vp.getBoundingClientRect();
+    zoomAt(e.clientX - rect.left, e.clientY - rect.top, e.deltaY < 0 ? 1.12 : 0.89);
+  }, { passive: false });
+
+  // --- glisser (souris + tactile) + distinction clic ---
+  let dragging = false, moved = false, sx = 0, sy = 0, stx = 0, sty = 0;
+  const pts = new Map();
+  let pinchStart = 0, pinchScale = 1;
+
+  vp.addEventListener('pointerdown', e => {
+    if (e.target.closest('.zoom-controls')) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) {
+      dragging = true; moved = false;
+      sx = e.clientX; sy = e.clientY; stx = tx; sty = ty;
+      vp.classList.add('dragging');
+    } else if (pts.size === 2) {
+      const a = [...pts.values()];
+      pinchStart = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
+      pinchScale = scale;
+    }
+  });
+  vp.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 2) {
+      const a = [...pts.values()];
+      const d = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
+      if (pinchStart > 0) {
+        const rect = vp.getBoundingClientRect();
+        const mx = (a[0].x + a[1].x) / 2 - rect.left, my = (a[0].y + a[1].y) / 2 - rect.top;
+        const target = pinchScale * (d / pinchStart);
+        const f = target / scale;
+        zoomAt(mx, my, f);
+      }
+      moved = true;
+      return;
+    }
+    if (dragging) {
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!moved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+        moved = true;
+        try { vp.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+      if (moved) { tx = stx + dx; ty = sty + dy; apply(); }
+    }
+  });
+  function up(e) {
+    pts.delete(e.pointerId);
+    if (pts.size < 2) pinchStart = 0;
+    if (pts.size === 0) { dragging = false; vp.classList.remove('dragging'); }
+  }
+  vp.addEventListener('pointerup', up);
+  vp.addEventListener('pointercancel', up);
+
+  // supprime le clic-personne si on a glissé
+  vp.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
+
+  // reset après chaque rendu de l'arbre
+  const obs = new MutationObserver(() => { /* garder la vue */ });
+  obs.observe(zone, { childList: true });
+
+  // premier centrage quand l'arbre apparaît
+  const waitShow = setInterval(() => {
+    if (zone.offsetWidth > 0 && vp.clientWidth > 0) { reset(); clearInterval(waitShow); }
+  }, 120);
+})();
+</script>
+</body>
+</html>
