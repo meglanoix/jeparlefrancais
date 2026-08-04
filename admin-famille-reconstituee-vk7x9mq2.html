@@ -58,7 +58,7 @@ input[type=text] { width: 100%; padding: 7px 9px; border: 1.5px solid rgba(26,58
 <div class="page-header">
   <p class="eyebrow">⚙ Panneau d'administration</p>
   <h1>La famille reconstituée</h1>
-  <p>Définissez les personnes, puis enregistrez l'audio de chaque lien de parenté. Seuls les liens qui existent sont listés — Jean n'a volontairement aucun lien avec Claude et Marie.</p>
+  <p>Définissez les personnes, puis enregistrez l'audio de chaque lien de parenté. Seuls les liens qui existent dans cette famille sont listés.</p>
 </div>
 
 <div class="wrap">
@@ -121,17 +121,7 @@ const IDS = personnes.map(p => p.id);
 // (beau-père, belle-mère, beau-frère, belle-sœur, demi-frère/sœur…), donc la
 // plupart des liens sont AUTORISÉS. On exclut seulement les paires sans lien réel.
 const EXCLUS = new Set([
-  // Philippe (conjoint actuel de Marc) : pas de lien avec l'ex-belle-famille de Marc
-  'p8|p10', 'p10|p8', 'p8|p11', 'p11|p8',   // Philippe ↔ Éric / Claire
-  // Éric (mari de Claire) : pas de lien avec la famille de sang de Marc/Alice
-  'p10|p5', 'p5|p10', 'p10|p6', 'p6|p10',   // Éric ↔ Claude / Marie
-  'p10|p2', 'p2|p10', 'p10|p1', 'p1|p10',   // Éric ↔ Alice / Jean
-  'p10|p3', 'p3|p10', 'p10|p4', 'p4|p10',   // Éric ↔ Mathieu / Sandra
-  'p10|p8', 'p8|p10',                        // Éric ↔ Philippe (déjà ci-dessus, sûreté)
-  // Renald & Claudette (parents de Jean) : aucun lien avec l'autre côté
-  'p13|p10','p10|p13','p13|p11','p11|p13','p13|p7','p7|p13','p13|p8','p8|p13','p13|p12','p12|p13','p13|p9','p9|p13',
-  'p14|p10','p10|p14','p14|p11','p11|p14','p14|p7','p7|p14','p14|p8','p8|p14','p14|p12','p12|p14','p14|p9','p9|p14',
-  'p13|p5','p5|p13','p13|p6','p6|p13','p14|p5','p5|p14','p14|p6','p6|p14',   // pas de lien avec Claude/Marie
+  'p10|p1', 'p10|p13', 'p10|p14', 'p10|p2', 'p10|p3', 'p10|p4', 'p10|p5', 'p10|p6', 'p10|p7', 'p10|p8', 'p11|p1', 'p11|p13', 'p11|p14', 'p11|p2', 'p11|p3', 'p11|p4', 'p11|p5', 'p11|p6', 'p11|p8', 'p12|p1', 'p12|p13', 'p12|p14', 'p12|p2', 'p12|p3', 'p12|p4', 'p12|p5', 'p12|p6', 'p12|p7', 'p12|p8', 'p13|p10', 'p13|p11', 'p13|p12', 'p13|p5', 'p13|p6', 'p13|p7', 'p13|p8', 'p13|p9', 'p14|p10', 'p14|p11', 'p14|p12', 'p14|p5', 'p14|p6', 'p14|p7', 'p14|p8', 'p14|p9', 'p1|p10', 'p1|p11', 'p1|p12', 'p1|p8', 'p2|p10', 'p2|p11', 'p2|p12', 'p3|p10', 'p3|p11', 'p3|p12', 'p3|p8', 'p4|p10', 'p4|p11', 'p4|p12', 'p4|p8', 'p5|p10', 'p5|p11', 'p5|p12', 'p5|p13', 'p5|p14', 'p6|p10', 'p6|p11', 'p6|p12', 'p6|p13', 'p6|p14', 'p7|p10', 'p7|p12', 'p7|p13', 'p7|p14', 'p8|p1', 'p8|p10', 'p8|p11', 'p8|p12', 'p8|p13', 'p8|p14', 'p8|p3', 'p8|p4', 'p9|p13', 'p9|p14'
 ]);
 function paireExclue(a, b) { return EXCLUS.has(a + '|' + b); }
 
