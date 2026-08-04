@@ -93,7 +93,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Disposition fixe de l'arbre élargi. col = % de largeur, row = rangée.
-// p9 (jumelles) = une seule entité affichée en DEUX images (p9 et p9b -> même données).
+// p9 = les jumelles, une seule case « Josée et Véronique ».
 const LAYOUT = {
   p5:  { col: 50, row: 0 },   // Claude
   p6:  { col: 72, row: 0 },   // Marie
@@ -101,14 +101,12 @@ const LAYOUT = {
   p8:  { col: 30, row: 1 },   // Philippe
   p2:  { col: 62, row: 1 },   // Alice
   p1:  { col: 84, row: 1 },   // Jean
-  p9:  { col: 10, row: 2 },   // Josée (jumelle)
-  p9b: { col: 26, row: 2 },   // Véronique (2e image, mêmes données que p9)
+  p9:  { col: 18, row: 2 },   // Josée et Véronique (une case)
   p3:  { col: 56, row: 2 },   // Mathieu
   p4:  { col: 78, row: 2 },   // Sandra
 };
-// carte-alias -> entité réelle (les deux images des jumelles = p9)
-const ALIAS = { p9b: 'p9' };
-const SLOT_NOM = { p9: 'Josée', p9b: 'Véronique' };  // noms affichés (même entité p9)
+const ALIAS = {};
+const SLOT_NOM = {};
 function reel(id) { return ALIAS[id] || id; }
 
 // couples : [a, b, type] où type = 'marie' (💍) ou 'couple' (❤️)

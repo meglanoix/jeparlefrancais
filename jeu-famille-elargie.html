@@ -121,9 +121,9 @@ const db = getFirestore(app);
 const LAYOUT = {
   p5:{col:50,row:0}, p6:{col:72,row:0},
   p7:{col:12,row:1}, p8:{col:30,row:1}, p2:{col:62,row:1}, p1:{col:84,row:1},
-  p9:{col:10,row:2}, p9b:{col:26,row:2}, p3:{col:56,row:2}, p4:{col:78,row:2}
+  p9:{col:18,row:2}, p3:{col:56,row:2}, p4:{col:78,row:2}
 };
-const ALIAS = { p9b: 'p9' };
+const ALIAS = {};
 function reel(id) { return ALIAS[id] || id; }
 const COUPLES = [ ['p5','p6','marie'], ['p7','p8','couple'], ['p2','p1','marie'] ];
 const FILIATIONS = [
