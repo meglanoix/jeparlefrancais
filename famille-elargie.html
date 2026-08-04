@@ -23,7 +23,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
 .page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
 .page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.65); font-weight: 300; max-width: 620px; }
-.main { max-width: 820px; margin: 0 auto; padding: 2.5rem 5vw 5rem; }
+.main { max-width: 1400px; margin: 0 auto; padding: 2.5rem 3vw 5rem; }
 .consigne { text-align: center; font-size: 1.05rem; color: var(--bleu); font-weight: 500; min-height: 1.6em; margin-bottom: 1.5rem; transition: color 0.2s; }
 
 .arbre-zone { position: relative; width: 100%; max-width: 720px; margin: 0 auto; }
@@ -41,7 +41,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .person.inactive { opacity: 0.4; cursor: default; pointer-events: none; }
 .person.playing { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.25); }
 
-.arbre-viewport { position: relative; width: 100%; max-width: 980px; margin: 0 auto; height: 600px; overflow: hidden; border: 1px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); touch-action: none; cursor: grab; }
+.arbre-viewport { position: relative; width: 100%; max-width: 1400px; margin: 0 auto; height: 720px; overflow: hidden; border: 1px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); touch-action: none; cursor: grab; }
 .arbre-viewport.dragging { cursor: grabbing; }
 .arbre-viewport .arbre-zone { position: absolute; top: 0; left: 0; transform-origin: 0 0; margin: 0; max-width: none; width: 860px; }
 .zoom-controls { position: absolute; right: 10px; bottom: 10px; z-index: 5; display: flex; flex-direction: column; gap: 6px; }
@@ -280,10 +280,10 @@ charger();
     // ajuster pour que l'arbre remplisse joliment le viewport (marge légère)
     const zw = zone.offsetWidth || 720, zh = zone.offsetHeight || 600;
     const vw = vp.clientWidth, vh = vp.clientHeight;
-    const fit = Math.min(vw / zw, vh / zh) * 0.96;
+    const fit = Math.min((vw / zw) * 0.99, 1.7);
     scale = Math.max(MIN, Math.min(MAX, fit));
-    tx = (vw - zw * scale) / 2; ty = (vh - zh * scale) / 2;
-    if (ty < 8) ty = 8;
+    tx = (vw - zw * scale) / 2;
+    ty = Math.max(8, (vh - zh * scale) / 2);
     apply();
   }
   window.__resetArbre = reset;
