@@ -241,6 +241,7 @@ function render() {
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
       <button class="mini" onclick="ecouter('${it.id}')">▶</button>
+      <button class="mini" onclick="modifier('${it.id}')">✎</button>
       <button class="mini del" onclick="supprimer('${it.id}')">🗑</button>`;
     liste.appendChild(div);
   });
@@ -275,7 +276,127 @@ window.supprimer = async function(id) {
   await ecrireOrdre();
 };
 
+// --- Modification d'une étape ---
+let editId = null, editImage = null, editAudio = null;
+let editRecorder = null, editChunks = [], editRecording = false, editSeconds = 0, editTimer = null;
+
+window.modifier = function(id) {
+  const it = items.find(x => x.id === id);
+  if (!it) return;
+  editId = id; editImage = null; editAudio = null;
+  document.getElementById('edit-nom').value = it.nom || '';
+  const z = document.getElementById('edit-img-zone');
+  z.innerHTML = 'Cliquer pour remplacer l\'image<input type="file" id="edit-img-input" accept="image/*" style="display:none" onchange="handleEditImage(event)"/>';
+  z.classList.remove('has-file');
+  document.getElementById('edit-audio-status').textContent = '';
+  document.getElementById('edit-msg').textContent = '';
+  document.getElementById('modal').style.display = 'flex';
+};
+window.fermerModal = function() {
+  if (editRecording) stopEditRecord();
+  document.getElementById('modal').style.display = 'none';
+  editId = null; editImage = null; editAudio = null;
+};
+
+window.handleEditImage = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const zone = document.getElementById('edit-img-zone');
+  zone.textContent = 'Compression...';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 600;
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      editImage = canvas.toDataURL('image/jpeg', 0.75);
+      zone.textContent = '✓ Nouvelle image';
+      zone.classList.add('has-file');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.toggleEditRecord = function() { editRecording ? stopEditRecord() : startEditRecord(); };
+function startEditRecord() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    editRecorder = new MediaRecorder(stream);
+    editChunks = [];
+    editRecorder.ondataavailable = e => editChunks.push(e.data);
+    editRecorder.onstop = () => {
+      editAudio = new Blob(editChunks, { type: 'audio/webm' });
+      const s = document.getElementById('edit-audio-status');
+      s.textContent = '✓ Nouvel audio'; s.className = 'msg ok';
+    };
+    editRecorder.start();
+    editRecording = true; editSeconds = 0;
+    const b = document.getElementById('edit-rec-btn');
+    b.textContent = '■ Arrêter'; b.classList.add('active');
+    const t = document.getElementById('edit-rec-timer'); t.style.display = 'inline';
+    editTimer = setInterval(() => {
+      editSeconds++;
+      t.textContent = Math.floor(editSeconds/60)+':'+String(editSeconds%60).padStart(2,'0');
+    }, 1000);
+  }).catch(() => alert('Accès au microphone refusé.'));
+}
+function stopEditRecord() {
+  if (editRecorder) { editRecorder.stop(); editRecorder.stream.getTracks().forEach(t => t.stop()); }
+  editRecording = false; clearInterval(editTimer);
+  const b = document.getElementById('edit-rec-btn');
+  b.textContent = '▶ Réenregistrer'; b.classList.remove('active');
+  document.getElementById('edit-rec-timer').style.display = 'none';
+}
+
+window.enregistrerModif = async function() {
+  if (!editId) return;
+  const nom = document.getElementById('edit-nom').value.trim();
+  const msg = document.getElementById('edit-msg');
+  if (!nom) { msg.textContent = 'Entrez un nom.'; msg.className = 'msg err'; return; }
+  msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
+  try {
+    const maj = { nom };
+    if (editImage) maj.image = editImage;
+    if (editAudio) maj.audio = await blobToDataUrl(editAudio);
+    await updateDoc(doc(db, col(), editId), maj);
+    await loadCards();
+    fermerModal();
+  } catch(e) {
+    msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err';
+  }
+};
+
 loadCards();
 </script>
+<!-- Fenêtre de modification -->
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(26,58,92,0.45);z-index:1000;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--blanc);border-radius:16px;padding:1.75rem;width:min(94vw,440px);max-height:90vh;overflow:auto">
+    <h2 style="font-size:1.15rem;color:var(--bleu);margin-bottom:1rem">Modifier l'étape</h2>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin-bottom:4px">Nom de l'étape</label>
+    <input type="text" id="edit-nom" style="width:100%;padding:10px 12px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Image (laisser vide pour garder l'actuelle)</label>
+    <div class="upload-zone" id="edit-img-zone" onclick="document.getElementById('edit-img-input').click()">
+      Cliquer pour remplacer l'image
+      <input type="file" id="edit-img-input" accept="image/*" style="display:none" onchange="handleEditImage(event)"/>
+    </div>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Audio (laisser tel quel pour garder l'actuel)</label>
+    <div class="row">
+      <button class="btn btn-rec" id="edit-rec-btn" onclick="toggleEditRecord()">▶ Réenregistrer</button>
+      <span class="msg" id="edit-audio-status"></span>
+      <span class="msg" id="edit-rec-timer" style="display:none;color:var(--rouge)">0:00</span>
+    </div>
+    <div class="row" style="margin-top:1.5rem;justify-content:flex-end">
+      <button class="btn" onclick="fermerModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="enregistrerModif()">Enregistrer</button>
+      <span class="msg" id="edit-msg"></span>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
