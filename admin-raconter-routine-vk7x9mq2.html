@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Raconter sa routine | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+.top { background: var(--bleu); color: #fff; padding: 1.5rem 5vw; }
+.top .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.65; }
+.top h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-top: 0.2rem; }
+.top a.view { color: rgba(255,255,255,0.7); font-size: 0.85rem; text-decoration: none; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 5vw 5rem; }
+
+.tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.tab { flex: 1; max-width: 260px; padding: 0.8rem 1rem; border: 1.5px solid rgba(26,58,92,0.15); background: var(--blanc); border-radius: 10px; font-family: inherit; font-size: 0.98rem; font-weight: 500; color: var(--gris); cursor: pointer; }
+.tab.active { background: var(--bleu); color: #fff; border-color: var(--bleu); }
+
+.card { background: var(--blanc); border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 16px rgba(26,58,92,0.08); margin-bottom: 1.5rem; }
+.card h2 { font-size: 1.1rem; color: var(--bleu); margin-bottom: 1rem; }
+label { display: block; font-size: 0.85rem; color: var(--gris); margin: 0.75rem 0 4px; }
+input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+.upload-zone { border: 2px dashed rgba(26,58,92,0.2); border-radius: 10px; padding: 1.25rem; text-align: center; color: var(--gris); cursor: pointer; font-size: 0.9rem; }
+.upload-zone.has-file { border-color: var(--vert); color: var(--vert); }
+.btn { padding: 9px 20px; border-radius: 8px; border: 1.5px solid rgba(26,58,92,0.18); background: var(--blanc); font-family: inherit; font-size: 0.9rem; font-weight: 500; cursor: pointer; color: var(--bleu); }
+.btn:hover { border-color: var(--bleu); }
+.btn-primary { background: var(--bleu); color: #fff; border-color: var(--bleu); }
+.btn-primary:hover { background: var(--bleu-clair); }
+.btn-rec.active { background: var(--rouge); color: #fff; border-color: var(--rouge); }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; }
+.msg { font-size: 0.85rem; margin-left: 6px; }
+.msg.ok { color: var(--vert); }
+.msg.err { color: var(--rouge); }
+
+.liste-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid rgba(26,58,92,0.1); border-radius: 10px; margin-bottom: 8px; background: var(--blanc); }
+.liste-item img { width: 54px; height: 54px; border-radius: 8px; object-fit: cover; background: var(--creme); }
+.liste-item .nom { flex: 1; font-weight: 500; color: var(--bleu); }
+.liste-item .pos { font-size: 0.8rem; color: var(--gris); min-width: 24px; text-align: center; }
+.mini { padding: 5px 10px; font-size: 0.8rem; border-radius: 7px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--blanc); cursor: pointer; color: var(--bleu); }
+.mini:hover { border-color: var(--bleu); }
+.mini.del:hover { border-color: var(--rouge); color: var(--rouge); }
+.count { font-size: 0.82rem; color: var(--gris); margin-bottom: 0.75rem; }
+</style>
+</head>
+<body>
+<script type="module" src="admin-auth.js"></script>
+<div class="top">
+  <p class="eyebrow">Panneau d'administration</p>
+  <h1>Raconter sa routine</h1>
+  <a class="view" href="raconter-routine.html" target="_blank">Voir la page publique ↗</a>
+</div>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" id="tab-matin" onclick="changerOnglet('matin')">🌅 Le matin</button>
+    <button class="tab" id="tab-ecole" onclick="changerOnglet('ecole')">🎒 Après l'école</button>
+  </div>
+
+  <div class="card">
+    <h2>Ajouter une étape</h2>
+    <label>Nom de l'étape (ex. : Je me réveille)</label>
+    <input type="text" id="nom" placeholder="Je me réveille"/>
+    <label>Image</label>
+    <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-input').click()">
+      Cliquer pour choisir une image
+      <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+    </div>
+    <label>Audio (la phrase à répéter)</label>
+    <div class="row">
+      <button class="btn btn-rec" id="rec-btn" onclick="toggleRecord()">▶ Enregistrer</button>
+      <span class="msg" id="audio-status"></span>
+      <span class="msg" id="rec-timer" style="display:none;color:var(--rouge)">0:00</span>
+    </div>
+    <div class="row" style="margin-top:1rem">
+      <button class="btn btn-primary" onclick="saveCard()">Ajouter l'étape</button>
+      <span class="msg" id="save-msg"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Étapes existantes</h2>
+    <div class="count" id="count"></div>
+    <div id="liste"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const COLLECTIONS = { matin: 'routine-matin', ecole: 'routine-apres-ecole' };
+let onglet = 'matin';
+let items = [];
+let pendingImage = null, pendingAudio = null;
+let mediaRecorder = null, chunks = [], recording = false, seconds = 0, timerInterval = null;
+
+function col() { return COLLECTIONS[onglet]; }
+
+window.changerOnglet = function(o) {
+  onglet = o;
+  document.getElementById('tab-matin').classList.toggle('active', o === 'matin');
+  document.getElementById('tab-ecole').classList.toggle('active', o === 'ecole');
+  loadCards();
+};
+
+window.handleImage = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const zone = document.getElementById('img-zone');
+  zone.textContent = 'Compression en cours...';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 600;
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      pendingImage = canvas.toDataURL('image/jpeg', 0.75);
+      zone.textContent = '✓ ' + file.name;
+      zone.classList.add('has-file');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.toggleRecord = function() { recording ? stopRecord() : startRecord(); };
+function startRecord() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    mediaRecorder = new MediaRecorder(stream);
+    chunks = [];
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      pendingAudio = new Blob(chunks, { type: 'audio/webm' });
+      document.getElementById('audio-status').textContent = '✓ Audio enregistré';
+      document.getElementById('audio-status').className = 'msg ok';
+    };
+    mediaRecorder.start();
+    recording = true; seconds = 0;
+    const b = document.getElementById('rec-btn');
+    b.textContent = '■ Arrêter'; b.classList.add('active');
+    const t = document.getElementById('rec-timer'); t.style.display = 'inline';
+    timerInterval = setInterval(() => {
+      seconds++;
+      t.textContent = Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+    }, 1000);
+  }).catch(() => alert('Accès au microphone refusé.'));
+}
+function stopRecord() {
+  if (mediaRecorder) { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
+  recording = false; clearInterval(timerInterval);
+  const b = document.getElementById('rec-btn');
+  b.textContent = '▶ Enregistrer'; b.classList.remove('active');
+  document.getElementById('rec-timer').style.display = 'none';
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = reject;
+    r.readAsDataURL(blob);
+  });
+}
+
+window.saveCard = async function() {
+  const nom = document.getElementById('nom').value.trim();
+  const msg = document.getElementById('save-msg');
+  if (!nom) { msg.textContent = 'Entrez un nom.'; msg.className = 'msg err'; return; }
+  if (!pendingImage) { msg.textContent = 'Choisissez une image.'; msg.className = 'msg err'; return; }
+  if (!pendingAudio) { msg.textContent = 'Enregistrez un audio.'; msg.className = 'msg err'; return; }
+  msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
+  try {
+    const audioUrl = await blobToDataUrl(pendingAudio);
+    await addDoc(collection(db, col()), {
+      nom, image: pendingImage, audio: audioUrl,
+      ordre: items.length,
+      date: new Date().toLocaleDateString('fr-CA')
+    });
+    await loadCards();
+    msg.textContent = '✓ Étape ajoutée !'; msg.className = 'msg ok';
+    document.getElementById('nom').value = '';
+    const z = document.getElementById('img-zone');
+    z.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
+    z.classList.remove('has-file');
+    document.getElementById('audio-status').textContent = '';
+    pendingImage = null; pendingAudio = null;
+    setTimeout(() => msg.textContent = '', 3000);
+  } catch(e) {
+    msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err';
+  }
+};
+
+async function loadCards() {
+  const liste = document.getElementById('liste');
+  liste.innerHTML = 'Chargement...';
+  const snap = await getDocs(collection(db, col()));
+  items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99));
+  render();
+}
+
+function render() {
+  const liste = document.getElementById('liste');
+  document.getElementById('count').textContent = items.length + ' étape' + (items.length > 1 ? 's' : '');
+  if (!items.length) { liste.innerHTML = '<div style="color:var(--gris);font-size:0.9rem">Aucune étape pour le moment.</div>'; return; }
+  liste.innerHTML = '';
+  items.forEach((it, i) => {
+    const div = document.createElement('div');
+    div.className = 'liste-item';
+    div.innerHTML = `
+      <span class="pos">${i + 1}</span>
+      ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
+      <span class="nom">${it.nom || ''}</span>
+      <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
+      <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
+      <button class="mini" onclick="ecouter('${it.id}')">▶</button>
+      <button class="mini del" onclick="supprimer('${it.id}')">🗑</button>`;
+    liste.appendChild(div);
+  });
+}
+
+window.ecouter = function(id) {
+  const it = items.find(x => x.id === id);
+  if (it && it.audio) new Audio(it.audio).play();
+};
+
+async function ecrireOrdre() {
+  const jobs = [];
+  items.forEach((it, i) => { if (it.ordre !== i) { it.ordre = i; jobs.push(updateDoc(doc(db, col(), it.id), { ordre: i })); } });
+  await Promise.all(jobs);
+}
+window.monter = async function(id) {
+  const i = items.findIndex(x => x.id === id);
+  if (i <= 0) return;
+  [items[i-1], items[i]] = [items[i], items[i-1]];
+  render(); await ecrireOrdre();
+};
+window.descendre = async function(id) {
+  const i = items.findIndex(x => x.id === id);
+  if (i < 0 || i >= items.length - 1) return;
+  [items[i+1], items[i]] = [items[i], items[i+1]];
+  render(); await ecrireOrdre();
+};
+window.supprimer = async function(id) {
+  if (!confirm('Supprimer cette étape ?')) return;
+  await deleteDoc(doc(db, col(), id));
+  await loadCards();
+  await ecrireOrdre();
+};
+
+loadCards();
+</script>
+</body>
+</html>

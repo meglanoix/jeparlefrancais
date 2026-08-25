@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Raconter sa routine | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(249,245,239,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.hero { background: var(--bleu); color: #fff; padding: 6rem 5vw 2.5rem; }
+.hero .eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; opacity: 0.7; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 0.3rem 0 0.5rem; }
+.hero p { opacity: 0.85; font-size: 0.98rem; max-width: 640px; }
+
+.main { max-width: 1100px; margin: 0 auto; padding: 2rem 5vw 5rem; }
+
+.tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.tab { flex: 1; max-width: 260px; padding: 0.9rem 1rem; border: 1.5px solid rgba(26,58,92,0.15); background: var(--blanc); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; color: var(--gris); cursor: pointer; transition: all 0.2s; }
+.tab.active { background: var(--bleu); color: #fff; border-color: var(--bleu); }
+
+.consigne { font-size: 0.95rem; color: var(--gris); margin-bottom: 1.25rem; }
+.actions-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.btn { padding: 0.8rem 1.5rem; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s; }
+.btn-primary { background: var(--bleu); color: #fff; }
+.btn-primary:hover { background: var(--bleu-clair); }
+.btn-primary:disabled { background: rgba(26,58,92,0.3); cursor: not-allowed; }
+.btn-ghost { background: var(--blanc); color: var(--gris); border-color: rgba(26,58,92,0.15); }
+.btn-ghost:hover { color: var(--rouge); border-color: var(--rouge); }
+
+.grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+.carte { position: relative; background: var(--blanc); border: 2px solid rgba(26,58,92,0.1); border-radius: 14px; padding: 10px; cursor: pointer; transition: all 0.15s; box-shadow: var(--ombre); }
+.carte:hover { border-color: var(--bleu-clair); transform: translateY(-2px); }
+.carte.choisie { border-color: var(--vert); background: #f0f9f4; }
+.carte .photo { width: 100%; aspect-ratio: 1; border-radius: 9px; overflow: hidden; background: var(--creme); display: flex; align-items: center; justify-content: center; }
+.carte .photo img { width: 100%; height: 100%; object-fit: cover; }
+.carte .photo .ph { font-size: 2.5rem; }
+.carte .nom { text-align: center; font-size: 0.9rem; color: var(--bleu); font-weight: 500; margin-top: 8px; word-break: break-word; }
+.badge { position: absolute; top: -10px; left: -10px; width: 34px; height: 34px; border-radius: 50%; background: var(--vert); color: #fff; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(26,122,74,0.4); z-index: 2; }
+
+/* écran écouter */
+.rangee { display: flex; gap: 14px; overflow-x: auto; padding: 1rem 0 1.5rem; }
+.rangee .carte-ecoute { flex: 0 0 auto; width: 160px; background: var(--blanc); border: 3px solid rgba(26,58,92,0.1); border-radius: 14px; padding: 10px; transition: all 0.25s; }
+.rangee .carte-ecoute.actif { border-color: var(--vert); transform: scale(1.05); box-shadow: 0 6px 24px rgba(26,122,74,0.3); }
+.rangee .carte-ecoute .photo { width: 100%; aspect-ratio: 1; border-radius: 9px; overflow: hidden; background: var(--creme); display: flex; align-items: center; justify-content: center; }
+.rangee .carte-ecoute .photo img { width: 100%; height: 100%; object-fit: cover; }
+.rangee .carte-ecoute .num { text-align: center; font-size: 0.85rem; color: var(--gris); margin-top: 6px; }
+.rangee .carte-ecoute .nom { text-align: center; font-size: 0.92rem; color: var(--bleu); font-weight: 500; margin-top: 2px; }
+
+.vide { text-align: center; color: var(--gris); padding: 3rem 1rem; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour à l'accueil
+  </a>
+</nav>
+
+<div class="hero">
+  <p class="eyebrow">Activité · La routine</p>
+  <h1>Raconter sa routine</h1>
+  <p>Choisis les images de ta routine dans l'ordre où tu fais les choses. Un numéro apparaît sur chaque image. Ensuite, écoute et répète ta routine !</p>
+</div>
+
+<div class="main">
+  <div class="tabs">
+    <button class="tab active" id="tab-matin" onclick="changerOnglet('matin')">🌅 Le matin</button>
+    <button class="tab" id="tab-ecole" onclick="changerOnglet('ecole')">🎒 Après l'école</button>
+  </div>
+
+  <!-- ÉCRAN CONSTRUIRE -->
+  <div id="ecran-construire">
+    <p class="consigne">Clique sur les images dans l'ordre de ta routine. Reclique sur une image pour l'enlever.</p>
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="btn-valider" onclick="valider()" disabled>Valider ma routine ✓</button>
+      <button class="btn btn-ghost" onclick="recommencer()">🗑 Recommencer</button>
+    </div>
+    <div id="loading" class="vide">Chargement...</div>
+    <div class="grille" id="grille"></div>
+  </div>
+
+  <!-- ÉCRAN ÉCOUTER -->
+  <div id="ecran-ecouter" class="hidden">
+    <p class="consigne">Voici ta routine ! Clique sur « Écouter » pour entendre chaque étape.</p>
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="btn-ecouter" onclick="ecouter()">▶ Écouter ma routine</button>
+      <button class="btn btn-ghost" onclick="corriger()">✎ Corriger</button>
+    </div>
+    <div class="rangee" id="rangee"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const COLLECTIONS = { matin: 'routine-matin', ecole: 'routine-apres-ecole' };
+let onglet = 'matin';
+// données et ordre par onglet (pour garder la sélection en changeant d'onglet)
+const cartes = { matin: [], ecole: [] };
+const ordre = { matin: [], ecole: [] };   // liste d'ids dans l'ordre choisi
+let charge = { matin: false, ecole: false };
+let lecture = null;
+
+async function charger(o) {
+  if (charge[o]) return;
+  const snap = await getDocs(collection(db, COLLECTIONS[o]));
+  cartes[o] = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99));
+  charge[o] = true;
+}
+
+async function changerOnglet(o) {
+  if (lecture) { clearTimeout(lecture); lecture = null; }
+  onglet = o;
+  document.getElementById('tab-matin').classList.toggle('active', o === 'matin');
+  document.getElementById('tab-ecole').classList.toggle('active', o === 'ecole');
+  // revenir à l'écran construire en changeant d'onglet
+  document.getElementById('ecran-ecouter').classList.add('hidden');
+  document.getElementById('ecran-construire').classList.remove('hidden');
+  document.getElementById('loading').style.display = 'block';
+  await charger(o);
+  document.getElementById('loading').style.display = 'none';
+  renderGrille();
+}
+window.changerOnglet = changerOnglet;
+
+function renderGrille() {
+  const g = document.getElementById('grille');
+  g.innerHTML = '';
+  const liste = cartes[onglet];
+  if (!liste.length) {
+    g.innerHTML = '<div class="vide">Aucune image pour le moment.</div>';
+    majValider();
+    return;
+  }
+  liste.forEach(c => {
+    const pos = ordre[onglet].indexOf(c.id);   // -1 si non choisie
+    const div = document.createElement('div');
+    div.className = 'carte' + (pos >= 0 ? ' choisie' : '');
+    div.onclick = () => toggleCarte(c.id);
+    const img = c.image ? `<img src="${c.image}" alt="${c.nom || ''}"/>` : `<span class="ph">🕑</span>`;
+    const badge = pos >= 0 ? `<div class="badge">${pos + 1}</div>` : '';
+    div.innerHTML = `${badge}<div class="photo">${img}</div><div class="nom">${c.nom || ''}</div>`;
+    g.appendChild(div);
+  });
+  majValider();
+}
+
+function toggleCarte(id) {
+  const arr = ordre[onglet];
+  const i = arr.indexOf(id);
+  if (i >= 0) arr.splice(i, 1);   // enlever -> les suivants se réajustent
+  else arr.push(id);              // ajouter à la fin
+  renderGrille();
+}
+
+function majValider() {
+  document.getElementById('btn-valider').disabled = ordre[onglet].length === 0;
+}
+
+function recommencer() {
+  if (lecture) { clearTimeout(lecture); lecture = null; }
+  ordre[onglet] = [];
+  renderGrille();
+}
+window.recommencer = recommencer;
+
+function valider() {
+  if (!ordre[onglet].length) return;
+  document.getElementById('ecran-construire').classList.add('hidden');
+  document.getElementById('ecran-ecouter').classList.remove('hidden');
+  renderRangee();
+}
+window.valider = valider;
+
+function corriger() {
+  if (lecture) { clearTimeout(lecture); lecture = null; }
+  document.getElementById('ecran-ecouter').classList.add('hidden');
+  document.getElementById('ecran-construire').classList.remove('hidden');
+  renderGrille();
+}
+window.corriger = corriger;
+
+function renderRangee() {
+  const r = document.getElementById('rangee');
+  r.innerHTML = '';
+  ordre[onglet].forEach((id, idx) => {
+    const c = cartes[onglet].find(x => x.id === id);
+    if (!c) return;
+    const div = document.createElement('div');
+    div.className = 'carte-ecoute';
+    div.dataset.id = id;
+    const img = c.image ? `<img src="${c.image}" alt="${c.nom || ''}"/>` : '';
+    div.innerHTML = `<div class="photo">${img}</div><div class="num">${idx + 1}</div><div class="nom">${c.nom || ''}</div>`;
+    r.appendChild(div);
+  });
+}
+
+function ecouter() {
+  if (lecture) { clearTimeout(lecture); lecture = null; }
+  const ids = ordre[onglet];
+  const btn = document.getElementById('btn-ecouter');
+  btn.disabled = true;
+  let i = 0;
+  function jouerSuivant() {
+    // enlever l'illumination précédente
+    document.querySelectorAll('.carte-ecoute.actif').forEach(n => n.classList.remove('actif'));
+    if (i >= ids.length) {
+      btn.disabled = false;
+      lecture = null;
+      return;
+    }
+    const id = ids[i];
+    const c = cartes[onglet].find(x => x.id === id);
+    const el = document.querySelector('.carte-ecoute[data-id="' + id + '"]');
+    if (el) { el.classList.add('actif'); el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
+    i++;
+    if (c && c.audio) {
+      const a = new Audio(c.audio);
+      a.onended = () => { lecture = setTimeout(jouerSuivant, 700); };  // courte pause
+      a.onerror = () => { lecture = setTimeout(jouerSuivant, 700); };
+      a.play().catch(() => { lecture = setTimeout(jouerSuivant, 700); });
+    } else {
+      lecture = setTimeout(jouerSuivant, 900);
+    }
+  }
+  jouerSuivant();
+}
+window.ecouter = ecouter;
+
+changerOnglet('matin');
+</script>
+</body>
+</html>
