@@ -264,11 +264,11 @@ function ecouter() {
     i++;
     if (c && c.audio) {
       const a = new Audio(c.audio);
-      a.onended = () => { lecture = setTimeout(jouerSuivant, 700); };  // courte pause
-      a.onerror = () => { lecture = setTimeout(jouerSuivant, 700); };
-      a.play().catch(() => { lecture = setTimeout(jouerSuivant, 700); });
+      a.onended = () => { lecture = setTimeout(jouerSuivant, 3000); };  // pause pour répéter
+      a.onerror = () => { lecture = setTimeout(jouerSuivant, 3000); };
+      a.play().catch(() => { lecture = setTimeout(jouerSuivant, 3000); });
     } else {
-      lecture = setTimeout(jouerSuivant, 900);
+      lecture = setTimeout(jouerSuivant, 3000);
     }
   }
   jouerSuivant();
