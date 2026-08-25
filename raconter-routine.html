@@ -101,7 +101,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
     <p class="consigne">Voici ta routine ! Clique sur « Écouter » pour entendre chaque étape.</p>
     <div class="actions-bar">
       <button class="btn btn-primary" id="btn-ecouter" onclick="ecouter()">▶ Écouter ma routine</button>
+      <button class="btn btn-ghost" id="btn-arreter" onclick="arreter()" style="display:none">■ Arrêter</button>
       <button class="btn btn-ghost" onclick="corriger()">✎ Corriger</button>
+      <button class="btn btn-ghost" onclick="nouvelleRoutine()">↺ Nouvelle routine</button>
     </div>
     <div class="rangee" id="rangee"></div>
   </div>
@@ -221,7 +223,7 @@ function valider() {
 window.valider = valider;
 
 function corriger() {
-  if (lecture) { clearTimeout(lecture); lecture = null; }
+  arreter();
   document.getElementById('ecran-ecouter').classList.add('hidden');
   document.getElementById('ecran-construire').classList.remove('hidden');
   renderGrille();
@@ -243,18 +245,26 @@ function renderRangee() {
   });
 }
 
+let player = null;   // un seul lecteur audio, débloqué au 1er tap
+
 function ecouter() {
   if (lecture) { clearTimeout(lecture); lecture = null; }
   const ids = sequenceComplete();
   const btn = document.getElementById('btn-ecouter');
   btn.disabled = true;
+  document.getElementById('btn-arreter').style.display = 'inline-block';
+
+  // créer/réutiliser UN SEUL élément audio, débloqué par ce tap
+  if (!player) {
+    player = new Audio();
+    player.setAttribute('playsinline', '');
+  }
+
   let i = 0;
   function jouerSuivant() {
-    // enlever l'illumination précédente
     document.querySelectorAll('.carte-ecoute.actif').forEach(n => n.classList.remove('actif'));
     if (i >= ids.length) {
-      btn.disabled = false;
-      lecture = null;
+      terminerLecture();
       return;
     }
     const id = ids[i];
@@ -263,10 +273,11 @@ function ecouter() {
     if (el) { el.classList.add('actif'); el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
     i++;
     if (c && c.audio) {
-      const a = new Audio(c.audio);
-      a.onended = () => { lecture = setTimeout(jouerSuivant, 3000); };  // pause pour répéter
-      a.onerror = () => { lecture = setTimeout(jouerSuivant, 3000); };
-      a.play().catch(() => { lecture = setTimeout(jouerSuivant, 3000); });
+      player.onended = () => { lecture = setTimeout(jouerSuivant, 3000); };  // pause pour répéter
+      player.onerror = () => { lecture = setTimeout(jouerSuivant, 3000); };
+      player.src = c.audio;
+      const p = player.play();
+      if (p && p.catch) p.catch(() => { lecture = setTimeout(jouerSuivant, 3000); });
     } else {
       lecture = setTimeout(jouerSuivant, 3000);
     }
@@ -274,6 +285,28 @@ function ecouter() {
   jouerSuivant();
 }
 window.ecouter = ecouter;
+
+function terminerLecture() {
+  if (lecture) { clearTimeout(lecture); lecture = null; }
+  document.querySelectorAll('.carte-ecoute.actif').forEach(n => n.classList.remove('actif'));
+  document.getElementById('btn-ecouter').disabled = false;
+  document.getElementById('btn-arreter').style.display = 'none';
+}
+
+function arreter() {
+  if (player) { try { player.pause(); player.onended = null; } catch(e) {} }
+  terminerLecture();
+}
+window.arreter = arreter;
+
+function nouvelleRoutine() {
+  arreter();
+  ordre[onglet] = [];   // remet le milieu à zéro (garde les étapes verrouillées)
+  document.getElementById('ecran-ecouter').classList.add('hidden');
+  document.getElementById('ecran-construire').classList.remove('hidden');
+  renderGrille();
+}
+window.nouvelleRoutine = nouvelleRoutine;
 
 changerOnglet('matin');
 </script>
