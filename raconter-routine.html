@@ -47,6 +47,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .carte .photo .ph { font-size: 2.5rem; }
 .carte .nom { text-align: center; font-size: 0.9rem; color: var(--bleu); font-weight: 500; margin-top: 8px; word-break: break-word; }
 .badge { position: absolute; top: -10px; left: -10px; width: 34px; height: 34px; border-radius: 50%; background: var(--vert); color: #fff; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(26,122,74,0.4); z-index: 2; }
+.carte.verrou { border-color: var(--bleu); background: #eef3f8; cursor: default; }
+.carte.verrou:hover { transform: none; }
+.cadenas { position: absolute; top: -10px; right: -8px; font-size: 1rem; z-index: 2; }
 
 /* écran écouter */
 .rangee { display: flex; gap: 14px; overflow-x: auto; padding: 1rem 0 1.5rem; }
@@ -84,7 +87,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 
   <!-- ÉCRAN CONSTRUIRE -->
   <div id="ecran-construire">
-    <p class="consigne">Clique sur les images dans l'ordre de ta routine. Reclique sur une image pour l'enlever.</p>
+    <p class="consigne">La première et la dernière étape sont déjà placées 🔒. Clique sur les autres images dans l'ordre de ta routine. Reclique sur une image pour l'enlever.</p>
     <div class="actions-bar">
       <button class="btn btn-primary" id="btn-valider" onclick="valider()" disabled>Valider ma routine ✓</button>
       <button class="btn btn-ghost" onclick="recommencer()">🗑 Recommencer</button>
@@ -149,6 +152,20 @@ async function changerOnglet(o) {
 }
 window.changerOnglet = changerOnglet;
 
+// --- étapes verrouillées ---
+function etapeDebut() { return cartes[onglet].find(c => c.verrou === 'debut'); }
+function etapeFin() { return cartes[onglet].find(c => c.verrou === 'fin'); }
+// séquence complète = [début verrouillé] + milieu choisi + [fin verrouillée]
+function sequenceComplete() {
+  const seq = [];
+  const d = etapeDebut(); if (d) seq.push(d.id);
+  ordre[onglet].forEach(id => seq.push(id));
+  const f = etapeFin(); if (f) seq.push(f.id);
+  return seq;
+}
+// numéro affiché d'une carte dans la séquence complète (1-based), ou -1
+function numeroDe(id) { return sequenceComplete().indexOf(id) + 1 || -1; }
+
 function renderGrille() {
   const g = document.getElementById('grille');
   g.innerHTML = '';
@@ -158,14 +175,17 @@ function renderGrille() {
     majValider();
     return;
   }
+  const seq = sequenceComplete();
   liste.forEach(c => {
-    const pos = ordre[onglet].indexOf(c.id);   // -1 si non choisie
+    const verrou = c.verrou === 'debut' || c.verrou === 'fin';
+    const pos = seq.indexOf(c.id);   // -1 si non choisie
     const div = document.createElement('div');
-    div.className = 'carte' + (pos >= 0 ? ' choisie' : '');
-    div.onclick = () => toggleCarte(c.id);
+    div.className = 'carte' + (pos >= 0 ? ' choisie' : '') + (verrou ? ' verrou' : '');
+    if (!verrou) div.onclick = () => toggleCarte(c.id);
     const img = c.image ? `<img src="${c.image}" alt="${c.nom || ''}"/>` : `<span class="ph">🕑</span>`;
     const badge = pos >= 0 ? `<div class="badge">${pos + 1}</div>` : '';
-    div.innerHTML = `${badge}<div class="photo">${img}</div><div class="nom">${c.nom || ''}</div>`;
+    const cadenas = verrou ? `<div class="cadenas">🔒</div>` : '';
+    div.innerHTML = `${badge}${cadenas}<div class="photo">${img}</div><div class="nom">${c.nom || ''}</div>`;
     g.appendChild(div);
   });
   majValider();
@@ -180,18 +200,20 @@ function toggleCarte(id) {
 }
 
 function majValider() {
-  document.getElementById('btn-valider').disabled = ordre[onglet].length === 0;
+  // au moins une étape choisie (milieu ou une verrouillée présente)
+  const seq = sequenceComplete();
+  document.getElementById('btn-valider').disabled = seq.length === 0;
 }
 
 function recommencer() {
   if (lecture) { clearTimeout(lecture); lecture = null; }
-  ordre[onglet] = [];
+  ordre[onglet] = [];   // ne touche pas aux étapes verrouillées
   renderGrille();
 }
 window.recommencer = recommencer;
 
 function valider() {
-  if (!ordre[onglet].length) return;
+  if (sequenceComplete().length === 0) return;
   document.getElementById('ecran-construire').classList.add('hidden');
   document.getElementById('ecran-ecouter').classList.remove('hidden');
   renderRangee();
@@ -209,7 +231,7 @@ window.corriger = corriger;
 function renderRangee() {
   const r = document.getElementById('rangee');
   r.innerHTML = '';
-  ordre[onglet].forEach((id, idx) => {
+  sequenceComplete().forEach((id, idx) => {
     const c = cartes[onglet].find(x => x.id === id);
     if (!c) return;
     const div = document.createElement('div');
@@ -223,7 +245,7 @@ function renderRangee() {
 
 function ecouter() {
   if (lecture) { clearTimeout(lecture); lecture = null; }
-  const ids = ordre[onglet];
+  const ids = sequenceComplete();
   const btn = document.getElementById('btn-ecouter');
   btn.disabled = true;
   let i = 0;

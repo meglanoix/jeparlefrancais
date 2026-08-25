@@ -74,6 +74,12 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
       <span class="msg" id="audio-status"></span>
       <span class="msg" id="rec-timer" style="display:none;color:var(--rouge)">0:00</span>
     </div>
+    <label>Position</label>
+    <select id="verrou" style="width:100%;padding:10px 12px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem;background:var(--blanc)">
+      <option value="">Étape normale (l'étudiant la place où il veut)</option>
+      <option value="debut">🔒 Verrouillée au début (toujours 1re)</option>
+      <option value="fin">🔒 Verrouillée à la fin (toujours dernière)</option>
+    </select>
     <div class="row" style="margin-top:1rem">
       <button class="btn btn-primary" onclick="saveCard()">Ajouter l'étape</button>
       <span class="msg" id="save-msg"></span>
@@ -192,11 +198,13 @@ window.saveCard = async function() {
     await addDoc(collection(db, col()), {
       nom, image: pendingImage, audio: audioUrl,
       ordre: items.length,
+      verrou: document.getElementById('verrou').value || null,
       date: new Date().toLocaleDateString('fr-CA')
     });
     await loadCards();
     msg.textContent = '✓ Étape ajoutée !'; msg.className = 'msg ok';
     document.getElementById('nom').value = '';
+    document.getElementById('verrou').value = '';
     const z = document.getElementById('img-zone');
     z.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
     z.classList.remove('has-file');
@@ -225,10 +233,11 @@ function render() {
   items.forEach((it, i) => {
     const div = document.createElement('div');
     div.className = 'liste-item';
+    const verrouTxt = it.verrou === 'debut' ? ' 🔒début' : (it.verrou === 'fin' ? ' 🔒fin' : '');
     div.innerHTML = `
       <span class="pos">${i + 1}</span>
       ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
-      <span class="nom">${it.nom || ''}</span>
+      <span class="nom">${it.nom || ''}<span style="font-size:0.75rem;color:var(--rouge)">${verrouTxt}</span></span>
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
       <button class="mini" onclick="ecouter('${it.id}')">▶</button>
