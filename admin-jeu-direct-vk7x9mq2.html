@@ -104,6 +104,13 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         Cliquer pour choisir une image
         <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
       </div>
+      <label>Audio (optionnel)</label>
+      <div class="row">
+        <button class="btn" id="rec-btn" onclick="toggleRecord()">▶ Enregistrer</button>
+        <span class="msg" id="audio-status"></span>
+        <span class="msg" id="rec-timer" style="display:none;color:var(--rouge)">0:00</span>
+        <button class="btn" id="audio-clear" onclick="effacerAudio()" style="display:none">Retirer l'audio</button>
+      </div>
       <label>Bonne réponse</label>
       <div class="rep-choix" id="rep-choix"></div>
       <div class="row" style="margin-top:1.25rem">
@@ -152,6 +159,49 @@ function libRep(type, v) {
 }
 
 let quizzes = [], quizCourant = null, items = [], pendingImage = null, repChoisie = null;
+let pendingAudio = null;
+let mediaRecorder = null, chunks = [], recording = false, seconds = 0, timerInterval = null;
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = reject;
+    r.readAsDataURL(blob);
+  });
+}
+window.toggleRecord = function() { recording ? stopRecord() : startRecord(); };
+function startRecord() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    mediaRecorder = new MediaRecorder(stream);
+    chunks = [];
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      pendingAudio = new Blob(chunks, { type: 'audio/webm' });
+      document.getElementById('audio-status').textContent = '✓ Audio enregistré';
+      document.getElementById('audio-status').className = 'msg ok';
+      document.getElementById('audio-clear').style.display = 'inline-block';
+    };
+    mediaRecorder.start();
+    recording = true; seconds = 0;
+    const b = document.getElementById('rec-btn');
+    b.textContent = '■ Arrêter'; b.style.borderColor = 'var(--rouge)'; b.style.color = 'var(--rouge)';
+    const t = document.getElementById('rec-timer'); t.style.display = 'inline';
+    timerInterval = setInterval(() => { seconds++; t.textContent = Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0'); }, 1000);
+  }).catch(() => alert('Accès au microphone refusé.'));
+}
+function stopRecord() {
+  if (mediaRecorder) { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
+  recording = false; clearInterval(timerInterval);
+  const b = document.getElementById('rec-btn');
+  b.textContent = '▶ Enregistrer'; b.style.borderColor = ''; b.style.color = '';
+  document.getElementById('rec-timer').style.display = 'none';
+}
+window.effacerAudio = function() {
+  pendingAudio = null;
+  document.getElementById('audio-status').textContent = '';
+  document.getElementById('audio-clear').style.display = 'none';
+};
 
 window.creerQuiz = async function() {
   const nom = document.getElementById('quiz-nom').value.trim();
@@ -271,10 +321,12 @@ window.saveq = async function() {
   if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
-    await addDoc(collection(db, COL_Q), {
+    const donnees = {
       quizId: quizCourant.id, texte, image: pendingImage, reponse: repChoisie,
       ordre: items.length, date: new Date().toLocaleDateString('fr-CA')
-    });
+    };
+    if (pendingAudio) donnees.audio = await blobToDataUrl(pendingAudio);
+    await addDoc(collection(db, COL_Q), donnees);
     await loadCards();
     msg.textContent = '✓ Question ajoutée !'; msg.className = 'msg ok';
     document.getElementById('texte').value = '';
@@ -282,6 +334,7 @@ window.saveq = async function() {
     z.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
     z.classList.remove('has-file');
     document.querySelectorAll('#rep-choix .rep-btn').forEach(b => b.classList.remove('sel'));
+    effacerAudio();
     pendingImage = null; repChoisie = null;
     setTimeout(() => msg.textContent = '', 2500);
   } catch(e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
@@ -306,9 +359,10 @@ function render() {
     div.innerHTML = `
       <span class="pos">${i + 1}</span>
       ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
-      <div class="txt"><div class="q">${it.texte || ''}</div><div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div></div>
+      <div class="txt"><div class="q">${it.texte || ''} ${it.audio ? '🔊' : ''}</div><div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div></div>
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
+      <button class="mini" onclick="modifierQ('${it.id}')">✎</button>
       <button class="mini del" onclick="supprimer('${it.id}')">🗑</button>`;
     liste.appendChild(div);
   });
@@ -332,7 +386,144 @@ window.supprimer = async function(id) {
   await deleteDoc(doc(db, COL_Q, id)); await loadCards(); await ecrireOrdre();
 };
 
+// --- Modification d'une question ---
+let editId = null, editImage = null, editAudio = null, editRep = null, editAudioSupprime = false;
+let editRecorder = null, editChunks = [], editRecording = false, editSeconds = 0, editTimer = null;
+
+window.modifierQ = function(id) {
+  const it = items.find(x => x.id === id);
+  if (!it) return;
+  editId = id; editImage = null; editAudio = null; editAudioSupprime = false;
+  editRep = it.reponse;
+  document.getElementById('edit-texte').value = it.texte || '';
+  const z = document.getElementById('edit-img-zone');
+  z.innerHTML = 'Cliquer pour remplacer l\'image<input type="file" id="edit-img-input" accept="image/*" style="display:none" onchange="handleEditImage(event)"/>';
+  z.classList.remove('has-file');
+  const st = document.getElementById('edit-audio-status');
+  st.textContent = it.audio ? '🔊 Audio actuel' : ''; st.className = 'msg';
+  document.getElementById('edit-audio-clear').style.display = it.audio ? 'inline-block' : 'none';
+  document.getElementById('edit-msg').textContent = '';
+  const box = document.getElementById('edit-rep-choix');
+  box.innerHTML = '';
+  (TYPES[quizCourant.type] || TYPES.ipo).reps.forEach(r => {
+    const d = document.createElement('div');
+    d.className = 'rep-btn' + (r.v === editRep ? ' sel' : ''); d.dataset.v = r.v;
+    d.innerHTML = `<span class="ico">${r.ico}</span>${r.lib}`;
+    d.onclick = () => { editRep = r.v; document.querySelectorAll('#edit-rep-choix .rep-btn').forEach(b => b.classList.toggle('sel', b.dataset.v === r.v)); };
+    box.appendChild(d);
+  });
+  document.getElementById('modalq').style.display = 'flex';
+};
+window.fermerModalQ = function() {
+  if (editRecording) stopEditRecord();
+  document.getElementById('modalq').style.display = 'none';
+  editId = null; editImage = null; editAudio = null;
+};
+
+window.handleEditImage = function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const zone = document.getElementById('edit-img-zone');
+  zone.textContent = 'Compression...';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 700;
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      editImage = canvas.toDataURL('image/jpeg', 0.78);
+      zone.textContent = '✓ Nouvelle image'; zone.classList.add('has-file');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.toggleEditRecord = function() { editRecording ? stopEditRecord() : startEditRecord(); };
+function startEditRecord() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    editRecorder = new MediaRecorder(stream); editChunks = [];
+    editRecorder.ondataavailable = e => editChunks.push(e.data);
+    editRecorder.onstop = () => {
+      editAudio = new Blob(editChunks, { type: 'audio/webm' });
+      editAudioSupprime = false;
+      const s = document.getElementById('edit-audio-status');
+      s.textContent = '✓ Nouvel audio'; s.className = 'msg ok';
+      document.getElementById('edit-audio-clear').style.display = 'inline-block';
+    };
+    editRecorder.start();
+    editRecording = true; editSeconds = 0;
+    const b = document.getElementById('edit-rec-btn');
+    b.textContent = '■ Arrêter'; b.style.borderColor = 'var(--rouge)'; b.style.color = 'var(--rouge)';
+    const t = document.getElementById('edit-rec-timer'); t.style.display = 'inline';
+    editTimer = setInterval(() => { editSeconds++; t.textContent = Math.floor(editSeconds/60)+':'+String(editSeconds%60).padStart(2,'0'); }, 1000);
+  }).catch(() => alert('Accès au microphone refusé.'));
+}
+function stopEditRecord() {
+  if (editRecorder) { editRecorder.stop(); editRecorder.stream.getTracks().forEach(t => t.stop()); }
+  editRecording = false; clearInterval(editTimer);
+  const b = document.getElementById('edit-rec-btn');
+  b.textContent = '▶ Enregistrer'; b.style.borderColor = ''; b.style.color = '';
+  document.getElementById('edit-rec-timer').style.display = 'none';
+}
+window.effacerEditAudio = function() {
+  editAudio = null; editAudioSupprime = true;
+  document.getElementById('edit-audio-status').textContent = '(audio retiré)';
+  document.getElementById('edit-audio-status').className = 'msg';
+  document.getElementById('edit-audio-clear').style.display = 'none';
+};
+
+window.enregistrerModifQ = async function() {
+  if (!editId) return;
+  const texte = document.getElementById('edit-texte').value.trim();
+  const msg = document.getElementById('edit-msg');
+  if (!texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
+  if (!editRep) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
+  try {
+    const maj = { texte, reponse: editRep };
+    if (editImage) maj.image = editImage;
+    if (editAudio) maj.audio = await blobToDataUrl(editAudio);
+    else if (editAudioSupprime) maj.audio = null;
+    await updateDoc(doc(db, COL_Q, editId), maj);
+    await loadCards();
+    fermerModalQ();
+  } catch(e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
+};
+
 loadQuiz();
 </script>
+<!-- Fenêtre de modification d'une question -->
+<div id="modalq" style="display:none;position:fixed;inset:0;background:rgba(26,58,92,0.45);z-index:1000;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--blanc);border-radius:16px;padding:1.75rem;width:min(94vw,460px);max-height:92vh;overflow:auto">
+    <h2 style="font-size:1.15rem;color:var(--bleu);margin-bottom:1rem">Modifier la question</h2>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin-bottom:4px">Texte</label>
+    <input type="text" id="edit-texte" style="width:100%;padding:10px 12px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Image (laisser vide pour garder l'actuelle)</label>
+    <div class="upload-zone" id="edit-img-zone" onclick="document.getElementById('edit-img-input').click()">
+      Cliquer pour remplacer l'image
+      <input type="file" id="edit-img-input" accept="image/*" style="display:none" onchange="handleEditImage(event)"/>
+    </div>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Audio</label>
+    <div class="row">
+      <button class="btn" id="edit-rec-btn" onclick="toggleEditRecord()">▶ Enregistrer</button>
+      <span class="msg" id="edit-audio-status"></span>
+      <span class="msg" id="edit-rec-timer" style="display:none;color:var(--rouge)">0:00</span>
+      <button class="btn" id="edit-audio-clear" onclick="effacerEditAudio()" style="display:none">Retirer l'audio</button>
+    </div>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Bonne réponse</label>
+    <div class="rep-choix" id="edit-rep-choix"></div>
+    <div class="row" style="margin-top:1.5rem;justify-content:flex-end">
+      <button class="btn" onclick="fermerModalQ()">Annuler</button>
+      <button class="btn btn-primary" onclick="enregistrerModifQ()">Enregistrer</button>
+      <span class="msg" id="edit-msg"></span>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

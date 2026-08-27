@@ -230,6 +230,7 @@ function ecranQuestion() {
     <div class="q-wrap">
       <div class="q-num">Question ${etat.questionIndex + 1} / ${questions.length}</div>
       ${q.image ? `<img class="q-img" src="${q.image}"/>` : ''}
+      ${q.audio ? `<div><button class="btn btn-ghost" onclick="jouerAudioQ()">🔊 Écouter</button></div>` : ''}
       <div class="q-texte">${q.texte || ''}</div>
       <div class="votes-compteur">${nbVotes} / ${total} ont répondu</div>
       <button class="btn btn-lg" onclick="voirResultats()">${tousVote ? 'Voir les résultats' : 'Afficher les résultats maintenant'}</button>
@@ -245,6 +246,15 @@ function ecranQuestion() {
 window.voirResultats = async function() {
   window.__basculeFaite = false;
   await updateDoc(ETAT_DOC, { phase: 'resultats' });
+};
+
+let audioQ = null;
+window.jouerAudioQ = function() {
+  const q = questions[etat.questionIndex];
+  if (!q || !q.audio) return;
+  if (!audioQ) { audioQ = new Audio(); audioQ.setAttribute('playsinline', ''); }
+  audioQ.src = q.audio;
+  audioQ.play().catch(()=>{});
 };
 
 // 5) résultats d'une question
