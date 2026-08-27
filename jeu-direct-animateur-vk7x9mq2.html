@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Animateur – Jeu en direct | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+.bar { background: var(--bleu); color: #fff; padding: 0.85rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+.bar .logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+.bar .logo span { color: #ff9d8a; }
+.bar .actions { display: flex; gap: 8px; }
+.bar button { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 7px 14px; font-family: inherit; font-size: 0.85rem; cursor: pointer; }
+.bar button:hover { background: rgba(255,255,255,0.22); }
+.stage { min-height: calc(100vh - 56px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; }
+
+h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem; margin-bottom: 0.5rem; }
+.sous { color: var(--gris); font-size: 1.1rem; margin-bottom: 2rem; }
+
+.btn { padding: 0.9rem 2rem; border-radius: 12px; border: none; font-family: inherit; font-size: 1.05rem; font-weight: 600; cursor: pointer; background: var(--bleu); color: #fff; }
+.btn:hover { background: var(--bleu-clair); }
+.btn:disabled { background: rgba(26,58,92,0.3); cursor: not-allowed; }
+.btn-lg { font-size: 1.3rem; padding: 1.1rem 2.6rem; }
+.btn-ghost { background: var(--blanc); color: var(--bleu); border: 1.5px solid rgba(26,58,92,0.2); }
+.btn-ghost:hover { background: var(--creme); }
+
+.quiz-choix { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 480px; }
+.quiz-choix .qc { padding: 1.1rem 1.5rem; border: 2px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); cursor: pointer; font-size: 1.15rem; font-weight: 500; color: var(--bleu); display: flex; justify-content: space-between; align-items: center; }
+.quiz-choix .qc:hover { border-color: var(--bleu-clair); }
+.quiz-choix .qc .t { font-size: 0.8rem; color: var(--gris); font-weight: 400; }
+
+.num-input { font-size: 2rem; width: 120px; text-align: center; padding: 0.5rem; border: 2px solid rgba(26,58,92,0.2); border-radius: 12px; font-family: inherit; }
+
+.inscrits-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 12px; width: 100%; max-width: 640px; margin: 1.5rem 0; }
+.insc { aspect-ratio: 1; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; border: 2px solid rgba(26,58,92,0.12); background: var(--blanc); color: rgba(26,58,92,0.25); }
+.insc.ok { background: var(--vert); color: #fff; border-color: var(--vert); }
+.compteur { font-size: 1.5rem; font-weight: 700; color: var(--bleu); }
+
+/* question projetée */
+.q-wrap { width: 100%; max-width: 880px; }
+.q-num { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gris); margin-bottom: 0.75rem; }
+.q-img { max-width: 100%; max-height: 46vh; border-radius: 18px; box-shadow: 0 8px 32px rgba(26,58,92,0.18); margin-bottom: 1rem; }
+.q-texte { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--bleu); margin-bottom: 1.5rem; }
+.votes-compteur { font-size: 1.3rem; color: var(--gris); margin-bottom: 1.5rem; }
+
+/* résultats */
+.resultats { display: flex; gap: 1.5rem; justify-content: center; width: 100%; max-width: 760px; margin-bottom: 1.5rem; }
+.res-col { flex: 1; border-radius: 16px; padding: 1.5rem 1rem; background: var(--blanc); border: 3px solid transparent; }
+.res-col .ico { font-size: 2.5rem; }
+.res-col .lib { font-size: 1rem; font-weight: 600; margin: 0.35rem 0; }
+.res-col .nb { font-size: 2.8rem; font-weight: 800; }
+.res-col.interdit, .res-col.faux { color: var(--rouge); }
+.res-col.permis, .res-col.vrai { color: var(--vert); }
+.res-col.obligatoire { color: var(--orange); }
+.res-col.bonne { border-color: currentColor; box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
+.res-col.bonne::after { content: ' ✓ bonne réponse'; }
+.bonne-label { font-size: 1.1rem; color: var(--vert); font-weight: 600; margin-bottom: 1.5rem; }
+
+/* classement final */
+.classement { width: 100%; max-width: 520px; margin: 1.5rem 0; }
+.rang { display: flex; align-items: center; gap: 14px; padding: 0.85rem 1.25rem; background: var(--blanc); border-radius: 12px; margin-bottom: 8px; }
+.rang .pos { font-size: 1.3rem; font-weight: 800; color: var(--bleu); min-width: 40px; }
+.rang .qui { flex: 1; text-align: left; font-size: 1.15rem; font-weight: 500; }
+.rang .sc { font-size: 1.2rem; font-weight: 700; color: var(--vert); }
+.rang.top1 { background: #fff8e6; border: 2px solid #f1c40f; }
+
+.hidden { display: none !important; }
+.row-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<script type="module" src="admin-auth.js"></script>
+<div class="bar">
+  <div class="logo">JeParle<span>Français</span> · Animateur</div>
+  <div class="actions">
+    <button onclick="nouvellePartie()">↺ Nouvelle partie</button>
+  </div>
+</div>
+<div class="stage" id="stage"><div class="sous">Chargement...</div></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const ETAT_DOC = doc(db, 'jeu-direct-etat', 'partie');
+const COL_QUIZ = 'jeu-direct-quiz';
+const COL_Q = 'jeu-direct-questions';
+const COL_JOUEURS = 'jeu-direct-joueurs';
+
+const TYPES = {
+  ipo: [ {v:'interdit',ico:'❌',lib:'Interdit'}, {v:'permis',ico:'✅',lib:'Permis'}, {v:'obligatoire',ico:'❗',lib:'Obligatoire'} ],
+  vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ]
+};
+
+let quizzes = [];
+let quizSel = null;
+let questions = [];
+let etat = null;
+let joueurs = [];       // inscrits à la partie courante
+let unsubJoueurs = null;
+const stage = document.getElementById('stage');
+
+// écouter l'état (utile si rechargement de page)
+onSnapshot(ETAT_DOC, snap => {
+  etat = snap.exists() ? snap.data() : null;
+  ecouterJoueurs();
+  rendre();
+});
+
+function ecouterJoueurs() {
+  if (unsubJoueurs) { unsubJoueurs(); unsubJoueurs = null; }
+  if (!etat || !etat.partieId) { joueurs = []; return; }
+  unsubJoueurs = onSnapshot(query(collection(db, COL_JOUEURS), where('partieId', '==', etat.partieId)), snap => {
+    joueurs = snap.docs.map(d => d.data());
+    rendre();
+  });
+}
+
+async function chargerQuizzes() {
+  const snap = await getDocs(collection(db, COL_QUIZ));
+  quizzes = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+}
+
+async function chargerQuestions(quizId) {
+  const snap = await getDocs(query(collection(db, COL_Q), where('quizId', '==', quizId)));
+  questions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+}
+
+// ---------- rendu selon la phase ----------
+function rendre() {
+  if (!etat || !etat.partieId) { ecranChoixQuiz(); return; }
+  if (etat.phase === 'attente') { ecranAttente(); return; }
+  if (etat.phase === 'question') { ecranQuestion(); return; }
+  if (etat.phase === 'resultats') { ecranResultats(); return; }
+  if (etat.phase === 'fin') { ecranFin(); return; }
+}
+
+// 1) choix du quiz
+async function ecranChoixQuiz() {
+  await chargerQuizzes();
+  if (!quizzes.length) {
+    stage.innerHTML = `<h1>Aucun quiz</h1><div class="sous">Crée d'abord un quiz dans l'admin.</div>`;
+    return;
+  }
+  let cartes = quizzes.map(q => {
+    const tn = q.type === 'vf' ? 'Vrai / Faux' : 'Interdit / Permis / Obligatoire';
+    return `<div class="qc" onclick="choisirQuiz('${q.id}')"><span>${q.nom}</span><span class="t">${tn}</span></div>`;
+  }).join('');
+  stage.innerHTML = `<h1>Choisir un quiz</h1><div class="sous">Quel quiz veux-tu lancer ?</div><div class="quiz-choix">${cartes}</div>`;
+}
+
+window.choisirQuiz = async function(id) {
+  quizSel = quizzes.find(x => x.id === id);
+  await chargerQuestions(id);
+  if (!questions.length) {
+    stage.innerHTML = `<h1>${quizSel.nom}</h1><div class="sous">Ce quiz n'a aucune question. Ajoute des questions dans l'admin.</div><button class="btn btn-ghost" onclick="location.reload()">← Retour</button>`;
+    return;
+  }
+  ecranReglageNombre();
+};
+
+// 2) réglage du nombre de joueurs
+function ecranReglageNombre() {
+  stage.innerHTML = `
+    <h1>${quizSel.nom}</h1>
+    <div class="sous">${questions.length} question${questions.length>1?'s':''} · Combien de tablettes participent ?</div>
+    <input class="num-input" id="nb" type="number" min="1" max="14" value="8"/>
+    <div class="sous" style="margin-top:0.5rem;font-size:0.9rem">(maximum 14)</div>
+    <div class="row-btns">
+      <button class="btn btn-ghost" onclick="location.reload()">← Changer de quiz</button>
+      <button class="btn btn-lg" onclick="lancerPartie()">Lancer la partie</button>
+    </div>`;
+}
+
+window.lancerPartie = async function() {
+  let nb = parseInt(document.getElementById('nb').value) || 8;
+  nb = Math.max(1, Math.min(14, nb));
+  const partieId = 'p' + Date.now();
+  // effacer les anciens joueurs
+  await purgerJoueurs();
+  await setDoc(ETAT_DOC, {
+    partieId, quizId: quizSel.id, type: quizSel.type,
+    phase: 'attente', nbJoueurs: nb, questionIndex: 0,
+    nbQuestions: questions.length
+  });
+};
+
+// 3) écran d'attente des inscriptions
+function ecranAttente() {
+  const nb = etat.nbJoueurs;
+  const prises = new Set(joueurs.map(j => j.numero));
+  let cases = '';
+  for (let i = 1; i <= nb; i++) cases += `<div class="insc ${prises.has(i)?'ok':''}">${i}</div>`;
+  const tous = joueurs.length >= nb;
+  stage.innerHTML = `
+    <h1>En attente des joueurs</h1>
+    <div class="compteur">${joueurs.length} / ${nb} inscrits</div>
+    <div class="inscrits-grille">${cases}</div>
+    <button class="btn btn-lg" onclick="premiereQuestion()" ${joueurs.length===0?'disabled':''}>
+      ${tous ? 'Tout le monde est prêt — Commencer !' : 'Commencer quand même'}
+    </button>`;
+}
+
+window.premiereQuestion = async function() {
+  await updateDoc(ETAT_DOC, { phase: 'question', questionIndex: 0 });
+};
+
+// 4) question affichée
+function ecranQuestion() {
+  const q = questions[etat.questionIndex];
+  if (!q) { chargerQuestions(etat.quizId).then(rendre); return; }
+  // combien ont voté à cette question ?
+  const cle = 'q' + etat.questionIndex;
+  const nbVotes = joueurs.filter(j => j.votes && j.votes[cle]).length;
+  const total = etat.nbJoueurs;
+  const tousVote = nbVotes >= total;
+  stage.innerHTML = `
+    <div class="q-wrap">
+      <div class="q-num">Question ${etat.questionIndex + 1} / ${questions.length}</div>
+      ${q.image ? `<img class="q-img" src="${q.image}"/>` : ''}
+      <div class="q-texte">${q.texte || ''}</div>
+      <div class="votes-compteur">${nbVotes} / ${total} ont répondu</div>
+      <button class="btn btn-lg" onclick="voirResultats()">${tousVote ? 'Voir les résultats' : 'Afficher les résultats maintenant'}</button>
+    </div>`;
+  // auto-bascule quand tout le monde a voté
+  if (tousVote && !window.__basculeFaite) {
+    window.__basculeFaite = true;
+    setTimeout(() => voirResultats(), 600);
+  }
+  if (!tousVote) window.__basculeFaite = false;
+}
+
+window.voirResultats = async function() {
+  window.__basculeFaite = false;
+  await updateDoc(ETAT_DOC, { phase: 'resultats' });
+};
+
+// 5) résultats d'une question
+function ecranResultats() {
+  const q = questions[etat.questionIndex];
+  if (!q) return;
+  const reps = TYPES[etat.type] || TYPES.ipo;
+  const cle = 'q' + etat.questionIndex;
+  const compte = {};
+  reps.forEach(r => compte[r.v] = 0);
+  joueurs.forEach(j => { const v = j.votes && j.votes[cle]; if (v && compte[v] !== undefined) compte[v]++; });
+  let cols = reps.map(r => {
+    const bonne = q.reponse === r.v;
+    return `<div class="res-col ${r.v} ${bonne?'bonne':''}"><div class="ico">${r.ico}</div><div class="lib">${r.lib}</div><div class="nb">${compte[r.v]}</div></div>`;
+  }).join('');
+  const dernier = etat.questionIndex >= questions.length - 1;
+  stage.innerHTML = `
+    <div class="q-wrap">
+      <div class="q-num">Question ${etat.questionIndex + 1} / ${questions.length} — Résultats</div>
+      <div class="q-texte" style="font-size:1.5rem">${q.texte || ''}</div>
+      <div class="resultats">${cols}</div>
+      <button class="btn btn-lg" onclick="${dernier ? 'finPartie()' : 'questionSuivante()'}">
+        ${dernier ? 'Voir le classement final 🏆' : 'Question suivante →'}
+      </button>
+    </div>`;
+}
+
+window.questionSuivante = async function() {
+  await updateDoc(ETAT_DOC, { phase: 'question', questionIndex: etat.questionIndex + 1 });
+};
+
+// 6) fin : classement
+window.finPartie = async function() {
+  await updateDoc(ETAT_DOC, { phase: 'fin' });
+};
+
+function ecranFin() {
+  const tri = [...joueurs].sort((a,b) => (b.score||0) - (a.score||0));
+  let lignes = tri.map((j, i) => {
+    const medaille = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+    return `<div class="rang ${i===0?'top1':''}"><span class="pos">${medaille}</span><span class="qui">N° ${j.numero}</span><span class="sc">${j.score||0} / ${etat.nbQuestions}</span></div>`;
+  }).join('');
+  if (!tri.length) lignes = '<div class="sous">Aucun joueur.</div>';
+  stage.innerHTML = `
+    <h1>🏆 Classement final</h1>
+    <div class="classement">${lignes}</div>
+    <div class="row-btns">
+      <button class="btn btn-lg" onclick="nouvellePartie()">↺ Nouvelle partie</button>
+    </div>`;
+}
+
+// ---------- utilitaires ----------
+async function purgerJoueurs() {
+  const snap = await getDocs(collection(db, COL_JOUEURS));
+  await Promise.all(snap.docs.map(d => deleteDoc(doc(db, COL_JOUEURS, d.id))));
+}
+
+window.nouvellePartie = async function() {
+  if (!confirm('Démarrer une nouvelle partie ? Les numéros et scores actuels seront effacés.')) return;
+  await purgerJoueurs();
+  await setDoc(ETAT_DOC, { partieId: null, phase: 'aucune' });
+  quizSel = null; questions = [];
+  location.reload();
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jeu en direct | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); display: flex; flex-direction: column; }
+.bar { background: var(--bleu); color: #fff; padding: 0.9rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+.bar .logo { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+.bar .logo span { color: #ff9d8a; }
+.bar .mon-num { font-size: 0.85rem; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+.zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; text-align: center; }
+
+h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5rem; margin-bottom: 0.5rem; }
+.sous { color: var(--gris); font-size: 1rem; margin-bottom: 1.5rem; }
+
+/* choix numéro */
+.grille-num { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 420px; }
+.num-btn { aspect-ratio: 1; border: 2px solid rgba(26,58,92,0.15); background: var(--blanc); border-radius: 14px; font-size: 1.6rem; font-weight: 700; color: var(--bleu); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.num-btn:active { background: var(--bleu); color: #fff; }
+.num-btn.pris { opacity: 0.25; pointer-events: none; }
+
+/* question */
+.q-img { width: 100%; max-width: 360px; border-radius: 16px; box-shadow: 0 4px 20px rgba(26,58,92,0.15); margin-bottom: 1rem; }
+.q-texte { font-size: 1.35rem; font-weight: 500; color: var(--bleu); margin-bottom: 1.5rem; max-width: 500px; }
+.reps { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; }
+.rep { padding: 1.25rem; border-radius: 16px; border: none; font-family: inherit; font-size: 1.25rem; font-weight: 700; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.rep:active { transform: scale(0.98); }
+.rep .ico { font-size: 1.6rem; }
+.rep.interdit, .rep.faux { background: var(--rouge); }
+.rep.permis, .rep.vrai { background: var(--vert); }
+.rep.obligatoire { background: var(--orange); }
+
+.big-ico { font-size: 4rem; margin-bottom: 1rem; }
+.attente-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gris); margin:0 3px; animation: blink 1.4s infinite both; }
+.attente-dot:nth-child(2){animation-delay:.2s} .attente-dot:nth-child(3){animation-delay:.4s}
+@keyframes blink { 0%,80%,100%{opacity:.3} 40%{opacity:1} }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="logo">JeParle<span>Français</span></div>
+  <div class="mon-num hidden" id="mon-num"></div>
+</div>
+<div class="zone" id="zone">
+  <div class="sous">Chargement...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, query, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const ETAT_DOC = doc(db, 'jeu-direct-etat', 'partie');
+const COL_JOUEURS = 'jeu-direct-joueurs';
+const COL_Q = 'jeu-direct-questions';
+
+const TYPES = {
+  ipo: [ {v:'interdit',ico:'❌',lib:'Interdit'}, {v:'permis',ico:'✅',lib:'Permis'}, {v:'obligatoire',ico:'❗',lib:'Obligatoire'} ],
+  vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ]
+};
+
+let etat = null;          // état courant de la partie
+let monNumero = null;     // le numéro choisi par cette tablette
+let maPartie = null;      // partieId auquel je suis inscrit
+let questions = [];       // questions du quiz courant (chargées quand la partie démarre)
+let quizChargeId = null;
+let aVote = false;        // ai-je voté à la question courante ?
+let derniereQuestionVotee = -1;
+
+const zone = document.getElementById('zone');
+
+function setMonNum() {
+  const el = document.getElementById('mon-num');
+  if (monNumero) { el.textContent = 'N° ' + monNumero; el.classList.remove('hidden'); }
+  else el.classList.add('hidden');
+}
+
+// écoute l'état de la partie en temps réel
+onSnapshot(ETAT_DOC, async (snap) => {
+  etat = snap.exists() ? snap.data() : null;
+  await majAffichage();
+});
+
+async function majAffichage() {
+  if (!etat || !etat.partieId || etat.phase === 'fin') {
+    // pas de partie active OU partie terminée
+    monNumero = null; maPartie = null; setMonNum();
+    if (etat && etat.phase === 'fin') montrerFin();
+    else montrerPasDePartie();
+    return;
+  }
+
+  // nouvelle partie détectée -> réinitialiser mon inscription
+  if (maPartie && maPartie !== etat.partieId) {
+    monNumero = null; maPartie = null; setMonNum();
+  }
+
+  // pas encore inscrit -> montrer le choix de numéro
+  if (!monNumero) { await montrerChoixNumero(); return; }
+
+  // inscrit : suivre la phase
+  if (etat.phase === 'attente') { montrerAttente('En attente du début du jeu'); return; }
+  if (etat.phase === 'question') { await montrerQuestion(); return; }
+  if (etat.phase === 'resultats') { montrerAttente('Regarde l\'écran !'); return; }
+}
+
+function montrerPasDePartie() {
+  zone.innerHTML = `<div class="big-ico">🎮</div><h2>Jeu en direct</h2><div class="sous">En attente d'une partie…<br>Ton enseignant va bientôt commencer.</div>`;
+}
+
+function montrerFin() {
+  zone.innerHTML = `<div class="big-ico">🎉</div><h2>C'est terminé !</h2><div class="sous">Merci d'avoir joué. Regarde les résultats à l'écran !</div>`;
+}
+
+async function montrerChoixNumero() {
+  const n = etat.nbJoueurs || 14;
+  // récupérer les numéros déjà pris pour cette partie
+  const snap = await getDocs(query(collection(db, COL_JOUEURS), where('partieId', '==', etat.partieId)));
+  const pris = new Set(snap.docs.map(d => d.data().numero));
+  let boutons = '';
+  for (let i = 1; i <= n; i++) {
+    boutons += `<button class="num-btn ${pris.has(i) ? 'pris' : ''}" onclick="choisirNumero(${i})">${i}</button>`;
+  }
+  zone.innerHTML = `<h2>Choisis ton numéro</h2><div class="sous">Touche un numéro libre.</div><div class="grille-num">${boutons}</div>`;
+}
+
+window.choisirNumero = async function(num) {
+  if (!etat || !etat.partieId) return;
+  const id = etat.partieId + '_' + num;
+  const ref = doc(db, COL_JOUEURS, id);
+  // vérifier qu'il n'est pas déjà pris (au cas où deux tablettes tapent en même temps)
+  const existant = await getDoc(ref);
+  if (existant.exists()) { await montrerChoixNumero(); return; }  // déjà pris, on rafraîchit
+  await setDoc(ref, { partieId: etat.partieId, numero: num, score: 0, votes: {} });
+  monNumero = num; maPartie = etat.partieId;
+  setMonNum();
+  await majAffichage();
+};
+
+async function chargerQuestions() {
+  if (quizChargeId === etat.quizId && questions.length) return;
+  const snap = await getDocs(query(collection(db, COL_Q), where('quizId', '==', etat.quizId)));
+  questions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  quizChargeId = etat.quizId;
+}
+
+async function montrerQuestion() {
+  await chargerQuestions();
+  const q = questions[etat.questionIndex];
+  if (!q) { montrerAttente('En attente…'); return; }
+
+  // ai-je déjà voté à CETTE question ?
+  if (derniereQuestionVotee === etat.questionIndex) { montrerReponseRecue(); return; }
+
+  const reps = TYPES[etat.type] || TYPES.ipo;
+  let boutons = reps.map(r => `<button class="rep ${r.v}" onclick="voter('${r.v}')"><span class="ico">${r.ico}</span>${r.lib}</button>`).join('');
+  zone.innerHTML = `<div class="q-texte">${q.texte || ''}</div><div class="reps">${boutons}</div>`;
+}
+
+window.voter = async function(v) {
+  if (aVote) return;
+  aVote = true;
+  const id = etat.partieId + '_' + monNumero;
+  const q = questions[etat.questionIndex];
+  const bon = q && q.reponse === v;
+  try {
+    const ref = doc(db, COL_JOUEURS, id);
+    const snap = await getDoc(ref);
+    const data = snap.exists() ? snap.data() : { votes: {}, score: 0 };
+    const votes = Object.assign({}, data.votes || {});
+    votes['q' + etat.questionIndex] = v;
+    const score = (data.score || 0) + (bon ? 1 : 0);
+    await updateDoc(ref, { votes, score });
+    derniereQuestionVotee = etat.questionIndex;
+    montrerReponseRecue();
+  } catch(e) {
+    aVote = false;  // permettre de réessayer
+  }
+};
+
+function montrerReponseRecue() {
+  aVote = false;
+  zone.innerHTML = `<div class="big-ico">✓</div><h2>Réponse reçue !</h2><div class="sous">Regarde l'écran et attends la prochaine question.</div>`;
+}
+
+function montrerAttente(txt) {
+  aVote = false;
+  zone.innerHTML = `<div class="big-ico">⏳</div><h2>${txt}</h2><div class="sous"><span class="attente-dot"></span><span class="attente-dot"></span><span class="attente-dot"></span></div>`;
+}
+</script>
+</body>
+</html>
