@@ -316,13 +316,12 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  if (!texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
-  if (!pendingImage) { msg.textContent = 'Choisissez une image.'; msg.className = 'msg err'; return; }
+  if (!texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
   if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
     const donnees = {
-      quizId: quizCourant.id, texte, image: pendingImage, reponse: repChoisie,
+      quizId: quizCourant.id, texte, image: pendingImage || null, reponse: repChoisie,
       ordre: items.length, date: new Date().toLocaleDateString('fr-CA')
     };
     if (pendingAudio) donnees.audio = await blobToDataUrl(pendingAudio);
