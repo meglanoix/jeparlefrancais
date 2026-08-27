@@ -12,13 +12,13 @@ body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(
 .top { background: var(--bleu); color: #fff; padding: 1.5rem 5vw; }
 .top .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.65; }
 .top h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-top: 0.2rem; }
-.top a.view { color: rgba(255,255,255,0.7); font-size: 0.85rem; text-decoration: none; margin-right: 14px; }
+.top a.view { color: rgba(255,255,255,0.7); font-size: 0.85rem; text-decoration: none; }
 .wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 5vw 5rem; }
-
 .card { background: var(--blanc); border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 16px rgba(26,58,92,0.08); margin-bottom: 1.5rem; }
 .card h2 { font-size: 1.1rem; color: var(--bleu); margin-bottom: 1rem; }
 label { display: block; font-size: 0.85rem; color: var(--gris); margin: 0.75rem 0 4px; }
 input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; font-family: inherit; font-size: 0.95rem; background: var(--blanc); }
 .upload-zone { border: 2px dashed rgba(26,58,92,0.2); border-radius: 10px; padding: 1.25rem; text-align: center; color: var(--gris); cursor: pointer; font-size: 0.9rem; }
 .upload-zone.has-file { border-color: var(--vert); color: var(--vert); }
 .btn { padding: 9px 20px; border-radius: 8px; border: 1.5px solid rgba(26,58,92,0.18); background: var(--blanc); font-family: inherit; font-size: 0.9rem; font-weight: 500; cursor: pointer; color: var(--bleu); }
@@ -29,14 +29,12 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
 .msg { font-size: 0.85rem; margin-left: 6px; }
 .msg.ok { color: var(--vert); }
 .msg.err { color: var(--rouge); }
-
 .rep-choix { display: flex; gap: 10px; margin-top: 6px; }
 .rep-btn { flex: 1; padding: 0.9rem 0.5rem; border-radius: 10px; border: 2px solid rgba(26,58,92,0.15); background: var(--blanc); cursor: pointer; font-family: inherit; font-size: 0.9rem; font-weight: 500; color: var(--gris); text-align: center; }
 .rep-btn .ico { font-size: 1.5rem; display: block; margin-bottom: 4px; }
-.rep-btn[data-v="interdit"].sel { border-color: var(--rouge); background: #fdeeec; color: var(--rouge); }
-.rep-btn[data-v="permis"].sel { border-color: var(--vert); background: #eef7f1; color: var(--vert); }
+.rep-btn[data-v="interdit"].sel, .rep-btn[data-v="faux"].sel { border-color: var(--rouge); background: #fdeeec; color: var(--rouge); }
+.rep-btn[data-v="permis"].sel, .rep-btn[data-v="vrai"].sel { border-color: var(--vert); background: #eef7f1; color: var(--vert); }
 .rep-btn[data-v="obligatoire"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
-
 .liste-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid rgba(26,58,92,0.1); border-radius: 10px; margin-bottom: 8px; background: var(--blanc); }
 .liste-item img { width: 54px; height: 54px; border-radius: 8px; object-fit: cover; background: var(--creme); }
 .liste-item .txt { flex: 1; }
@@ -48,9 +46,17 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
 .mini.del:hover { border-color: var(--rouge); color: var(--rouge); }
 .count { font-size: 0.82rem; color: var(--gris); margin-bottom: 0.75rem; }
 .pill { display:inline-block; padding:2px 8px; border-radius:20px; font-size:0.72rem; font-weight:600; }
-.pill.interdit { background:#fdeeec; color:var(--rouge); }
-.pill.permis { background:#eef7f1; color:var(--vert); }
+.pill.interdit, .pill.faux { background:#fdeeec; color:var(--rouge); }
+.pill.permis, .pill.vrai { background:#eef7f1; color:var(--vert); }
 .pill.obligatoire { background:#fdf2e6; color:var(--orange); }
+.quiz-item { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid rgba(26,58,92,0.1); border-radius: 12px; margin-bottom: 10px; background: var(--blanc); cursor: pointer; transition: border-color 0.15s; }
+.quiz-item:hover { border-color: var(--bleu-clair); }
+.quiz-item .qi-nom { flex: 1; font-weight: 500; color: var(--bleu); font-size: 1.02rem; }
+.quiz-item .qi-type { font-size: 0.75rem; color: var(--gris); background: var(--creme); padding: 3px 10px; border-radius: 20px; }
+.type-badge { font-size: 0.8rem; color: var(--gris); }
+.back-link { color: var(--gris); font-size: 0.9rem; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 1rem; }
+.back-link:hover { color: var(--bleu); }
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -62,37 +68,60 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
 </div>
 
 <div class="wrap">
-  <div class="card">
-    <h2>Ajouter une question</h2>
-    <label>Texte de la question (ex. : Stationner ici)</label>
-    <input type="text" id="texte" placeholder="Stationner ici"/>
-    <label>Image</label>
-    <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-input').click()">
-      Cliquer pour choisir une image
-      <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+  <!-- ÉCRAN 1 : LISTE DES QUIZ -->
+  <div id="ecran-quiz">
+    <div class="card">
+      <h2>Créer un quiz</h2>
+      <label>Nom du quiz (ex. : Règles de la classe)</label>
+      <input type="text" id="quiz-nom" placeholder="Règles de la classe"/>
+      <label>Type de réponses</label>
+      <select id="quiz-type">
+        <option value="ipo">❌ Interdit / ✅ Permis / ❗ Obligatoire</option>
+        <option value="vf">✅ Vrai / ❌ Faux</option>
+      </select>
+      <div class="row" style="margin-top:1.25rem">
+        <button class="btn btn-primary" onclick="creerQuiz()">Créer le quiz</button>
+        <span class="msg" id="quiz-msg"></span>
+      </div>
     </div>
-    <label>Bonne réponse</label>
-    <div class="rep-choix" id="rep-choix">
-      <div class="rep-btn" data-v="interdit" onclick="choisirRep('interdit')"><span class="ico">❌</span>Interdit</div>
-      <div class="rep-btn" data-v="permis" onclick="choisirRep('permis')"><span class="ico">✅</span>Permis</div>
-      <div class="rep-btn" data-v="obligatoire" onclick="choisirRep('obligatoire')"><span class="ico">❗</span>Obligatoire</div>
-    </div>
-    <div class="row" style="margin-top:1.25rem">
-      <button class="btn btn-primary" onclick="saveq()">Ajouter la question</button>
-      <span class="msg" id="save-msg"></span>
+    <div class="card">
+      <h2>Mes quiz</h2>
+      <div class="count" id="quiz-count"></div>
+      <div id="quiz-liste"></div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>Questions existantes</h2>
-    <div class="count" id="count"></div>
-    <div id="liste"></div>
+  <!-- ÉCRAN 2 : QUESTIONS D'UN QUIZ -->
+  <div id="ecran-questions" class="hidden">
+    <a class="back-link" onclick="retourQuiz()">← Retour aux quiz</a>
+    <div class="card">
+      <h2 id="q-titre">Questions</h2>
+      <span class="type-badge" id="q-typebadge"></span>
+      <label style="margin-top:1rem">Texte de la question (ex. : Stationner ici)</label>
+      <input type="text" id="texte" placeholder="Stationner ici"/>
+      <label>Image</label>
+      <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-input').click()">
+        Cliquer pour choisir une image
+        <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+      </div>
+      <label>Bonne réponse</label>
+      <div class="rep-choix" id="rep-choix"></div>
+      <div class="row" style="margin-top:1.25rem">
+        <button class="btn btn-primary" onclick="saveq()">Ajouter la question</button>
+        <span class="msg" id="save-msg"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Questions existantes</h2>
+      <div class="count" id="count"></div>
+      <div id="liste"></div>
+    </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const firebaseConfig = {
   apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
   authDomain: "audio-francisation.firebaseapp.com",
@@ -103,17 +132,111 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const COL = 'jeu-direct-questions';
+const COL_QUIZ = 'jeu-direct-quiz';
+const COL_Q = 'jeu-direct-questions';
 
-let items = [];
-let pendingImage = null;
-let repChoisie = null;
-const LIB = { interdit: '❌ Interdit', permis: '✅ Permis', obligatoire: '❗ Obligatoire' };
+const TYPES = {
+  ipo: { nom: 'Interdit / Permis / Obligatoire', reps: [
+    { v: 'interdit', ico: '❌', lib: 'Interdit' },
+    { v: 'permis', ico: '✅', lib: 'Permis' },
+    { v: 'obligatoire', ico: '❗', lib: 'Obligatoire' }
+  ]},
+  vf: { nom: 'Vrai / Faux', reps: [
+    { v: 'vrai', ico: '✅', lib: 'Vrai' },
+    { v: 'faux', ico: '❌', lib: 'Faux' }
+  ]}
+};
+function libRep(type, v) {
+  const t = TYPES[type]; if (!t) return v;
+  const r = t.reps.find(x => x.v === v); return r ? (r.ico + ' ' + r.lib) : v;
+}
 
-window.choisirRep = function(v) {
+let quizzes = [], quizCourant = null, items = [], pendingImage = null, repChoisie = null;
+
+window.creerQuiz = async function() {
+  const nom = document.getElementById('quiz-nom').value.trim();
+  const type = document.getElementById('quiz-type').value;
+  const msg = document.getElementById('quiz-msg');
+  if (!nom) { msg.textContent = 'Entrez un nom.'; msg.className = 'msg err'; return; }
+  msg.textContent = 'Création...'; msg.className = 'msg';
+  try {
+    await addDoc(collection(db, COL_QUIZ), { nom, type, ordre: quizzes.length, date: new Date().toLocaleDateString('fr-CA') });
+    document.getElementById('quiz-nom').value = '';
+    await loadQuiz();
+    msg.textContent = '✓ Quiz créé !'; msg.className = 'msg ok';
+    setTimeout(() => msg.textContent = '', 2500);
+  } catch(e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
+};
+
+async function loadQuiz() {
+  const snap = await getDocs(collection(db, COL_QUIZ));
+  quizzes = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const l = document.getElementById('quiz-liste');
+  document.getElementById('quiz-count').textContent = quizzes.length + ' quiz';
+  if (!quizzes.length) { l.innerHTML = '<div style="color:var(--gris);font-size:0.9rem">Aucun quiz pour le moment.</div>'; return; }
+  l.innerHTML = '';
+  quizzes.forEach(q => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    const typeNom = (TYPES[q.type] || {}).nom || q.type;
+    div.innerHTML = `<span class="qi-nom">${q.nom}</span><span class="qi-type">${typeNom}</span>
+      <button class="mini" onclick="event.stopPropagation();renommerQuiz('${q.id}')">✎</button>
+      <button class="mini del" onclick="event.stopPropagation();supprimerQuiz('${q.id}')">🗑</button>`;
+    div.onclick = () => ouvrirQuiz(q.id);
+    l.appendChild(div);
+  });
+}
+
+window.renommerQuiz = async function(id) {
+  const q = quizzes.find(x => x.id === id); if (!q) return;
+  const nouveau = prompt('Nouveau nom du quiz :', q.nom);
+  if (nouveau && nouveau.trim()) { await updateDoc(doc(db, COL_QUIZ, id), { nom: nouveau.trim() }); await loadQuiz(); }
+};
+window.supprimerQuiz = async function(id) {
+  const q = quizzes.find(x => x.id === id); if (!q) return;
+  if (!confirm('Supprimer le quiz « ' + q.nom + ' » et toutes ses questions ?')) return;
+  const snap = await getDocs(query(collection(db, COL_Q), where('quizId', '==', id)));
+  await Promise.all(snap.docs.map(d => deleteDoc(doc(db, COL_Q, d.id))));
+  await deleteDoc(doc(db, COL_QUIZ, id));
+  await loadQuiz();
+};
+
+function ouvrirQuiz(id) {
+  quizCourant = quizzes.find(x => x.id === id);
+  if (!quizCourant) return;
+  document.getElementById('ecran-quiz').classList.add('hidden');
+  document.getElementById('ecran-questions').classList.remove('hidden');
+  document.getElementById('q-titre').textContent = 'Questions – ' + quizCourant.nom;
+  document.getElementById('q-typebadge').textContent = 'Type : ' + ((TYPES[quizCourant.type]||{}).nom || quizCourant.type);
+  renderRepChoix();
+  loadCards();
+}
+window.retourQuiz = function() {
+  quizCourant = null;
+  document.getElementById('ecran-questions').classList.add('hidden');
+  document.getElementById('ecran-quiz').classList.remove('hidden');
+  loadQuiz();
+};
+
+function renderRepChoix() {
+  const box = document.getElementById('rep-choix');
+  box.innerHTML = ''; repChoisie = null;
+  (TYPES[quizCourant.type] || TYPES.ipo).reps.forEach(r => {
+    const d = document.createElement('div');
+    d.className = 'rep-btn'; d.dataset.v = r.v;
+    d.innerHTML = `<span class="ico">${r.ico}</span>${r.lib}`;
+    d.onclick = () => choisirRep(r.v);
+    box.appendChild(d);
+  });
+}
+function choisirRep(v) {
   repChoisie = v;
   document.querySelectorAll('#rep-choix .rep-btn').forEach(b => b.classList.toggle('sel', b.dataset.v === v));
-};
+}
 
 window.handleImage = function(e) {
   const file = e.target.files[0];
@@ -148,10 +271,9 @@ window.saveq = async function() {
   if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
-    await addDoc(collection(db, COL), {
-      texte, image: pendingImage, reponse: repChoisie,
-      ordre: items.length,
-      date: new Date().toLocaleDateString('fr-CA')
+    await addDoc(collection(db, COL_Q), {
+      quizId: quizCourant.id, texte, image: pendingImage, reponse: repChoisie,
+      ordre: items.length, date: new Date().toLocaleDateString('fr-CA')
     });
     await loadCards();
     msg.textContent = '✓ Question ajoutée !'; msg.className = 'msg ok';
@@ -162,17 +284,14 @@ window.saveq = async function() {
     document.querySelectorAll('#rep-choix .rep-btn').forEach(b => b.classList.remove('sel'));
     pendingImage = null; repChoisie = null;
     setTimeout(() => msg.textContent = '', 2500);
-  } catch(e) {
-    msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err';
-  }
+  } catch(e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
 };
 
 async function loadCards() {
   const liste = document.getElementById('liste');
   liste.innerHTML = 'Chargement...';
-  const snap = await getDocs(collection(db, COL));
-  items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    .sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99));
+  const snap = await getDocs(query(collection(db, COL_Q), where('quizId', '==', quizCourant.id)));
+  items = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
   render();
 }
 
@@ -187,7 +306,7 @@ function render() {
     div.innerHTML = `
       <span class="pos">${i + 1}</span>
       ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
-      <div class="txt"><div class="q">${it.texte || ''}</div><div class="r"><span class="pill ${it.reponse}">${LIB[it.reponse] || ''}</span></div></div>
+      <div class="txt"><div class="q">${it.texte || ''}</div><div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div></div>
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
       <button class="mini del" onclick="supprimer('${it.id}')">🗑</button>`;
@@ -197,29 +316,23 @@ function render() {
 
 async function ecrireOrdre() {
   const jobs = [];
-  items.forEach((it, i) => { if (it.ordre !== i) { it.ordre = i; jobs.push(updateDoc(doc(db, COL, it.id), { ordre: i })); } });
+  items.forEach((it, i) => { if (it.ordre !== i) { it.ordre = i; jobs.push(updateDoc(doc(db, COL_Q, it.id), { ordre: i })); } });
   await Promise.all(jobs);
 }
 window.monter = async function(id) {
-  const i = items.findIndex(x => x.id === id);
-  if (i <= 0) return;
-  [items[i-1], items[i]] = [items[i], items[i-1]];
-  render(); await ecrireOrdre();
+  const i = items.findIndex(x => x.id === id); if (i <= 0) return;
+  [items[i-1], items[i]] = [items[i], items[i-1]]; render(); await ecrireOrdre();
 };
 window.descendre = async function(id) {
-  const i = items.findIndex(x => x.id === id);
-  if (i < 0 || i >= items.length - 1) return;
-  [items[i+1], items[i]] = [items[i], items[i+1]];
-  render(); await ecrireOrdre();
+  const i = items.findIndex(x => x.id === id); if (i < 0 || i >= items.length - 1) return;
+  [items[i+1], items[i]] = [items[i], items[i+1]]; render(); await ecrireOrdre();
 };
 window.supprimer = async function(id) {
   if (!confirm('Supprimer cette question ?')) return;
-  await deleteDoc(doc(db, COL, id));
-  await loadCards();
-  await ecrireOrdre();
+  await deleteDoc(doc(db, COL_Q, id)); await loadCards(); await ecrireOrdre();
 };
 
-loadCards();
+loadQuiz();
 </script>
 </body>
 </html>
