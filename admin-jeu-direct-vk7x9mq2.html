@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Jeu en direct | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+.top { background: var(--bleu); color: #fff; padding: 1.5rem 5vw; }
+.top .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.65; }
+.top h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-top: 0.2rem; }
+.top a.view { color: rgba(255,255,255,0.7); font-size: 0.85rem; text-decoration: none; margin-right: 14px; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 5vw 5rem; }
+
+.card { background: var(--blanc); border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 16px rgba(26,58,92,0.08); margin-bottom: 1.5rem; }
+.card h2 { font-size: 1.1rem; color: var(--bleu); margin-bottom: 1rem; }
+label { display: block; font-size: 0.85rem; color: var(--gris); margin: 0.75rem 0 4px; }
+input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+.upload-zone { border: 2px dashed rgba(26,58,92,0.2); border-radius: 10px; padding: 1.25rem; text-align: center; color: var(--gris); cursor: pointer; font-size: 0.9rem; }
+.upload-zone.has-file { border-color: var(--vert); color: var(--vert); }
+.btn { padding: 9px 20px; border-radius: 8px; border: 1.5px solid rgba(26,58,92,0.18); background: var(--blanc); font-family: inherit; font-size: 0.9rem; font-weight: 500; cursor: pointer; color: var(--bleu); }
+.btn:hover { border-color: var(--bleu); }
+.btn-primary { background: var(--bleu); color: #fff; border-color: var(--bleu); }
+.btn-primary:hover { background: var(--bleu-clair); }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; }
+.msg { font-size: 0.85rem; margin-left: 6px; }
+.msg.ok { color: var(--vert); }
+.msg.err { color: var(--rouge); }
+
+.rep-choix { display: flex; gap: 10px; margin-top: 6px; }
+.rep-btn { flex: 1; padding: 0.9rem 0.5rem; border-radius: 10px; border: 2px solid rgba(26,58,92,0.15); background: var(--blanc); cursor: pointer; font-family: inherit; font-size: 0.9rem; font-weight: 500; color: var(--gris); text-align: center; }
+.rep-btn .ico { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+.rep-btn[data-v="interdit"].sel { border-color: var(--rouge); background: #fdeeec; color: var(--rouge); }
+.rep-btn[data-v="permis"].sel { border-color: var(--vert); background: #eef7f1; color: var(--vert); }
+.rep-btn[data-v="obligatoire"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
+
+.liste-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid rgba(26,58,92,0.1); border-radius: 10px; margin-bottom: 8px; background: var(--blanc); }
+.liste-item img { width: 54px; height: 54px; border-radius: 8px; object-fit: cover; background: var(--creme); }
+.liste-item .txt { flex: 1; }
+.liste-item .txt .q { font-weight: 500; color: var(--bleu); }
+.liste-item .txt .r { font-size: 0.8rem; margin-top: 2px; }
+.liste-item .pos { font-size: 0.8rem; color: var(--gris); min-width: 24px; text-align: center; }
+.mini { padding: 5px 10px; font-size: 0.8rem; border-radius: 7px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--blanc); cursor: pointer; color: var(--bleu); }
+.mini:hover { border-color: var(--bleu); }
+.mini.del:hover { border-color: var(--rouge); color: var(--rouge); }
+.count { font-size: 0.82rem; color: var(--gris); margin-bottom: 0.75rem; }
+.pill { display:inline-block; padding:2px 8px; border-radius:20px; font-size:0.72rem; font-weight:600; }
+.pill.interdit { background:#fdeeec; color:var(--rouge); }
+.pill.permis { background:#eef7f1; color:var(--vert); }
+.pill.obligatoire { background:#fdf2e6; color:var(--orange); }
+</style>
+</head>
+<body>
+<script type="module" src="admin-auth.js"></script>
+<div class="top">
+  <p class="eyebrow">Panneau d'administration</p>
+  <h1>Jeu en direct</h1>
+  <a class="view" href="jeu-direct-animateur-vk7x9mq2.html" target="_blank">Ouvrir la page animateur ↗</a>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2>Ajouter une question</h2>
+    <label>Texte de la question (ex. : Stationner ici)</label>
+    <input type="text" id="texte" placeholder="Stationner ici"/>
+    <label>Image</label>
+    <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-input').click()">
+      Cliquer pour choisir une image
+      <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+    </div>
+    <label>Bonne réponse</label>
+    <div class="rep-choix" id="rep-choix">
+      <div class="rep-btn" data-v="interdit" onclick="choisirRep('interdit')"><span class="ico">❌</span>Interdit</div>
+      <div class="rep-btn" data-v="permis" onclick="choisirRep('permis')"><span class="ico">✅</span>Permis</div>
+      <div class="rep-btn" data-v="obligatoire" onclick="choisirRep('obligatoire')"><span class="ico">❗</span>Obligatoire</div>
+    </div>
+    <div class="row" style="margin-top:1.25rem">
+      <button class="btn btn-primary" onclick="saveq()">Ajouter la question</button>
+      <span class="msg" id="save-msg"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Questions existantes</h2>
+    <div class="count" id="count"></div>
+    <div id="liste"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = 'jeu-direct-questions';
+
+let items = [];
+let pendingImage = null;
+let repChoisie = null;
+const LIB = { interdit: '❌ Interdit', permis: '✅ Permis', obligatoire: '❗ Obligatoire' };
+
+window.choisirRep = function(v) {
+  repChoisie = v;
+  document.querySelectorAll('#rep-choix .rep-btn').forEach(b => b.classList.toggle('sel', b.dataset.v === v));
+};
+
+window.handleImage = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const zone = document.getElementById('img-zone');
+  zone.textContent = 'Compression en cours...';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 700;
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      pendingImage = canvas.toDataURL('image/jpeg', 0.78);
+      zone.textContent = '✓ ' + file.name;
+      zone.classList.add('has-file');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.saveq = async function() {
+  const texte = document.getElementById('texte').value.trim();
+  const msg = document.getElementById('save-msg');
+  if (!texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
+  if (!pendingImage) { msg.textContent = 'Choisissez une image.'; msg.className = 'msg err'; return; }
+  if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
+  try {
+    await addDoc(collection(db, COL), {
+      texte, image: pendingImage, reponse: repChoisie,
+      ordre: items.length,
+      date: new Date().toLocaleDateString('fr-CA')
+    });
+    await loadCards();
+    msg.textContent = '✓ Question ajoutée !'; msg.className = 'msg ok';
+    document.getElementById('texte').value = '';
+    const z = document.getElementById('img-zone');
+    z.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
+    z.classList.remove('has-file');
+    document.querySelectorAll('#rep-choix .rep-btn').forEach(b => b.classList.remove('sel'));
+    pendingImage = null; repChoisie = null;
+    setTimeout(() => msg.textContent = '', 2500);
+  } catch(e) {
+    msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err';
+  }
+};
+
+async function loadCards() {
+  const liste = document.getElementById('liste');
+  liste.innerHTML = 'Chargement...';
+  const snap = await getDocs(collection(db, COL));
+  items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99));
+  render();
+}
+
+function render() {
+  const liste = document.getElementById('liste');
+  document.getElementById('count').textContent = items.length + ' question' + (items.length > 1 ? 's' : '');
+  if (!items.length) { liste.innerHTML = '<div style="color:var(--gris);font-size:0.9rem">Aucune question pour le moment.</div>'; return; }
+  liste.innerHTML = '';
+  items.forEach((it, i) => {
+    const div = document.createElement('div');
+    div.className = 'liste-item';
+    div.innerHTML = `
+      <span class="pos">${i + 1}</span>
+      ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
+      <div class="txt"><div class="q">${it.texte || ''}</div><div class="r"><span class="pill ${it.reponse}">${LIB[it.reponse] || ''}</span></div></div>
+      <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
+      <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
+      <button class="mini del" onclick="supprimer('${it.id}')">🗑</button>`;
+    liste.appendChild(div);
+  });
+}
+
+async function ecrireOrdre() {
+  const jobs = [];
+  items.forEach((it, i) => { if (it.ordre !== i) { it.ordre = i; jobs.push(updateDoc(doc(db, COL, it.id), { ordre: i })); } });
+  await Promise.all(jobs);
+}
+window.monter = async function(id) {
+  const i = items.findIndex(x => x.id === id);
+  if (i <= 0) return;
+  [items[i-1], items[i]] = [items[i], items[i-1]];
+  render(); await ecrireOrdre();
+};
+window.descendre = async function(id) {
+  const i = items.findIndex(x => x.id === id);
+  if (i < 0 || i >= items.length - 1) return;
+  [items[i+1], items[i]] = [items[i], items[i+1]];
+  render(); await ecrireOrdre();
+};
+window.supprimer = async function(id) {
+  if (!confirm('Supprimer cette question ?')) return;
+  await deleteDoc(doc(db, COL, id));
+  await loadCards();
+  await ecrireOrdre();
+};
+
+loadCards();
+</script>
+</body>
+</html>
