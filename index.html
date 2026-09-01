@@ -326,7 +326,6 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
   <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
   <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">Activités</div>
   <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🎮 Jeux interactifs</div>
-  <a href="jeu-materiel-classe.html" onclick="closeMenu()" style="padding-left:1rem">Le matériel de la classe</a>
   <a href="jeu-association.html" onclick="closeMenu()" style="padding-left:1rem">Associez activité et équipement</a>
   <a href="jeu-aliments.html" onclick="closeMenu()" style="padding-left:1rem">Identifiez l'aliment</a>
   <a href="jeu-quel-metier.html" onclick="closeMenu()" style="padding-left:1rem">Quelle profession effectue ces tâches ?</a>
@@ -336,46 +335,8 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
   <a href="jeu-description-physique.html" onclick="closeMenu()" style="padding-left:1rem">Écouter et trouver la bonne personne</a>
   <a href="jeu-exprimer-gouts.html" onclick="closeMenu()" style="padding-left:1rem">Aime ou n'aime pas ? (goûts vestimentaires)</a>
   <a href="jeu-famille-reconstituee.html" onclick="closeMenu()" style="padding-left:1rem">Activité sur la famille</a>
-  <a href="jeu-direct.html" onclick="closeMenu()" style="color:var(--rouge);font-weight:600">🎮 Jeu en direct !</a>
   <a href="#contact" onclick="closeMenu()">Contact</a>
 </div>
-
-<section style="background:var(--blanc);padding:3rem 5vw;">
-  <div style="max-width:800px;margin:0 auto">
-    <p style="font-size:0.75rem;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--gris);margin-bottom:0.75rem">Derniers changements</p>
-    <h2 style="font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--bleu);margin-bottom:1.5rem">Nouveautés du site</h2>
-    <div style="display:flex;flex-direction:column;gap:0.75rem">
-      <div style="display:flex;align-items:center;gap:12px;padding:0.85rem 1rem;background:var(--creme);border-radius:10px;border-left:3px solid rgba(192,57,43,0.7)">
-        <span style="font-size:1.3rem">🎮</span>
-        <div>
-          <span style="font-size:0.78rem;color:var(--gris);margin-right:8px">27/08/26</span>
-          <span style="font-weight:500;color:var(--bleu)">Quiz en direct : en classe avec Martin</span>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;padding:0.85rem 1rem;background:var(--creme);border-radius:10px;border-left:3px solid rgba(26,122,74,0.7)">
-        <span style="font-size:1.3rem">✅</span>
-        <div>
-          <span style="font-size:0.78rem;color:var(--gris);margin-right:8px">25/08/26</span>
-          <span style="font-weight:500;color:var(--bleu)">Nouvelle page : Raconter sa jeunesse</span>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;padding:0.85rem 1rem;background:var(--creme);border-radius:10px;border-left:3px solid rgba(26,122,74,0.7)">
-        <span style="font-size:1.3rem">✅</span>
-        <div>
-          <span style="font-size:0.78rem;color:var(--gris);margin-right:8px">25/08/26</span>
-          <span style="font-weight:500;color:var(--bleu)">Nouvelle activité : Raconter sa routine (le matin et après l'école)</span>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;padding:0.85rem 1rem;background:var(--creme);border-radius:10px;border-left:3px solid rgba(26,122,74,0.7)">
-        <span style="font-size:1.3rem">✅</span>
-        <div>
-          <span style="font-size:0.78rem;color:var(--gris);margin-right:8px">25/08/26</span>
-          <span style="font-weight:500;color:var(--bleu)">Corrections dans la section La famille</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section class="hero" id="accueil">
   <div class="hero-bg"></div>
@@ -389,6 +350,14 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
     <!-- DROITE : 4 cases -->
     <div class="hero-cards-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative;z-index:1">
+
+      <!-- Cours en cours -->
+      <div class="hero-card" onclick="toggleHeroCard(this,'fipa')" style="background:rgba(192,57,43,0.9);grid-column:1 / -1;">
+        <div class="hero-card-icon">🎓</div>
+        <div class="hero-card-title">FIPA275-3 · Groupe 268802 · Été 2026</div>
+        <div class="hero-card-sub">Activités de la classe</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
 
       <!-- Les verbes -->
       <div class="hero-card" onclick="toggleHeroCard(this,'verbes')" style="background:rgba(26,58,92,0.85);">
@@ -543,6 +512,7 @@ window.closeMenu = function() { document.getElementById('mobile-menu').classList
 
 // Hero cards dropdown
 const heroContents = {
+  fipa: `<div class="hcd-cat">🎓 Activités de la classe</div><a href="jeu-direct.html">🎮 Jeu en direct</a><a href="jeu-materiel-classe.html">Le matériel de la classe</a><a href="consignes-classe.html">Les consignes en classe</a>`,
   verbes: `<div class="hcd-cat">📝 Verbes du 1er groupe</div><a href="verbes-er-debutant.html">⭐ Débutant</a><a href="verbes-er-intermediaire.html">⭐⭐ Intermédiaire</a><a href="verbes-er-avance.html">⭐⭐⭐ Avancé</a><a href="verbes-pronominaux.html">🔄 Verbes pronominaux</a><a href="jeu-verbes-er.html" class="hcd-jeu">🎯 Testez vos connaissances !</a><div class="hcd-divider"></div><div class="hcd-cat">📗 Verbes du 2e groupe</div><a href="verbes-2e-groupe.html">Les verbes du 2e groupe</a><div class="hcd-divider"></div><div class="hcd-cat">📘 Verbes du 3e groupe</div><a href="verbes-3e-groupe.html">Les verbes du 3e groupe</a><div class="hcd-divider"></div><div class="hcd-cat">🔀 Verbes irréguliers</div><a href="verbe-faire.html">Le verbe faire</a><a href="verbe-prendre.html">Le verbe prendre</a><a href="verbe-aller.html">Le verbe aller</a>`,
   routine: `<a href="activites-habituelles.html">Les activités habituelles au présent</a><a href="routine.html">La routine</a><a href="raconter-routine.html">Raconter sa routine <span style="font-size:0.7rem;color:var(--rouge)">• activité</span></a>`,
   directions: `<a href="prepositions-localisation.html">Les prépositions de localisation</a><a href="demander-donner-directions.html">Demander et donner des directions</a><div class="hcd-divider"></div><div class="hcd-cat">🏙 La ville</div><a href="la-ville.html">Les commerces et les services publics</a><a href="vocabulaire-ville.html">Le vocabulaire de la ville</a><div class="hcd-divider"></div><div class="hcd-cat">🚌 Les transports en commun</div><a href="transports-indications.html">Demander des informations et donner des directions</a>`,
