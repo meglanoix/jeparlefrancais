@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Les consignes en classe | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+.top { background: var(--bleu); color: #fff; padding: 1.5rem 5vw; }
+.top .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.65; }
+.top h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-top: 0.2rem; }
+.top a.view { color: rgba(255,255,255,0.7); font-size: 0.85rem; text-decoration: none; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 5vw 5rem; }
+.card { background: var(--blanc); border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 16px rgba(26,58,92,0.08); margin-bottom: 1.5rem; }
+.card h2 { font-size: 1.1rem; color: var(--bleu); margin-bottom: 1rem; }
+label { display: block; font-size: 0.85rem; color: var(--gris); margin: 0.75rem 0 4px; }
+input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+.upload-zone { border: 2px dashed rgba(26,58,92,0.2); border-radius: 10px; padding: 1.25rem; text-align: center; color: var(--gris); cursor: pointer; font-size: 0.9rem; }
+.upload-zone.has-file { border-color: var(--vert); color: var(--vert); }
+.btn { padding: 9px 20px; border-radius: 8px; border: 1.5px solid rgba(26,58,92,0.18); background: var(--blanc); font-family: inherit; font-size: 0.9rem; font-weight: 500; cursor: pointer; color: var(--bleu); }
+.btn:hover { border-color: var(--bleu); }
+.btn-primary { background: var(--bleu); color: #fff; border-color: var(--bleu); }
+.btn-primary:hover { background: var(--bleu-clair); }
+.btn-rec.active { border-color: var(--rouge); color: var(--rouge); }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 0.5rem; }
+.msg { font-size: 0.85rem; margin-left: 6px; }
+.msg.ok { color: var(--vert); }
+.msg.err { color: var(--rouge); }
+.consigne-item { border: 1px solid rgba(26,58,92,0.12); border-radius: 12px; margin-bottom: 12px; background: var(--blanc); overflow: hidden; }
+.consigne-head { display: flex; align-items: center; gap: 12px; padding: 12px; }
+.consigne-head img { width: 54px; height: 54px; border-radius: 8px; object-fit: cover; background: var(--creme); }
+.consigne-head .inf { flex: 1; font-weight: 600; color: var(--bleu); font-size: 1.05rem; }
+.consigne-head .pos { font-size: 0.8rem; color: var(--gris); min-width: 22px; text-align: center; }
+.mini { padding: 5px 10px; font-size: 0.8rem; border-radius: 7px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--blanc); cursor: pointer; color: var(--bleu); }
+.mini:hover { border-color: var(--bleu); }
+.mini.del:hover { border-color: var(--rouge); color: var(--rouge); }
+.variantes { background: var(--creme); padding: 12px; border-top: 1px solid rgba(26,58,92,0.08); }
+.variante { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--blanc); border-radius: 8px; margin-bottom: 6px; }
+.variante .vt { flex: 1; color: var(--texte); }
+.var-add { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(26,58,92,0.15); }
+.var-add input { flex: 1; min-width: 140px; }
+.count { font-size: 0.82rem; color: var(--gris); margin-bottom: 0.75rem; }
+</style>
+</head>
+<body>
+<script type="module" src="admin-auth.js"></script>
+<div class="top">
+  <p class="eyebrow">Panneau d'administration</p>
+  <h1>Les consignes en classe</h1>
+  <a class="view" href="consignes-classe.html" target="_blank">Voir la page ↗</a>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2>Ajouter une consigne</h2>
+    <label>Verbe à l'infinitif (ex. : Écouter)</label>
+    <input type="text" id="inf" placeholder="Écouter"/>
+    <label>Image</label>
+    <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-input').click()">
+      Cliquer pour choisir une image
+      <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+    </div>
+    <div class="row" style="margin-top:1rem">
+      <button class="btn btn-primary" onclick="saveConsigne()">Ajouter la consigne</button>
+      <span class="msg" id="save-msg"></span>
+    </div>
+    <p style="font-size:0.82rem;color:var(--gris);margin-top:0.75rem">Une fois la consigne ajoutée, tu pourras enregistrer ses différentes façons de la dire (les variantes audio) dans la liste ci-dessous.</p>
+  </div>
+
+  <div class="card">
+    <h2>Consignes existantes</h2>
+    <div class="count" id="count"></div>
+    <div id="liste"></div>
+  </div>
+</div>
+
+<!-- Modale modification de la consigne (infinitif + image) -->
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(26,58,92,0.45);z-index:1000;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--blanc);border-radius:16px;padding:1.75rem;width:min(94vw,440px)">
+    <h2 style="font-size:1.15rem;color:var(--bleu);margin-bottom:1rem">Modifier la consigne</h2>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin-bottom:4px">Verbe à l'infinitif</label>
+    <input type="text" id="edit-inf" style="width:100%;padding:10px 12px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Image (laisser vide pour garder l'actuelle)</label>
+    <div class="upload-zone" id="edit-img-zone" onclick="document.getElementById('edit-img-input').click()">
+      Cliquer pour remplacer l'image
+      <input type="file" id="edit-img-input" accept="image/*" style="display:none" onchange="handleEditImage(event)"/>
+    </div>
+    <div class="row" style="margin-top:1.5rem;justify-content:flex-end">
+      <button class="btn" onclick="fermerModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="enregistrerModif()">Enregistrer</button>
+      <span class="msg" id="edit-msg"></span>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = 'consignes-classe';
+
+let items = [], pendingImage = null;
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = reject;
+    r.readAsDataURL(blob);
+  });
+}
+
+// ---- image de la consigne ----
+window.handleImage = function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  compresser(file, (dataUrl, name) => {
+    pendingImage = dataUrl;
+    const z = document.getElementById('img-zone');
+    z.textContent = '✓ ' + name; z.classList.add('has-file');
+  }, 'img-zone');
+};
+function compresser(file, cb, zoneId) {
+  const zone = document.getElementById(zoneId);
+  if (zone) zone.textContent = 'Compression...';
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 700;
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+      else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL('image/jpeg', 0.78), file.name);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+window.saveConsigne = async function() {
+  const inf = document.getElementById('inf').value.trim();
+  const msg = document.getElementById('save-msg');
+  if (!inf) { msg.textContent = 'Entrez un infinitif.'; msg.className = 'msg err'; return; }
+  if (!pendingImage) { msg.textContent = 'Choisissez une image.'; msg.className = 'msg err'; return; }
+  msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
+  try {
+    await addDoc(collection(db, COL), {
+      infinitif: inf, image: pendingImage, variantes: [],
+      ordre: items.length, date: new Date().toLocaleDateString('fr-CA')
+    });
+    await loadCards();
+    msg.textContent = '✓ Consigne ajoutée !'; msg.className = 'msg ok';
+    document.getElementById('inf').value = '';
+    const z = document.getElementById('img-zone');
+    z.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
+    z.classList.remove('has-file');
+    pendingImage = null;
+    setTimeout(() => msg.textContent = '', 2500);
+  } catch(e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
+};
+
+async function loadCards() {
+  const liste = document.getElementById('liste');
+  liste.innerHTML = 'Chargement...';
+  const snap = await getDocs(collection(db, COL));
+  items = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  render();
+}
+
+function render() {
+  const liste = document.getElementById('liste');
+  document.getElementById('count').textContent = items.length + ' consigne' + (items.length > 1 ? 's' : '');
+  if (!items.length) { liste.innerHTML = '<div style="color:var(--gris);font-size:0.9rem">Aucune consigne pour le moment.</div>'; return; }
+  liste.innerHTML = '';
+  items.forEach((it, i) => {
+    const vars = (it.variantes || []).map((v, vi) =>
+      `<div class="variante"><button class="mini" onclick="ecouterVar('${it.id}',${vi})">▶</button><span class="vt">${v.texte || ''}</span><button class="mini del" onclick="suppVariante('${it.id}',${vi})">🗑</button></div>`
+    ).join('');
+    const div = document.createElement('div');
+    div.className = 'consigne-item';
+    div.innerHTML = `
+      <div class="consigne-head">
+        <span class="pos">${i + 1}</span>
+        ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
+        <span class="inf">${it.infinitif || ''}</span>
+        <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
+        <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
+        <button class="mini" onclick="modifier('${it.id}')">✎</button>
+        <button class="mini del" onclick="supprimer('${it.id}')">🗑</button>
+      </div>
+      <div class="variantes">
+        <div style="font-size:0.8rem;color:var(--gris);margin-bottom:6px">Façons de dire la consigne :</div>
+        ${vars || '<div style="font-size:0.85rem;color:var(--gris);margin-bottom:6px">Aucune variante encore.</div>'}
+        <div class="var-add">
+          <input type="text" id="vtxt-${it.id}" placeholder="Ex. : On écoute"/>
+          <button class="btn btn-rec" id="vrec-${it.id}" onclick="toggleVarRecord('${it.id}')">▶ Enregistrer</button>
+          <span class="msg" id="vstatus-${it.id}"></span>
+          <button class="btn btn-primary" onclick="ajouterVariante('${it.id}')">+ Ajouter</button>
+        </div>
+      </div>`;
+    liste.appendChild(div);
+  });
+}
+
+// ---- écoute d'une variante ----
+let audioEcoute = null;
+window.ecouterVar = function(id, vi) {
+  const it = items.find(x => x.id === id); if (!it) return;
+  const v = (it.variantes || [])[vi]; if (!v || !v.audio) return;
+  if (!audioEcoute) audioEcoute = new Audio();
+  audioEcoute.src = v.audio; audioEcoute.play().catch(()=>{});
+};
+
+// ---- enregistrement audio d'une variante (par consigne) ----
+const recs = {};  // id -> {recorder, chunks, recording, blob, timer, seconds}
+window.toggleVarRecord = function(id) {
+  const r = recs[id];
+  if (r && r.recording) stopVarRecord(id); else startVarRecord(id);
+};
+function startVarRecord(id) {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    const chunks = [];
+    const recorder = new MediaRecorder(stream);
+    recorder.ondataavailable = e => chunks.push(e.data);
+    recorder.onstop = () => {
+      recs[id].blob = new Blob(chunks, { type: 'audio/webm' });
+      const s = document.getElementById('vstatus-' + id);
+      if (s) { s.textContent = '✓ Audio prêt'; s.className = 'msg ok'; }
+    };
+    recs[id] = { recorder, chunks, recording: true, blob: (recs[id]||{}).blob, timer: null, seconds: 0, stream };
+    recorder.start();
+    const b = document.getElementById('vrec-' + id);
+    if (b) { b.textContent = '■ Arrêter'; b.classList.add('active'); }
+  }).catch(() => alert('Accès au microphone refusé.'));
+}
+function stopVarRecord(id) {
+  const r = recs[id]; if (!r) return;
+  if (r.recorder) { r.recorder.stop(); r.stream.getTracks().forEach(t => t.stop()); }
+  r.recording = false;
+  const b = document.getElementById('vrec-' + id);
+  if (b) { b.textContent = '▶ Enregistrer'; b.classList.remove('active'); }
+}
+
+window.ajouterVariante = async function(id) {
+  const it = items.find(x => x.id === id); if (!it) return;
+  const txt = (document.getElementById('vtxt-' + id).value || '').trim();
+  const r = recs[id];
+  const status = document.getElementById('vstatus-' + id);
+  if (!txt) { if (status){status.textContent='Entrez un texte.';status.className='msg err';} return; }
+  if (!r || !r.blob) { if (status){status.textContent='Enregistrez un audio.';status.className='msg err';} return; }
+  if (status) { status.textContent = 'Sauvegarde...'; status.className = 'msg'; }
+  try {
+    const audioUrl = await blobToDataUrl(r.blob);
+    const variantes = (it.variantes || []).slice();
+    variantes.push({ texte: txt, audio: audioUrl });
+    await updateDoc(doc(db, COL, id), { variantes });
+    delete recs[id];
+    await loadCards();
+  } catch(e) { if (status){status.textContent='Erreur : '+e.message;status.className='msg err';} }
+};
+
+window.suppVariante = async function(id, vi) {
+  const it = items.find(x => x.id === id); if (!it) return;
+  if (!confirm('Supprimer cette variante ?')) return;
+  const variantes = (it.variantes || []).slice();
+  variantes.splice(vi, 1);
+  await updateDoc(doc(db, COL, id), { variantes });
+  await loadCards();
+};
+
+async function ecrireOrdre() {
+  const jobs = [];
+  items.forEach((it, i) => { if (it.ordre !== i) { it.ordre = i; jobs.push(updateDoc(doc(db, COL, it.id), { ordre: i })); } });
+  await Promise.all(jobs);
+}
+window.monter = async function(id) {
+  const i = items.findIndex(x => x.id === id); if (i <= 0) return;
+  [items[i-1], items[i]] = [items[i], items[i-1]]; render(); await ecrireOrdre();
+};
+window.descendre = async function(id) {
+  const i = items.findIndex(x => x.id === id); if (i < 0 || i >= items.length - 1) return;
+  [items[i+1], items[i]] = [items[i], items[i+1]]; render(); await ecrireOrdre();
+};
+window.supprimer = async function(id) {
+  if (!confirm('Supprimer cette consigne et toutes ses variantes ?')) return;
+  await deleteDoc(doc(db, COL, id)); await loadCards(); await ecrireOrdre();
+};
+
+// ---- modification consigne (infinitif + image) ----
+let editId = null, editImage = null;
+window.modifier = function(id) {
+  const it = items.find(x => x.id === id); if (!it) return;
+  editId = id; editImage = null;
+  document.getElementById('edit-inf').value = it.infinitif || '';
+  const z = document.getElementById('edit-img-zone');
+  z.innerHTML = 'Cliquer pour remplacer l\'image<input type="file" id="edit-img-input" accept="image/*" style="display:none" onchange="handleEditImage(event)"/>';
+  z.classList.remove('has-file');
+  document.getElementById('edit-msg').textContent = '';
+  document.getElementById('modal').style.display = 'flex';
+};
+window.fermerModal = function() { document.getElementById('modal').style.display = 'none'; editId = null; editImage = null; };
+window.handleEditImage = function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  compresser(file, (dataUrl) => {
+    editImage = dataUrl;
+    const z = document.getElementById('edit-img-zone');
+    z.textContent = '✓ Nouvelle image'; z.classList.add('has-file');
+  }, 'edit-img-zone');
+};
+window.enregistrerModif = async function() {
+  if (!editId) return;
+  const inf = document.getElementById('edit-inf').value.trim();
+  const msg = document.getElementById('edit-msg');
+  if (!inf) { msg.textContent = 'Entrez un infinitif.'; msg.className = 'msg err'; return; }
+  msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
+  try {
+    const maj = { infinitif: inf };
+    if (editImage) maj.image = editImage;
+    await updateDoc(doc(db, COL, editId), maj);
+    await loadCards(); fermerModal();
+  } catch(e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
+};
+
+loadCards();
+</script>
+</body>
+</html>

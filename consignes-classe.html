@@ -7,18 +7,31 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
 :root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; }
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); }
+nav { display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); position: sticky; top: 0; z-index: 50; }
 .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
 .nav-logo span { color: var(--rouge); }
 .nav-back { text-decoration: none; color: var(--gris); font-size: 0.9rem; }
-.page-header { background: var(--bleu); padding: 2.5rem 5vw; }
-.page-header .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.65); }
-.page-header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #fff; margin-top: 0.3rem; }
-.wrap { max-width: 800px; margin: 0 auto; padding: 3rem 5vw; text-align: center; }
-.wrap .emo { font-size: 3rem; }
-.wrap p { color: var(--gris); font-size: 1.05rem; margin-top: 1rem; }
+.page-header { background: linear-gradient(135deg, var(--bleu), var(--bleu-clair)); color: #fff; padding: 2.25rem 5vw; }
+.page-header .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-top: 0.3rem; }
+.page-header p { opacity: 0.85; margin-top: 0.35rem; font-size: 0.95rem; }
+.wrap { max-width: 820px; margin: 0 auto; padding: 1.5rem 5vw 4rem; }
+.grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+.consigne { background: var(--blanc); border-radius: 16px; padding: 1.25rem; box-shadow: 0 2px 14px rgba(26,58,92,0.08); }
+.consigne .haut { display: flex; align-items: center; gap: 14px; margin-bottom: 1rem; }
+.consigne img { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; background: var(--creme); flex-shrink: 0; }
+.consigne .inf { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--bleu); }
+.variantes { display: flex; flex-direction: column; gap: 8px; }
+.var-btn { display: flex; align-items: center; gap: 10px; padding: 0.7rem 1rem; border: 1.5px solid rgba(26,58,92,0.12); border-radius: 12px; background: var(--creme); cursor: pointer; font-family: inherit; font-size: 1.05rem; color: var(--bleu); text-align: left; width: 100%; }
+.var-btn:hover { border-color: var(--bleu-clair); }
+.var-btn:active { transform: scale(0.98); }
+.var-btn.playing { border-color: var(--vert); background: #eef7f1; }
+.var-btn .ico { width: 30px; height: 30px; border-radius: 50%; background: var(--bleu); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.var-btn.playing .ico { background: var(--vert); }
+.var-btn .ico svg { width: 13px; height: 13px; fill: #fff; margin-left: 2px; }
+.chargement { text-align: center; color: var(--gris); padding: 2rem; }
 </style>
 </head>
 <body>
@@ -29,10 +42,67 @@ nav { display: flex; align-items: center; justify-content: space-between; paddin
 <div class="page-header">
   <p class="eyebrow">FIPA275-3 · Groupe 268802 · Été 2026</p>
   <h1>Les consignes en classe</h1>
+  <p>Écoute les différentes façons de dire chaque consigne</p>
 </div>
 <div class="wrap">
-  <div class="emo">🚧</div>
-  <p>Cette page sera bientôt disponible.</p>
+  <div id="grille" class="grille"></div>
+  <div id="chargement" class="chargement">Chargement…</div>
 </div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = 'consignes-classe';
+
+let player = null;  // un seul lecteur (compat tablette)
+
+function jouer(dataUrl, btn) {
+  if (!dataUrl) return;
+  document.querySelectorAll('.var-btn.playing').forEach(b => b.classList.remove('playing'));
+  if (!player) { player = new Audio(); player.setAttribute('playsinline', ''); }
+  player.onended = () => btn.classList.remove('playing');
+  player.src = dataUrl;
+  btn.classList.add('playing');
+  player.play().catch(() => btn.classList.remove('playing'));
+}
+window.__jouer = jouer;
+
+async function charger() {
+  const snap = await getDocs(collection(db, COL));
+  const items = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  document.getElementById('chargement').style.display = 'none';
+  const g = document.getElementById('grille');
+  if (!items.length) { g.innerHTML = '<div class="chargement">Aucune consigne pour le moment.</div>'; return; }
+  g.innerHTML = '';
+  items.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'consigne';
+    const haut = `<div class="haut">${it.image ? `<img src="${it.image}"/>` : ''}<div class="inf">${it.infinitif || ''}</div></div>`;
+    const vars = document.createElement('div');
+    vars.className = 'variantes';
+    (it.variantes || []).forEach(v => {
+      const b = document.createElement('button');
+      b.className = 'var-btn';
+      b.innerHTML = `<span class="ico"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></span><span>${v.texte || ''}</span>`;
+      b.onclick = () => jouer(v.audio, b);
+      vars.appendChild(b);
+    });
+    div.innerHTML = haut;
+    div.appendChild(vars);
+    g.appendChild(div);
+  });
+}
+charger();
+</script>
 </body>
 </html>
