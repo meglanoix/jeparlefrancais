@@ -11,7 +11,8 @@
 html, body { height: 100%; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); display: flex; flex-direction: column; }
 .bar { background: var(--bleu); color: #fff; padding: 0.9rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
-.bar .logo { font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-right: auto; margin-left: 1rem; }
+.bar .logo { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+.bar-droite { display: flex; align-items: center; gap: 12px; }
 .bar .logo span { color: #ff9d8a; }
 .bar .mon-num { font-size: 0.85rem; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
 .bar .retour-accueil { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
@@ -49,9 +50,11 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 </head>
 <body>
 <div class="bar">
-  <a href="index.html" class="retour-accueil">‹ Retour</a>
   <div class="logo">JeParle<span>Français</span></div>
-  <div class="mon-num hidden" id="mon-num"></div>
+  <div class="bar-droite">
+    <div class="mon-num hidden" id="mon-num"></div>
+    <a href="index.html" class="retour-accueil">Retour à l'accueil ›</a>
+  </div>
 </div>
 <div class="zone" id="zone">
   <div class="sous">Chargement...</div>
