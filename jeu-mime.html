@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jeu de mime | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); display: flex; flex-direction: column; }
+.bar { background: var(--bleu); color: #fff; padding: 0.9rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+.bar .logo { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+.bar .logo span { color: #ff9d8a; }
+.bar a.retour { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+.zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; text-align: center; }
+
+h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.6rem; margin-bottom: 0.5rem; }
+.sous { color: var(--gris); font-size: 1rem; margin-bottom: 1.5rem; }
+.progres { font-size: 0.9rem; color: var(--gris); margin-bottom: 1rem; }
+
+.jeu-choix { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 460px; }
+.jeu-choix .jc { padding: 1.1rem 1.5rem; border: 2px solid rgba(26,58,92,0.12); border-radius: 14px; background: var(--blanc); cursor: pointer; font-size: 1.15rem; font-weight: 500; color: var(--bleu); }
+.jeu-choix .jc:hover { border-color: var(--bleu-clair); }
+
+.mot-img { max-width: 100%; max-height: 48vh; border-radius: 18px; box-shadow: 0 8px 32px rgba(26,58,92,0.18); margin-bottom: 1.25rem; }
+.mot-txt { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: var(--bleu); margin-bottom: 1.75rem; }
+.cache-ecran { font-size: 5rem; margin-bottom: 1rem; }
+.cache-txt { font-size: 1.3rem; color: var(--gris); margin-bottom: 1.75rem; }
+
+.btn { padding: 1.1rem 2.4rem; border-radius: 14px; border: none; font-family: inherit; font-size: 1.25rem; font-weight: 700; cursor: pointer; background: var(--bleu); color: #fff; }
+.btn:hover { background: var(--bleu-clair); }
+.btn:active { transform: scale(0.98); }
+.btn-vert { background: var(--vert); }
+.btn-orange { background: var(--orange); }
+.btn-ghost { background: var(--blanc); color: var(--bleu); border: 1.5px solid rgba(26,58,92,0.2); font-size: 1.05rem; padding: 0.8rem 1.8rem; }
+.row-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="logo">JeParle<span>Français</span></div>
+  <a class="retour" href="index.html">Retour à l'accueil ›</a>
+</div>
+<div class="zone" id="zone"><div class="sous">Chargement…</div></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL_JEUX = 'mime-jeux';
+const COL_MOTS = 'mime-mots';
+
+const zone = document.getElementById('zone');
+let jeux = [], mots = [], ordre = [], idx = 0;
+
+function melanger(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+async function chargerJeux() {
+  const snap = await getDocs(collection(db, COL_JEUX));
+  jeux = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  ecranChoix();
+}
+
+function ecranChoix() {
+  if (!jeux.length) {
+    zone.innerHTML = `<h2>Jeu de mime</h2><div class="sous">Aucun jeu pour le moment.<br>Crée un jeu dans l'administration.</div>`;
+    return;
+  }
+  const cartes = jeux.map(j => `<div class="jc" onclick="choisirJeu('${j.id}')">${j.nom}</div>`).join('');
+  zone.innerHTML = `<h2>Jeu de mime</h2><div class="sous">Choisis un jeu :</div><div class="jeu-choix">${cartes}</div>`;
+}
+
+window.choisirJeu = async function(id) {
+  zone.innerHTML = `<div class="sous">Chargement…</div>`;
+  const snap = await getDocs(query(collection(db, COL_MOTS), where('jeuId', '==', id)));
+  mots = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  if (!mots.length) { zone.innerHTML = `<h2>Ce jeu est vide</h2><div class="sous">Ajoute des mots dans l'administration.</div><button class="btn btn-ghost" onclick="ecranChoix()">← Retour</button>`; return; }
+  ordre = melanger(mots.map(m => m.id));
+  idx = 0;
+  ecranPret();
+};
+
+function motCourant() { return mots.find(m => m.id === ordre[idx]); }
+
+// état neutre avant de révéler (le mimeur va appuyer)
+function ecranPret() {
+  zone.innerHTML = `
+    <div class="progres">Mot ${idx + 1} / ${mots.length}</div>
+    <div class="cache-ecran">🎭</div>
+    <div class="cache-txt">Passe la tablette au mimeur.</div>
+    <button class="btn btn-vert" onclick="revelerProchain()">Révéler le prochain mot</button>`;
+}
+
+// image + mot affichés, bouton cacher
+function ecranMot() {
+  const m = motCourant();
+  zone.innerHTML = `
+    <div class="progres">Mot ${idx + 1} / ${mots.length}</div>
+    ${m.image ? `<img class="mot-img" src="${m.image}"/>` : ''}
+    <div class="mot-txt">${m.mot || ''}</div>
+    <button class="btn btn-orange" onclick="cacherMot()">Cacher le mot</button>`;
+}
+
+// tout caché pendant que la personne mime
+function ecranCache() {
+  zone.innerHTML = `
+    <div class="progres">Mot ${idx + 1} / ${mots.length}</div>
+    <div class="cache-ecran">🤫</div>
+    <div class="cache-txt">À toi de mimer !<br>La classe doit deviner.</div>
+    <button class="btn" onclick="revelerMot()">Révéler le mot</button>`;
+}
+
+// mot re-révélé pour confirmer, bouton suivant
+function ecranRevele() {
+  const m = motCourant();
+  const dernier = idx >= ordre.length - 1;
+  zone.innerHTML = `
+    <div class="progres">Mot ${idx + 1} / ${mots.length}</div>
+    ${m.image ? `<img class="mot-img" src="${m.image}"/>` : ''}
+    <div class="mot-txt">${m.mot || ''}</div>
+    <button class="btn btn-vert" onclick="${dernier ? 'terminer()' : 'suivant()'}">${dernier ? 'Terminer 🎉' : 'Passer au prochain mot'}</button>`;
+}
+
+window.revelerProchain = ecranMot;
+window.cacherMot = ecranCache;
+window.revelerMot = ecranRevele;
+window.suivant = function() { idx++; ecranPret(); };
+window.terminer = function() {
+  zone.innerHTML = `<div class="cache-ecran">🎉</div><h2>Bravo !</h2><div class="sous">Vous avez fait tous les mots.</div>
+    <div class="row-btns"><button class="btn btn-ghost" onclick="ecranChoix()">← Choisir un autre jeu</button><button class="btn btn-vert" onclick="rejouer()">↺ Recommencer</button></div>`;
+};
+window.rejouer = function() { ordre = melanger(mots.map(m => m.id)); idx = 0; ecranPret(); };
+window.ecranChoix = ecranChoix;
+
+chargerJeux();
+</script>
+</body>
+</html>
