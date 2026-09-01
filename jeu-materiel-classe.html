@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Le matériel de la classe · Jeu | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+nav { background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); padding: 0.9rem 5vw; display: flex; align-items: center; justify-content: space-between; }
+nav .logo { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--bleu); text-decoration: none; }
+nav .logo span { color: var(--rouge); }
+nav a.retour { color: var(--gris); font-size: 0.9rem; text-decoration: none; }
+.page-header { background: linear-gradient(135deg, var(--bleu), var(--bleu-clair)); color: #fff; padding: 2rem 5vw 2.25rem; }
+.page-header .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-top: 0.25rem; }
+.page-header p { opacity: 0.85; margin-top: 0.35rem; font-size: 0.95rem; }
+.wrap { max-width: 820px; margin: 0 auto; padding: 1.5rem 5vw 4rem; }
+
+.consigne-bar { display: flex; align-items: center; justify-content: center; gap: 1.25rem; background: var(--blanc); border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 2px 16px rgba(26,58,92,0.08); margin-bottom: 1.5rem; flex-wrap: wrap; }
+.play-btn { width: 62px; height: 62px; border-radius: 50%; background: var(--bleu); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.play-btn:active { transform: scale(0.95); }
+.play-btn svg { width: 26px; height: 26px; fill: #fff; margin-left: 3px; }
+.demande { font-size: 1.6rem; font-weight: 700; color: var(--bleu); font-family: 'Playfair Display', serif; }
+.progres { font-size: 0.85rem; color: var(--gris); }
+
+.grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.obj { background: var(--blanc); border-radius: 16px; padding: 0.75rem; box-shadow: 0 2px 12px rgba(26,58,92,0.08); cursor: pointer; border: 3px solid transparent; transition: transform 0.1s, border-color 0.2s, opacity 0.3s; text-align: center; }
+.obj:active { transform: scale(0.97); }
+.obj img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 10px; background: var(--creme); }
+.obj .nom { margin-top: 0.5rem; font-weight: 500; color: var(--bleu); font-size: 0.95rem; }
+.obj.trouve { opacity: 0.35; pointer-events: none; border-color: var(--vert); }
+.obj.mauvais { animation: secoue 0.4s; border-color: var(--rouge); }
+@keyframes secoue { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+.fin { text-align: center; background: var(--blanc); border-radius: 16px; padding: 3rem 1.5rem; box-shadow: 0 2px 16px rgba(26,58,92,0.08); }
+.fin .emo { font-size: 4rem; }
+.fin h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.8rem; margin: 0.5rem 0 0.75rem; }
+.fin p { color: var(--gris); margin-bottom: 1.5rem; }
+.btn { padding: 0.85rem 2rem; border-radius: 12px; border: none; background: var(--bleu); color: #fff; font-family: inherit; font-size: 1.05rem; font-weight: 600; cursor: pointer; }
+.btn:hover { background: var(--bleu-clair); }
+.hidden { display: none !important; }
+.msg-essaie { text-align: center; color: var(--rouge); font-weight: 600; height: 1.4rem; margin-bottom: 0.5rem; opacity: 0; transition: opacity 0.2s; }
+.msg-essaie.show { opacity: 1; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html">JeParle<span>Français</span></a>
+  <a class="retour" href="index.html">‹ Retour</a>
+</nav>
+<div class="page-header">
+  <p class="eyebrow">Vocabulaire · Jeu</p>
+  <h1>Le matériel de la classe</h1>
+  <p>Écoute et clique sur le bon objet</p>
+</div>
+
+<div class="wrap">
+  <div id="jeu">
+    <div class="consigne-bar">
+      <button class="play-btn" onclick="rejouerAudio()" aria-label="Écouter">
+        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+      </button>
+      <div>
+        <div class="demande" id="demande">…</div>
+        <div class="progres" id="progres"></div>
+      </div>
+    </div>
+    <div class="msg-essaie" id="msg-essaie">Essaie encore !</div>
+    <div class="grille" id="grille"></div>
+  </div>
+
+  <div id="ecran-fin" class="fin hidden">
+    <div class="emo">🎉</div>
+    <h2>Bravo !</h2>
+    <p>Tu as trouvé tout le matériel de la classe.</p>
+    <button class="btn" onclick="recommencer()">↺ Recommencer</button>
+  </div>
+
+  <div id="chargement" style="text-align:center;color:var(--gris);padding:2rem">Chargement…</div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = 'materiel-classe';
+
+let objets = [];        // tous les objets
+let ordreDemande = [];  // ordre aléatoire des ids à demander
+let idxCourant = 0;     // où on en est
+let trouves = new Set();
+let player = null;      // un seul lecteur audio (compat tablette)
+
+function melanger(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+async function charger() {
+  const snap = await getDocs(collection(db, COL));
+  objets = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  document.getElementById('chargement').classList.add('hidden');
+  if (!objets.length) {
+    document.getElementById('jeu').innerHTML = '<div style="text-align:center;color:var(--gris);padding:2rem">Aucun objet pour le moment.</div>';
+    return;
+  }
+  demarrer();
+}
+
+function demarrer() {
+  trouves = new Set();
+  idxCourant = 0;
+  ordreDemande = melanger(objets.map(o => o.id));
+  document.getElementById('ecran-fin').classList.add('hidden');
+  document.getElementById('jeu').classList.remove('hidden');
+  renderGrille();
+  poserQuestion();
+}
+
+function renderGrille() {
+  const g = document.getElementById('grille');
+  g.innerHTML = '';
+  objets.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'obj' + (trouves.has(o.id) ? ' trouve' : '');
+    div.dataset.id = o.id;
+    div.onclick = () => cliquer(o.id, div);
+    div.innerHTML = `${o.image ? `<img src="${o.image}"/>` : ''}`;
+    g.appendChild(div);
+  });
+}
+
+function objetCourant() { return objets.find(o => o.id === ordreDemande[idxCourant]); }
+
+function poserQuestion() {
+  const o = objetCourant();
+  if (!o) return;
+  document.getElementById('demande').textContent = o.nom || '';
+  document.getElementById('progres').textContent = `${trouves.size} / ${objets.length} trouvés`;
+  jouerAudio();
+}
+
+function jouerAudio() {
+  const o = objetCourant();
+  if (!o || !o.audio) return;
+  if (!player) { player = new Audio(); player.setAttribute('playsinline', ''); }
+  player.src = o.audio;
+  player.play().catch(()=>{});
+}
+window.rejouerAudio = jouerAudio;
+
+window.cliquer = function(id, div) {
+  const o = objetCourant();
+  if (!o || trouves.has(id)) return;
+  if (id === o.id) {
+    // bonne réponse
+    trouves.add(id);
+    div.classList.add('trouve');
+    document.getElementById('progres').textContent = `${trouves.size} / ${objets.length} trouvés`;
+    idxCourant++;
+    if (idxCourant >= ordreDemande.length) {
+      setTimeout(montrerFin, 500);
+    } else {
+      setTimeout(poserQuestion, 500);
+    }
+  } else {
+    // mauvaise réponse
+    div.classList.add('mauvais');
+    const m = document.getElementById('msg-essaie'); m.classList.add('show');
+    setTimeout(() => { div.classList.remove('mauvais'); }, 400);
+    setTimeout(() => { m.classList.remove('show'); }, 1200);
+  }
+};
+
+function montrerFin() {
+  document.getElementById('jeu').classList.add('hidden');
+  document.getElementById('ecran-fin').classList.remove('hidden');
+}
+
+window.recommencer = demarrer;
+
+charger();
+</script>
+</body>
+</html>
