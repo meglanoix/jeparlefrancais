@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mes activités · Jeu | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+nav { display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); position: sticky; top: 0; z-index: 50; }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { text-decoration: none; color: var(--gris); font-size: 0.9rem; }
+.page-header { background: linear-gradient(135deg, var(--bleu), var(--bleu-clair)); color: #fff; padding: 2rem 5vw 2.25rem; }
+.page-header .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-top: 0.25rem; }
+.page-header p { opacity: 0.85; margin-top: 0.35rem; font-size: 0.95rem; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 5vw 6rem; }
+.consigne { text-align: center; color: var(--gris); font-size: 1.05rem; margin-bottom: 1.25rem; }
+
+.grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.carte { background: var(--blanc); border-radius: 16px; padding: 0.75rem; box-shadow: 0 2px 12px rgba(26,58,92,0.08); cursor: pointer; border: 3px solid transparent; transition: transform 0.1s, border-color 0.2s; text-align: center; position: relative; }
+.carte:active { transform: scale(0.97); }
+.carte img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 10px; background: var(--creme); }
+.carte .mot { margin-top: 0.5rem; font-weight: 500; color: var(--bleu); font-size: 0.95rem; line-height: 1.2; }
+.carte.choisie { border-color: var(--vert); }
+.carte .num { position: absolute; top: -10px; left: -10px; width: 32px; height: 32px; border-radius: 50%; background: var(--vert); color: #fff; font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(26,122,74,0.4); }
+
+.barre-bas { position: fixed; bottom: 0; left: 0; right: 0; background: var(--blanc); border-top: 1px solid rgba(26,58,92,0.1); padding: 0.9rem 5vw; display: flex; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: 0 -2px 16px rgba(26,58,92,0.06); }
+.barre-bas .compte { font-size: 0.95rem; color: var(--gris); }
+.btn { padding: 0.9rem 2rem; border-radius: 12px; border: none; background: var(--bleu); color: #fff; font-family: inherit; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+.btn:hover { background: var(--bleu-clair); }
+.btn:disabled { background: rgba(26,58,92,0.3); cursor: not-allowed; }
+.btn-ghost { background: var(--blanc); color: var(--bleu); border: 1.5px solid rgba(26,58,92,0.2); font-weight: 500; }
+
+/* écran d'écoute */
+.ecoute-rangee { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 2rem; }
+.ecoute-carte { width: 130px; background: var(--blanc); border-radius: 14px; padding: 0.6rem; box-shadow: 0 2px 12px rgba(26,58,92,0.08); text-align: center; border: 3px solid transparent; transition: border-color 0.2s, transform 0.2s; }
+.ecoute-carte img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 8px; background: var(--creme); }
+.ecoute-carte .mot { margin-top: 0.35rem; font-size: 0.85rem; font-weight: 500; color: var(--bleu); line-height: 1.2; }
+.ecoute-carte.actif { border-color: var(--orange); transform: scale(1.06); box-shadow: 0 6px 20px rgba(230,126,34,0.3); }
+.centre { text-align: center; }
+.row-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+.hidden { display: none !important; }
+.chargement { text-align: center; color: var(--gris); padding: 2rem; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span></a>
+  <a class="nav-back" href="index.html">‹ Retour</a>
+</nav>
+<div class="page-header">
+  <p class="eyebrow">Vocabulaire · Jeu</p>
+  <h1>Mes activités</h1>
+  <p>Choisis les activités que tu fais, puis écoute-les</p>
+</div>
+
+<div class="wrap">
+  <!-- écran choix -->
+  <div id="ecran-choix">
+    <p class="consigne">Clique sur les activités que tu fais. Reclique pour enlever.</p>
+    <div class="grille" id="grille"></div>
+    <div id="chargement" class="chargement">Chargement…</div>
+  </div>
+
+  <!-- écran écoute -->
+  <div id="ecran-ecoute" class="hidden">
+    <div class="ecoute-rangee" id="rangee"></div>
+    <div class="centre">
+      <button class="btn" id="btn-ecouter" onclick="ecouter()">▶ Écouter mes activités</button>
+      <button class="btn btn-ghost" id="btn-arreter" onclick="arreter()" style="display:none">■ Arrêter</button>
+      <div class="row-btns">
+        <button class="btn btn-ghost" onclick="retourChoix()">✎ Modifier mon choix</button>
+        <button class="btn btn-ghost" onclick="nouveauChoix()">↺ Nouveau choix</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- barre du bas (écran choix) -->
+<div class="barre-bas" id="barre-bas">
+  <span class="compte" id="compte">0 activité choisie</span>
+  <button class="btn" id="btn-mes-activites" onclick="allerEcoute()" disabled>Mes activités !</button>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = 'activites-habituelles';
+
+let cartes = [];       // toutes les activités
+let choix = [];        // ids choisis, dans l'ordre de clic
+let player = null;
+let lecture = null;
+
+function motHtml(m) { return (m || '').split('/').map(s => s.trim()).join('<br/>'); }
+
+async function charger() {
+  const snap = await getDocs(collection(db, COL));
+  cartes = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  document.getElementById('chargement').style.display = 'none';
+  if (!cartes.length) {
+    document.getElementById('grille').innerHTML = '<div class="chargement">Aucune activité pour le moment.</div>';
+    return;
+  }
+  renderGrille();
+}
+
+function renderGrille() {
+  const g = document.getElementById('grille');
+  g.innerHTML = '';
+  cartes.forEach(c => {
+    const pos = choix.indexOf(c.id);
+    const div = document.createElement('div');
+    div.className = 'carte' + (pos >= 0 ? ' choisie' : '');
+    div.onclick = () => toggle(c.id);
+    div.innerHTML = `${pos >= 0 ? `<div class="num">${pos + 1}</div>` : ''}${c.image ? `<img src="${c.image}"/>` : ''}<div class="mot">${motHtml(c.mot)}</div>`;
+    g.appendChild(div);
+  });
+  majBarre();
+}
+
+function toggle(id) {
+  const i = choix.indexOf(id);
+  if (i >= 0) choix.splice(i, 1); else choix.push(id);
+  renderGrille();
+}
+
+function majBarre() {
+  const n = choix.length;
+  document.getElementById('compte').textContent = n + ' activité' + (n>1?'s':'') + ' choisie' + (n>1?'s':'');
+  document.getElementById('btn-mes-activites').disabled = n === 0;
+}
+
+window.allerEcoute = function() {
+  if (!choix.length) return;
+  document.getElementById('ecran-choix').classList.add('hidden');
+  document.getElementById('barre-bas').classList.add('hidden');
+  document.getElementById('ecran-ecoute').classList.remove('hidden');
+  renderRangee();
+};
+
+function renderRangee() {
+  const r = document.getElementById('rangee');
+  r.innerHTML = '';
+  choix.forEach(id => {
+    const c = cartes.find(x => x.id === id);
+    if (!c) return;
+    const div = document.createElement('div');
+    div.className = 'ecoute-carte';
+    div.dataset.id = id;
+    div.innerHTML = `${c.image ? `<img src="${c.image}"/>` : ''}<div class="mot">${motHtml(c.mot)}</div>`;
+    r.appendChild(div);
+  });
+}
+
+window.ecouter = function() {
+  if (lecture) { clearTimeout(lecture); lecture = null; }
+  const ids = choix.slice();
+  const btn = document.getElementById('btn-ecouter');
+  btn.disabled = true;
+  document.getElementById('btn-arreter').style.display = 'inline-block';
+  if (!player) { player = new Audio(); player.setAttribute('playsinline', ''); }
+  let i = 0;
+  function suivant() {
+    document.querySelectorAll('.ecoute-carte.actif').forEach(n => n.classList.remove('actif'));
+    if (i >= ids.length) { terminer(); return; }
+    const id = ids[i];
+    const c = cartes.find(x => x.id === id);
+    const el = document.querySelector('.ecoute-carte[data-id="' + id + '"]');
+    if (el) { el.classList.add('actif'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+    i++;
+    if (c && c.audio) {
+      player.onended = () => { lecture = setTimeout(suivant, 3000); };
+      player.onerror = () => { lecture = setTimeout(suivant, 3000); };
+      player.src = c.audio;
+      const p = player.play();
+      if (p && p.catch) p.catch(() => { lecture = setTimeout(suivant, 3000); });
+    } else {
+      lecture = setTimeout(suivant, 3000);
+    }
+  }
+  suivant();
+};
+
+function terminer() {
+  if (lecture) { clearTimeout(lecture); lecture = null; }
+  document.querySelectorAll('.ecoute-carte.actif').forEach(n => n.classList.remove('actif'));
+  document.getElementById('btn-ecouter').disabled = false;
+  document.getElementById('btn-arreter').style.display = 'none';
+}
+
+window.arreter = function() {
+  if (player) { try { player.pause(); player.onended = null; } catch(e) {} }
+  terminer();
+};
+
+window.retourChoix = function() {
+  arreter();
+  document.getElementById('ecran-ecoute').classList.add('hidden');
+  document.getElementById('ecran-choix').classList.remove('hidden');
+  document.getElementById('barre-bas').classList.remove('hidden');
+  renderGrille();
+};
+
+window.nouveauChoix = function() {
+  arreter();
+  choix = [];
+  document.getElementById('ecran-ecoute').classList.add('hidden');
+  document.getElementById('ecran-choix').classList.remove('hidden');
+  document.getElementById('barre-bas').classList.remove('hidden');
+  renderGrille();
+};
+
+charger();
+</script>
+</body>
+</html>
