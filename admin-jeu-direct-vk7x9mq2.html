@@ -34,6 +34,8 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
 .rep-btn .ico { font-size: 1.5rem; display: block; margin-bottom: 4px; }
 .rep-btn[data-v="interdit"].sel, .rep-btn[data-v="faux"].sel { border-color: var(--rouge); background: #fdeeec; color: var(--rouge); }
 .rep-btn[data-v="permis"].sel, .rep-btn[data-v="vrai"].sel { border-color: var(--vert); background: #eef7f1; color: var(--vert); }
+.rep-btn[data-v="ponctuelle"].sel { border-color: var(--bleu-clair); background: #e8eef6; color: var(--bleu-clair); }
+.rep-btn[data-v="habituelle"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
 .rep-btn[data-v="obligatoire"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
 .liste-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid rgba(26,58,92,0.1); border-radius: 10px; margin-bottom: 8px; background: var(--blanc); }
 .liste-item img { width: 54px; height: 54px; border-radius: 8px; object-fit: cover; background: var(--creme); }
@@ -48,6 +50,8 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
 .pill { display:inline-block; padding:2px 8px; border-radius:20px; font-size:0.72rem; font-weight:600; }
 .pill.interdit, .pill.faux { background:#fdeeec; color:var(--rouge); }
 .pill.permis, .pill.vrai { background:#eef7f1; color:var(--vert); }
+.pill.ponctuelle { background:#e8eef6; color:var(--bleu-clair); }
+.pill.habituelle { background:#fdf2e6; color:var(--orange); }
 .pill.obligatoire { background:#fdf2e6; color:var(--orange); }
 .quiz-item { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid rgba(26,58,92,0.1); border-radius: 12px; margin-bottom: 10px; background: var(--blanc); cursor: pointer; transition: border-color 0.15s; }
 .quiz-item:hover { border-color: var(--bleu-clair); }
@@ -78,6 +82,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
       <select id="quiz-type">
         <option value="ipo">❌ Interdit / ✅ Permis / ❗ Obligatoire</option>
         <option value="vf">✅ Vrai / ❌ Faux</option>
+        <option value="ph">1️⃣ Ponctuelle / 🔁 Habituelle</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="creerQuiz()">Créer le quiz</button>
@@ -151,6 +156,10 @@ const TYPES = {
   vf: { nom: 'Vrai / Faux', reps: [
     { v: 'vrai', ico: '✅', lib: 'Vrai' },
     { v: 'faux', ico: '❌', lib: 'Faux' }
+  ]},
+  ph: { nom: 'Ponctuelle / Habituelle', reps: [
+    { v: 'ponctuelle', ico: '1️⃣', lib: 'Ponctuelle' },
+    { v: 'habituelle', ico: '🔁', lib: 'Habituelle' }
   ]}
 };
 function libRep(type, v) {
@@ -316,7 +325,7 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  if (!texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
+  if (quizCourant.type !== 'ph' && !texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
   if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
@@ -358,7 +367,7 @@ function render() {
     div.innerHTML = `
       <span class="pos">${i + 1}</span>
       ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
-      <div class="txt"><div class="q">${it.texte || ''} ${it.audio ? '🔊' : ''}</div><div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div></div>
+      <div class="txt"><div class="q">${it.texte || (it.image || it.audio ? '' : '<span style=\'color:var(--gris);font-style:italic\'>Question orale ' + (i+1) + '</span>')} ${it.audio ? '🔊' : ''}</div><div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div></div>
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
       <button class="mini" onclick="modifierQ('${it.id}')">✎</button>

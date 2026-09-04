@@ -55,6 +55,8 @@ h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem
 .res-col.interdit, .res-col.faux { color: var(--rouge); }
 .res-col.permis, .res-col.vrai { color: var(--vert); }
 .res-col.obligatoire { color: var(--orange); }
+.res-col.ponctuelle { color: var(--bleu-clair); }
+.res-col.habituelle { color: var(--orange); }
 .res-col.bonne { border-color: currentColor; box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
 .res-col.bonne::after { content: ' ✓ bonne réponse'; }
 .bonne-label { font-size: 1.1rem; color: var(--vert); font-weight: 600; margin-bottom: 1.5rem; }
@@ -101,7 +103,8 @@ const COL_JOUEURS = 'jeu-direct-joueurs';
 
 const TYPES = {
   ipo: [ {v:'interdit',ico:'❌',lib:'Interdit'}, {v:'permis',ico:'✅',lib:'Permis'}, {v:'obligatoire',ico:'❗',lib:'Obligatoire'} ],
-  vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ]
+  vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ],
+  ph:  [ {v:'ponctuelle',ico:'1️⃣',lib:'Ponctuelle'}, {v:'habituelle',ico:'🔁',lib:'Habituelle'} ]
 };
 
 let quizzes = [];
@@ -231,7 +234,7 @@ function ecranQuestion() {
       <div class="q-num">Question ${etat.questionIndex + 1} / ${questions.length}</div>
       ${q.image ? `<img class="q-img" src="${q.image}"/>` : ''}
       ${q.audio ? `<div><button class="btn btn-ghost" onclick="jouerAudioQ()">🔊 Écouter</button></div>` : ''}
-      <div class="q-texte">${q.texte || ''}</div>
+      <div class="q-texte">${q.texte || (!q.image && !q.audio ? '👂 Écoutez la phrase' : '')}</div>
       <div class="votes-compteur">${nbVotes} / ${total} ont répondu</div>
       <button class="btn btn-lg" onclick="voirResultats()">${tousVote ? 'Voir les résultats' : 'Afficher les résultats maintenant'}</button>
     </div>`;

@@ -40,6 +40,8 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.interdit, .rep.faux { background: var(--rouge); }
 .rep.permis, .rep.vrai { background: var(--vert); }
 .rep.obligatoire { background: var(--orange); }
+.rep.ponctuelle { background: var(--bleu-clair); }
+.rep.habituelle { background: var(--orange); }
 
 .big-ico { font-size: 4rem; margin-bottom: 1rem; }
 .attente-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gris); margin:0 3px; animation: blink 1.4s infinite both; }
@@ -79,7 +81,8 @@ const COL_Q = 'jeu-direct-questions';
 
 const TYPES = {
   ipo: [ {v:'interdit',ico:'❌',lib:'Interdit'}, {v:'permis',ico:'✅',lib:'Permis'}, {v:'obligatoire',ico:'❗',lib:'Obligatoire'} ],
-  vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ]
+  vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ],
+  ph:  [ {v:'ponctuelle',ico:'1️⃣',lib:'Ponctuelle'}, {v:'habituelle',ico:'🔁',lib:'Habituelle'} ]
 };
 
 let etat = null;          // état courant de la partie
@@ -179,7 +182,9 @@ async function montrerQuestion() {
   let boutons = reps.map(r => `<button class="rep ${r.v}" onclick="voter('${r.v}')"><span class="ico">${r.ico}</span>${r.lib}</button>`).join('');
   const imgHtml = q.image ? `<img class="q-img" src="${q.image}"/>` : '';
   const audioHtml = q.audio ? `<button class="audio-play" onclick="jouerAudioQ()">🔊 Écouter</button>` : '';
-  zone.innerHTML = `${imgHtml}${audioHtml}<div class="q-texte">${q.texte || ''}</div><div class="reps">${boutons}</div>`;
+  const vide = !q.image && !q.audio && !q.texte;
+  const texteHtml = vide ? `<div class="q-texte" style="color:var(--gris)">👂 Écoute la phrase…</div>` : `<div class="q-texte">${q.texte || ''}</div>`;
+  zone.innerHTML = `${imgHtml}${audioHtml}${texteHtml}<div class="reps">${boutons}</div>`;
 }
 
 let audioQ = null;
