@@ -42,6 +42,8 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.obligatoire { background: var(--orange); }
 .rep.ponctuelle { background: var(--bleu-clair); }
 .rep.habituelle { background: var(--orange); }
+.rep.present { background: var(--bleu-clair); }
+.rep.futur { background: var(--orange); }
 
 .big-ico { font-size: 4rem; margin-bottom: 1rem; }
 .attente-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gris); margin:0 3px; animation: blink 1.4s infinite both; }
@@ -82,7 +84,8 @@ const COL_Q = 'jeu-direct-questions';
 const TYPES = {
   ipo: [ {v:'interdit',ico:'❌',lib:'Interdit'}, {v:'permis',ico:'✅',lib:'Permis'}, {v:'obligatoire',ico:'❗',lib:'Obligatoire'} ],
   vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ],
-  ph:  [ {v:'ponctuelle',ico:'1️⃣',lib:'Ponctuelle'}, {v:'habituelle',ico:'🔁',lib:'Habituelle'} ]
+  ph:  [ {v:'ponctuelle',ico:'1️⃣',lib:'Ponctuelle'}, {v:'habituelle',ico:'🔁',lib:'Habituelle'} ],
+  pf:  [ {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ]
 };
 
 let etat = null;          // état courant de la partie
