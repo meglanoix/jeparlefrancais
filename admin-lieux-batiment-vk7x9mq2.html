@@ -97,6 +97,10 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
       <span class="msg" id="edit-audio-status"></span>
       <span class="msg" id="edit-rec-timer" style="display:none;color:var(--rouge)">0:00</span>
     </div>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:1rem">
+      <input type="checkbox" id="edit-directions" style="width:18px;height:18px"/>
+      Utiliser ce lieu dans « Demander des directions »
+    </label>
     <div class="row" style="margin-top:1.5rem;justify-content:flex-end">
       <button class="btn" onclick="fermerModal()">Annuler</button>
       <button class="btn btn-primary" onclick="enregistrerModif()">Enregistrer</button>
@@ -281,6 +285,7 @@ window.modifier = function(id) {
   const it = items.find(x => x.id === id); if (!it) return;
   editId = id; editImage = null; editAudio = null;
   document.getElementById('edit-nom').value = it.nom || '';
+  document.getElementById('edit-directions').checked = (it.directions !== false);
   const z = document.getElementById('edit-img-zone');
   z.innerHTML = 'Cliquer pour remplacer l\'image<input type="file" id="edit-img-input" accept="image/*" style="display:none" onchange="handleEditImage(event)"/>';
   z.classList.remove('has-file');
@@ -347,7 +352,7 @@ window.enregistrerModif = async function() {
   if (!nom) { msg.textContent = 'Entrez un nom.'; msg.className = 'msg err'; return; }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
-    const maj = { nom };
+    const maj = { nom, directions: document.getElementById('edit-directions').checked };
     if (editImage) maj.image = editImage;
     if (editAudio) maj.audio = await blobToDataUrl(editAudio);
     await updateDoc(doc(db, COL, editId), maj);
