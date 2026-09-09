@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Diagnostic lieux</title>
+<style>body{font-family:monospace;padding:2rem;background:#f9f5ef;color:#2c2c2c;line-height:1.5}h1{font-family:sans-serif}.doc{background:#fff;border:1px solid #ccc;border-radius:8px;padding:1rem;margin-bottom:1rem}.k{color:#c0392b}</style>
+</head>
+<body>
+<h1>Diagnostic — collection lieux-batiment</h1>
+<p>Cette page affiche les champs réels de chaque lieu. (À supprimer ensuite.)</p>
+<div id="out">Chargement…</div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const snap = await getDocs(collection(db, 'lieux-batiment'));
+const out = document.getElementById('out');
+if (snap.empty) { out.textContent = 'Aucun document dans lieux-batiment.'; }
+else {
+  out.innerHTML = '';
+  snap.docs.forEach(d => {
+    const data = d.data();
+    // liste des clés + un aperçu (sans afficher les longues données base64)
+    const champs = Object.keys(data).map(k => {
+      let v = data[k];
+      if (typeof v === 'string' && v.length > 60) v = '[' + v.length + ' caractères]';
+      return `<div><span class="k">${k}</span> : ${JSON.stringify(v)}</div>`;
+    }).join('');
+    const div = document.createElement('div');
+    div.className = 'doc';
+    div.innerHTML = `<b>Document ${d.id}</b>${champs}`;
+    out.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
