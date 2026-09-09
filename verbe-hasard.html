@@ -54,7 +54,8 @@ const VERBES = [
   { cle: 'activites-habituelles', nom: 'Les activités' },
   { cle: 'verbe-faire', nom: 'Faire' },
   { cle: 'verbe-aller', nom: 'Aller' },
-  { cle: 'verbe-prendre', nom: 'Prendre' }
+  { cle: 'verbe-prendre', nom: 'Prendre' },
+  { cle: 'lieux-batiment', nom: 'Les lieux du bâtiment' }
 ];
 
 const zone = document.getElementById('zone');
@@ -92,9 +93,21 @@ function montrer() {
   zone.innerHTML = `
     <div class="compteur">${verbeNom} — ${idx + 1} / ${cartes.length}</div>
     <img class="img-hasard" src="${c.image}"/>
+    ${c.audio ? `<div><button class="btn btn-ghost" style="margin-top:0" onclick="jouerAudio()">🔊 Écouter</button></div>` : ''}
     <button class="btn" onclick="suivant()">Suivant →</button>
     <button class="btn btn-ghost" onclick="ecranChoix()">← Changer de thème</button>`;
+  // joue l'audio automatiquement si présent
+  if (c.audio) jouerAudio();
 }
+
+let player = null;
+window.jouerAudio = function() {
+  const c = cartes[ordre[idx]];
+  if (!c || !c.audio) return;
+  if (!player) { player = new Audio(); player.setAttribute('playsinline', ''); }
+  player.src = c.audio;
+  player.play().catch(()=>{});
+};
 
 window.suivant = function() {
   idx++;
