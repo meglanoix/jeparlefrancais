@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Demander des directions dans la MIRS | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); display: flex; flex-direction: column; }
+.bar { background: var(--bleu); color: #fff; padding: 0.9rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+.bar .logo { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+.bar .logo span { color: #ff9d8a; }
+.bar a.retour { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; }
+.zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; text-align: center; }
+.titre { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.4rem; margin-bottom: 0.75rem; }
+.compteur { font-size: 0.9rem; color: var(--gris); margin-bottom: 1rem; }
+.img-hasard { max-width: 100%; max-height: 48vh; border-radius: 20px; box-shadow: 0 8px 32px rgba(26,58,92,0.18); margin-bottom: 1rem; background: var(--blanc); }
+.nom-lieu { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--bleu); margin-bottom: 1.25rem; }
+.btn { padding: 1.1rem 2.6rem; border-radius: 14px; border: none; font-family: inherit; font-size: 1.3rem; font-weight: 700; cursor: pointer; background: var(--bleu); color: #fff; }
+.btn:hover { background: var(--bleu-clair); }
+.btn:active { transform: scale(0.98); }
+.btn-ghost { background: var(--blanc); color: var(--bleu); border: 1.5px solid rgba(26,58,92,0.2); font-size: 1.05rem; font-weight: 500; padding: 0.75rem 1.75rem; margin-top: 0; }
+.chargement { color: var(--gris); }
+.row-audio { margin-bottom: 1.25rem; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="logo">JeParle<span>Français</span></div>
+  <a class="retour" href="index.html">Retour à l'accueil ›</a>
+</div>
+<div class="zone" id="zone"><div class="chargement">Chargement…</div></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = 'lieux-batiment';
+
+const zone = document.getElementById('zone');
+let cartes = [], ordre = [], idx = 0, player = null;
+
+function melanger(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+async function charger() {
+  const snap = await getDocs(collection(db, COL));
+  cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .filter(c => c.image && c.directions !== false);   // seulement les lieux cochés
+  if (!cartes.length) {
+    zone.innerHTML = '<div class="chargement">Aucun lieu sélectionné pour cette activité.<br>Coche des lieux dans l\'administration.</div>';
+    return;
+  }
+  ordre = melanger(cartes.map((_, i) => i));
+  idx = 0;
+  montrer();
+}
+
+function montrer() {
+  const c = cartes[ordre[idx]];
+  zone.innerHTML = `
+    <div class="titre">Demander des directions dans la MIRS</div>
+    <div class="compteur">${idx + 1} / ${cartes.length}</div>
+    <img class="img-hasard" src="${c.image}"/>
+    <div class="nom-lieu">${c.nom || c.mot || ''}</div>
+    ${c.audio ? `<div class="row-audio"><button class="btn btn-ghost" onclick="jouerAudio()">🔊 Écouter</button></div>` : ''}
+    <div><button class="btn" onclick="suivant()">Suivant →</button></div>`;
+  if (c.audio) jouerAudio();
+}
+
+window.jouerAudio = function() {
+  const c = cartes[ordre[idx]];
+  if (!c || !c.audio) return;
+  if (!player) { player = new Audio(); player.setAttribute('playsinline', ''); }
+  player.src = c.audio;
+  player.play().catch(()=>{});
+};
+
+window.suivant = function() {
+  idx++;
+  if (idx >= ordre.length) { ordre = melanger(cartes.map((_, i) => i)); idx = 0; }
+  montrer();
+};
+
+charger();
+</script>
+</body>
+</html>

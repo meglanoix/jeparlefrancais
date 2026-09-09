@@ -57,14 +57,18 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
       Cliquer pour choisir une image
       <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
     </div>
-    <label>Audio (le nom de l'lieu à entendre)</label>
+    <label>Audio (le nom du lieu à entendre)</label>
     <div class="row">
       <button class="btn btn-rec" id="rec-btn" onclick="toggleRecord()">▶ Enregistrer</button>
       <span class="msg" id="audio-status"></span>
       <span class="msg" id="rec-timer" style="display:none;color:var(--rouge)">0:00</span>
     </div>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:1rem">
+      <input type="checkbox" id="directions" checked style="width:18px;height:18px"/>
+      Utiliser ce lieu dans « Demander des directions »
+    </label>
     <div class="row" style="margin-top:1.25rem">
-      <button class="btn btn-primary" onclick="saveObj()">Ajouter l'lieu</button>
+      <button class="btn btn-primary" onclick="saveObj()">Ajouter le lieu</button>
       <span class="msg" id="save-msg"></span>
     </div>
   </div>
@@ -190,11 +194,13 @@ window.saveObj = async function() {
     const audioUrl = await blobToDataUrl(pendingAudio);
     await addDoc(collection(db, COL), {
       nom, image: pendingImage, audio: audioUrl,
+      directions: document.getElementById('directions').checked,
       ordre: items.length, date: new Date().toLocaleDateString('fr-CA')
     });
     await loadCards();
     msg.textContent = '✓ Lieu ajouté !'; msg.className = 'msg ok';
     document.getElementById('nom').value = '';
+    document.getElementById('directions').checked = true;
     const z = document.getElementById('img-zone');
     z.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
     z.classList.remove('has-file');
@@ -224,6 +230,7 @@ function render() {
       <span class="pos">${i + 1}</span>
       ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
       <span class="nom">${it.nom || ''}</span>
+      <button class="mini" onclick="toggleDirections('${it.id}')" title="Utiliser dans Demander des directions" style="${(it.directions !== false) ? 'border-color:var(--vert);color:var(--vert)' : 'color:var(--gris)'}">${(it.directions !== false) ? '🧭 oui' : '🧭 non'}</button>
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
       <button class="mini" onclick="ecouter('${it.id}')">▶</button>
@@ -255,8 +262,15 @@ window.descendre = async function(id) {
   [items[i+1], items[i]] = [items[i], items[i+1]]; render(); await ecrireOrdre();
 };
 window.supprimer = async function(id) {
-  if (!confirm('Supprimer cet lieu ?')) return;
+  if (!confirm('Supprimer ce lieu ?')) return;
   await deleteDoc(doc(db, COL, id)); await loadCards(); await ecrireOrdre();
+};
+
+window.toggleDirections = async function(id) {
+  const it = items.find(x => x.id === id); if (!it) return;
+  const nouvelle = !(it.directions !== false);  // bascule
+  await updateDoc(doc(db, COL, id), { directions: nouvelle });
+  await loadCards();
 };
 
 // --- Modification ---
