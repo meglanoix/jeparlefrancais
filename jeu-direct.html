@@ -46,6 +46,8 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.futur { background: var(--orange); }
 .rep.reponse1 { background: var(--bleu-clair); }
 .rep.reponse2 { background: var(--orange); }
+.rep.demander { background: var(--bleu-clair); }
+.rep.donner { background: var(--orange); }
 
 .big-ico { font-size: 4rem; margin-bottom: 1rem; }
 .attente-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gris); margin:0 3px; animation: blink 1.4s infinite both; }
@@ -88,7 +90,8 @@ const TYPES = {
   vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ],
   ph:  [ {v:'ponctuelle',ico:'1️⃣',lib:'Ponctuelle'}, {v:'habituelle',ico:'🔁',lib:'Habituelle'} ],
   pf:  [ {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ],
-  r12: [ {v:'reponse1',ico:'1️⃣',lib:'Réponse 1'}, {v:'reponse2',ico:'2️⃣',lib:'Réponse 2'} ]
+  r12: [ {v:'reponse1',ico:'1️⃣',lib:'Réponse 1'}, {v:'reponse2',ico:'2️⃣',lib:'Réponse 2'} ],
+  dd:  [ {v:'demander',ico:'❓',lib:'Demander'}, {v:'donner',ico:'❗',lib:'Donner'} ]
 };
 
 let etat = null;          // état courant de la partie

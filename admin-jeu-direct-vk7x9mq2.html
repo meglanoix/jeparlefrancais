@@ -40,6 +40,8 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
 .rep-btn[data-v="futur"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
 .rep-btn[data-v="reponse1"].sel { border-color: var(--bleu-clair); background: #e8eef6; color: var(--bleu-clair); }
 .rep-btn[data-v="reponse2"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
+.rep-btn[data-v="demander"].sel { border-color: var(--bleu-clair); background: #e8eef6; color: var(--bleu-clair); }
+.rep-btn[data-v="donner"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
 .rep-btn[data-v="obligatoire"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
 .liste-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid rgba(26,58,92,0.1); border-radius: 10px; margin-bottom: 8px; background: var(--blanc); }
 .liste-item img { width: 54px; height: 54px; border-radius: 8px; object-fit: cover; background: var(--creme); }
@@ -60,6 +62,8 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
 .pill.futur { background:#fdf2e6; color:var(--orange); }
 .pill.reponse1 { background:#e8eef6; color:var(--bleu-clair); }
 .pill.reponse2 { background:#fdf2e6; color:var(--orange); }
+.pill.demander { background:#e8eef6; color:var(--bleu-clair); }
+.pill.donner { background:#fdf2e6; color:var(--orange); }
 .pill.obligatoire { background:#fdf2e6; color:var(--orange); }
 .quiz-item { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid rgba(26,58,92,0.1); border-radius: 12px; margin-bottom: 10px; background: var(--blanc); cursor: pointer; transition: border-color 0.15s; }
 .quiz-item:hover { border-color: var(--bleu-clair); }
@@ -93,6 +97,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="ph">1️⃣ Ponctuelle / 🔁 Habituelle</option>
         <option value="pf">⏱️ Présent / ⏩ Futur</option>
         <option value="r12">1️⃣ Réponse 1 / 2️⃣ Réponse 2</option>
+        <option value="dd">❓ Demander / ❗ Donner (directions)</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="creerQuiz()">Créer le quiz</button>
@@ -178,6 +183,10 @@ const TYPES = {
   r12: { nom: 'Réponse 1 / Réponse 2', reps: [
     { v: 'reponse1', ico: '1️⃣', lib: 'Réponse 1' },
     { v: 'reponse2', ico: '2️⃣', lib: 'Réponse 2' }
+  ]},
+  dd: { nom: 'Demander / Donner (directions)', reps: [
+    { v: 'demander', ico: '❓', lib: 'Demander' },
+    { v: 'donner', ico: '❗', lib: 'Donner' }
   ]}
 };
 function libRep(type, v) {
@@ -343,7 +352,7 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  const typesSansContenu = ['ph', 'pf', 'vf', 'r12'];
+  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd'];
   if (!typesSansContenu.includes(quizCourant.type) && !texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
   if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';

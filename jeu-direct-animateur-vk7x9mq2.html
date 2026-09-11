@@ -61,6 +61,8 @@ h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem
 .res-col.futur { color: var(--orange); }
 .res-col.reponse1 { color: var(--bleu-clair); }
 .res-col.reponse2 { color: var(--orange); }
+.res-col.demander { color: var(--bleu-clair); }
+.res-col.donner { color: var(--orange); }
 .res-col.bonne { border-color: currentColor; box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
 .res-col.bonne::after { content: ' ✓ bonne réponse'; }
 .bonne-label { font-size: 1.1rem; color: var(--vert); font-weight: 600; margin-bottom: 1.5rem; }
@@ -110,7 +112,8 @@ const TYPES = {
   vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ],
   ph:  [ {v:'ponctuelle',ico:'1️⃣',lib:'Ponctuelle'}, {v:'habituelle',ico:'🔁',lib:'Habituelle'} ],
   pf:  [ {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ],
-  r12: [ {v:'reponse1',ico:'1️⃣',lib:'Réponse 1'}, {v:'reponse2',ico:'2️⃣',lib:'Réponse 2'} ]
+  r12: [ {v:'reponse1',ico:'1️⃣',lib:'Réponse 1'}, {v:'reponse2',ico:'2️⃣',lib:'Réponse 2'} ],
+  dd:  [ {v:'demander',ico:'❓',lib:'Demander'}, {v:'donner',ico:'❗',lib:'Donner'} ]
 };
 
 let quizzes = [];
