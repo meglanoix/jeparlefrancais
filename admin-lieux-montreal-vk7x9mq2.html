@@ -10,10 +10,18 @@
   --m-vert: #00a94f; --m-orange: #f7941e; --m-jaune: #f5d000; --m-bleu: #0072bc; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
-.top { background: var(--bleu); color: #fff; padding: 1.5rem 5vw; }
-.top .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.65; }
-.top h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-top: 0.2rem; }
-.top a.view { color: rgba(255,255,255,0.7); font-size: 0.85rem; text-decoration: none; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(26,58,92,0.97); backdrop-filter: blur(8px); border-bottom: 2px solid var(--rouge); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #fff; text-decoration: none; }
+.nav-logo span { color: #e88; }
+.nav-badge { background: var(--rouge); color: #fff; font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; }
+.nav-right { display: flex; align-items: center; gap: 1rem; }
+.nav-view-link { color: rgba(255,255,255,0.6); font-size: 0.85rem; text-decoration: none; }
+.nav-view-link:hover { color: #fff; }
+.page-header { background: var(--bleu); padding: 100px 5vw 50px; position: relative; overflow: hidden; border-bottom: 3px solid var(--rouge); }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: #e88; margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 3rem); color: #fff; line-height: 1.1; }
 .wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 5vw 5rem; }
 .card { background: var(--blanc); border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 16px rgba(26,58,92,0.08); margin-bottom: 1.5rem; }
 .card h2 { font-size: 1.1rem; color: var(--bleu); margin-bottom: 1rem; }
@@ -49,10 +57,18 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
 </head>
 <body>
 <script type="module" src="admin-auth.js"></script>
-<div class="top">
-  <p class="eyebrow">Panneau d'administration</p>
-  <h1>Les lieux d'intérêt à Montréal</h1>
-  <a class="view" href="lieux-montreal.html" target="_blank">Voir la page ↗</a>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <div class="nav-right">
+    <a class="nav-view-link" href="lieux-montreal.html" target="_blank">Voir la page publique ↗</a>
+    <span class="nav-badge">⚙ Admin</span>
+  </div>
+</nav>
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">⚙ Panneau d'administration</p>
+    <h1>Les lieux d'intérêt à Montréal</h1>
+  </div>
 </div>
 
 <div class="wrap">
