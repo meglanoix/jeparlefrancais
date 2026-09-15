@@ -22,6 +22,12 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.6r
 .choix .vc:hover { border-color: var(--bleu-clair); }
 .compteur { font-size: 0.9rem; color: var(--gris); margin-bottom: 1rem; }
 .img-hasard { max-width: 100%; max-height: 54vh; border-radius: 20px; box-shadow: 0 8px 32px rgba(26,58,92,0.18); margin-bottom: 1.75rem; background: var(--blanc); }
+.nom-lieu { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--bleu); margin-bottom: 0.4rem; }
+.metro { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 1rem; color: var(--gris); margin-bottom: 0.5rem; }
+.metro .pastille { width: 16px; height: 16px; border-radius: 50%; display: inline-block; }
+.pastille.verte { background: #00a94f; } .pastille.orange { background: #f7941e; }
+.pastille.jaune { background: #f5d000; } .pastille.bleue { background: #0072bc; }
+
 .btn { padding: 1.1rem 2.6rem; border-radius: 14px; border: none; font-family: inherit; font-size: 1.3rem; font-weight: 700; cursor: pointer; background: var(--bleu); color: #fff; }
 .btn:hover { background: var(--bleu-clair); }
 .btn:active { transform: scale(0.98); }
@@ -115,13 +121,17 @@ function uneParStation(liste) {
 
 function montrer() {
   const c = cartes[ordre[idx]];
+  const pastilles = (c.lignes || []).map(l => `<span class="pastille ${l}"></span>`).join('');
+  const infoLieu = (c.nom || c.station)
+    ? `<div class="nom-lieu">${c.nom || ''}</div>${(c.station || (c.lignes && c.lignes.length)) ? `<div class="metro">${pastilles} <span>${c.station || ''}</span></div>` : ''}`
+    : '';
   zone.innerHTML = `
     <div class="compteur">${verbeNom} — ${idx + 1} / ${cartes.length}</div>
     <img class="img-hasard" src="${c.image}"/>
-    ${c.audio ? `<div><button class="btn btn-ghost" style="margin-top:0" onclick="jouerAudio()">🔊 Écouter</button></div>` : ''}
+    ${infoLieu}
+    ${c.audio ? `<div><button class="btn btn-ghost" style="margin-top:0.75rem" onclick="jouerAudio()">🔊 Écouter</button></div>` : ''}
     <button class="btn" onclick="suivant()">Suivant →</button>
     <button class="btn btn-ghost" onclick="ecranChoix()">← Changer de thème</button>`;
-  // joue l'audio automatiquement si présent
   if (c.audio) jouerAudio();
 }
 
