@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Décrire son trajet | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+nav { display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); position: sticky; top: 0; z-index: 50; }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { text-decoration: none; color: var(--gris); font-size: 0.9rem; }
+.page-header { background: linear-gradient(135deg, var(--bleu), var(--bleu-clair)); color: #fff; padding: 2rem 5vw 2.25rem; }
+.page-header .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-top: 0.25rem; }
+.page-header p { opacity: 0.85; margin-top: 0.35rem; font-size: 0.95rem; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 1.5rem 5vw 4rem; }
+.consigne { color: var(--gris); font-size: 1rem; margin-bottom: 1rem; text-align: center; }
+h3 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.15rem; margin: 1.25rem 0 0.75rem; }
+
+/* banque */
+.banque { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.action { background: var(--blanc); border-radius: 14px; padding: 0.6rem; box-shadow: 0 2px 10px rgba(26,58,92,0.08); cursor: pointer; border: 2px solid transparent; text-align: center; transition: transform 0.1s, border-color 0.2s; }
+.action:active { transform: scale(0.96); }
+.action:hover { border-color: var(--bleu-clair); }
+.action img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 8px; background: var(--creme); }
+.action .nom { margin-top: 0.35rem; font-size: 0.82rem; font-weight: 500; color: var(--bleu); line-height: 1.15; }
+
+/* mon trajet */
+.trajet-zone { background: #eef3f8; border-radius: 16px; padding: 1rem; min-height: 120px; margin-top: 0.5rem; }
+.trajet-rangee { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.etape { width: 108px; background: var(--blanc); border-radius: 12px; padding: 0.5rem; box-shadow: 0 2px 8px rgba(26,58,92,0.1); text-align: center; position: relative; border: 2px solid transparent; }
+.etape img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 6px; background: var(--creme); }
+.etape .nom { margin-top: 0.3rem; font-size: 0.72rem; font-weight: 500; color: var(--bleu); line-height: 1.1; }
+.etape .num { position: absolute; top: -8px; left: -8px; width: 26px; height: 26px; border-radius: 50%; background: var(--bleu); color: #fff; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.etape.fixe { border-color: var(--vert); }
+.etape.fixe .num { background: var(--vert); }
+.etape.actif { border-color: var(--orange); transform: scale(1.05); box-shadow: 0 6px 18px rgba(230,126,34,0.3); }
+.fleche { display: flex; align-items: center; color: var(--gris); font-size: 1.3rem; }
+.vide-msg { color: var(--gris); font-size: 0.9rem; padding: 1.5rem; text-align: center; }
+
+.barre-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem; justify-content: center; }
+.btn { padding: 0.85rem 1.75rem; border-radius: 12px; border: none; background: var(--bleu); color: #fff; font-family: inherit; font-size: 1.05rem; font-weight: 600; cursor: pointer; }
+.btn:hover { background: var(--bleu-clair); }
+.btn:disabled { background: rgba(26,58,92,0.3); cursor: not-allowed; }
+.btn-ghost { background: var(--blanc); color: var(--bleu); border: 1.5px solid rgba(26,58,92,0.2); font-weight: 500; }
+.btn-vert { background: var(--vert); }
+.chargement { text-align: center; color: var(--gris); padding: 2rem; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span></a>
+  <a class="nav-back" href="index.html">‹ Retour</a>
+</nav>
+<div class="page-header">
+  <p class="eyebrow">Les directions</p>
+  <h1>Décrire son trajet</h1>
+  <p>Construis ton trajet de la maison jusqu'à l'école</p>
+</div>
+
+<div class="wrap">
+  <div id="chargement" class="chargement">Chargement…</div>
+
+  <div id="jeu" class="hidden">
+    <h3>Mon trajet</h3>
+    <div class="trajet-zone">
+      <div class="trajet-rangee" id="trajet"></div>
+    </div>
+    <div class="barre-actions">
+      <button class="btn btn-ghost" onclick="enleverDernier()">⌫ Enlever la dernière</button>
+      <button class="btn btn-ghost" onclick="recommencer()">↺ Recommencer</button>
+      <button class="btn btn-vert" id="btn-ecouter" onclick="ecouter()">▶ Écouter mon trajet</button>
+      <button class="btn btn-ghost" id="btn-arreter" onclick="arreter()" style="display:none">■ Arrêter</button>
+    </div>
+
+    <h3>Choisis tes actions</h3>
+    <p class="consigne" style="text-align:left;margin-bottom:0.75rem">Clique sur une action pour l'ajouter à ton trajet. Tu peux réutiliser la même action plusieurs fois.</p>
+    <div class="banque" id="banque"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = 'decrire-trajet';
+
+let actions = [];        // toutes les actions
+let debut = null, fin = null;  // étapes fixes
+let milieu = [];         // ids choisis (peut répéter)
+let player = null, lecture = null;
+
+async function charger() {
+  const snap = await getDocs(collection(db, COL));
+  actions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  debut = actions.find(a => a.verrou === 'debut') || null;
+  fin = actions.find(a => a.verrou === 'fin') || null;
+  document.getElementById('chargement').classList.add('hidden');
+  document.getElementById('jeu').classList.remove('hidden');
+  renderBanque();
+  renderTrajet();
+}
+
+// banque = actions "normales" (ni début ni fin)
+function renderBanque() {
+  const b = document.getElementById('banque');
+  const dispo = actions.filter(a => a.verrou !== 'debut' && a.verrou !== 'fin');
+  if (!dispo.length) { b.innerHTML = '<div class="vide-msg">Aucune action pour le moment.</div>'; return; }
+  b.innerHTML = '';
+  dispo.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'action';
+    div.onclick = () => ajouter(a.id);
+    div.innerHTML = `${a.image ? `<img src="${a.image}"/>` : ''}<div class="nom">${a.nom || ''}</div>`;
+    b.appendChild(div);
+  });
+}
+
+// séquence complète = [début] + milieu + [fin]
+function sequence() {
+  const seq = [];
+  if (debut) seq.push(debut);
+  milieu.forEach(id => { const a = actions.find(x => x.id === id); if (a) seq.push(a); });
+  if (fin) seq.push(fin);
+  return seq;
+}
+
+function renderTrajet() {
+  const t = document.getElementById('trajet');
+  const seq = sequence();
+  if (!seq.length) { t.innerHTML = '<div class="vide-msg">Ton trajet est vide.</div>'; return; }
+  t.innerHTML = '';
+  seq.forEach((a, i) => {
+    const fixe = (a.verrou === 'debut' || a.verrou === 'fin');
+    const div = document.createElement('div');
+    div.className = 'etape' + (fixe ? ' fixe' : '');
+    div.dataset.pos = i;
+    div.innerHTML = `<div class="num">${i + 1}</div>${a.image ? `<img src="${a.image}"/>` : ''}<div class="nom">${a.nom || ''}</div>`;
+    t.appendChild(div);
+    if (i < seq.length - 1) {
+      const f = document.createElement('div');
+      f.className = 'fleche'; f.textContent = '→';
+      t.appendChild(f);
+    }
+  });
+}
+
+window.ajouter = function(id) {
+  milieu.push(id);
+  renderTrajet();
+};
+window.enleverDernier = function() {
+  milieu.pop();
+  renderTrajet();
+};
+window.recommencer = function() {
+  arreter();
+  milieu = [];
+  renderTrajet();
+};
+
+window.ecouter = function() {
+  if (lecture) { clearTimeout(lecture); lecture = null; }
+  const seq = sequence();
+  if (!seq.length) return;
+  const btn = document.getElementById('btn-ecouter');
+  btn.disabled = true;
+  document.getElementById('btn-arreter').style.display = 'inline-block';
+  if (!player) { player = new Audio(); player.setAttribute('playsinline', ''); }
+  let i = 0;
+  function suivant() {
+    document.querySelectorAll('.etape.actif').forEach(n => n.classList.remove('actif'));
+    if (i >= seq.length) { terminer(); return; }
+    const el = document.querySelector('.etape[data-pos="' + i + '"]');
+    if (el) { el.classList.add('actif'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+    const a = seq[i];
+    i++;
+    if (a && a.audio) {
+      player.onended = () => { lecture = setTimeout(suivant, 3000); };
+      player.onerror = () => { lecture = setTimeout(suivant, 3000); };
+      player.src = a.audio;
+      const p = player.play();
+      if (p && p.catch) p.catch(() => { lecture = setTimeout(suivant, 3000); });
+    } else {
+      lecture = setTimeout(suivant, 3000);
+    }
+  }
+  suivant();
+};
+
+function terminer() {
+  if (lecture) { clearTimeout(lecture); lecture = null; }
+  document.querySelectorAll('.etape.actif').forEach(n => n.classList.remove('actif'));
+  document.getElementById('btn-ecouter').disabled = false;
+  document.getElementById('btn-arreter').style.display = 'none';
+}
+window.arreter = function() {
+  if (player) { try { player.pause(); player.onended = null; } catch(e) {} }
+  terminer();
+};
+
+charger();
+</script>
+</body>
+</html>
