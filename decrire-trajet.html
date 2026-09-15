@@ -22,25 +22,25 @@ nav { display: flex; align-items: center; justify-content: space-between; paddin
 h3 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.15rem; margin: 1.25rem 0 0.75rem; }
 
 /* banque */
-.banque { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.banque { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; }
 .action { background: var(--blanc); border-radius: 14px; padding: 0.6rem; box-shadow: 0 2px 10px rgba(26,58,92,0.08); cursor: pointer; border: 2px solid transparent; text-align: center; transition: transform 0.1s, border-color 0.2s; }
 .action:active { transform: scale(0.96); }
 .action:hover { border-color: var(--bleu-clair); }
 .action img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 8px; background: var(--creme); }
-.action .nom { margin-top: 0.35rem; font-size: 0.82rem; font-weight: 500; color: var(--bleu); line-height: 1.15; }
+.action .nom { margin-top: 0.5rem; font-size: 0.98rem; font-weight: 500; color: var(--bleu); line-height: 1.2; }
 
 /* mon trajet */
 .trajet-zone { background: #eef3f8; border-radius: 16px; padding: 1rem; min-height: 120px; margin-top: 0.5rem; }
 .trajet-rangee { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
-.etape { width: 108px; background: var(--blanc); border-radius: 12px; padding: 0.5rem; box-shadow: 0 2px 8px rgba(26,58,92,0.1); text-align: center; position: relative; border: 2px solid transparent; }
+.etape { width: 150px; background: var(--blanc); border-radius: 12px; padding: 0.5rem; box-shadow: 0 2px 8px rgba(26,58,92,0.1); text-align: center; position: relative; border: 2px solid transparent; }
 .etape img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 6px; background: var(--creme); }
-.etape .nom { margin-top: 0.3rem; font-size: 0.72rem; font-weight: 500; color: var(--bleu); line-height: 1.1; }
-.etape .ecouter-mini { margin-top: 0.25rem; font-size: 0.9rem; }
-.etape .num { position: absolute; top: -8px; left: -8px; width: 26px; height: 26px; border-radius: 50%; background: var(--bleu); color: #fff; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.etape .nom { margin-top: 0.4rem; font-size: 0.9rem; font-weight: 500; color: var(--bleu); line-height: 1.15; }
+.etape .ecouter-mini { margin-top: 0.35rem; font-size: 1.1rem; }
+.etape .num { position: absolute; top: -10px; left: -10px; width: 32px; height: 32px; border-radius: 50%; background: var(--bleu); color: #fff; font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .etape.fixe { border-color: var(--vert); }
 .etape.fixe .num { background: var(--vert); }
 .etape.actif { border-color: var(--orange); transform: scale(1.05); box-shadow: 0 6px 18px rgba(230,126,34,0.3); }
-.fleche { display: flex; align-items: center; color: var(--gris); font-size: 1.3rem; }
+.fleche { display: flex; align-items: center; color: var(--gris); font-size: 1.7rem; }
 .vide-msg { color: var(--gris); font-size: 0.9rem; padding: 1.5rem; text-align: center; }
 
 .barre-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem; justify-content: center; }
