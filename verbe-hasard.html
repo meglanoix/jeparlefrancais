@@ -55,7 +55,8 @@ const VERBES = [
   { cle: 'verbe-faire', nom: 'Faire' },
   { cle: 'verbe-aller', nom: 'Aller' },
   { cle: 'verbe-prendre', nom: 'Prendre' },
-  { cle: 'lieux-batiment', nom: 'Les lieux du bâtiment' }
+  { cle: 'lieux-batiment', nom: 'Les lieux du bâtiment' },
+  { cle: 'lieux-montreal', nom: 'Les lieux de Montréal', unePar: 'station' }
 ];
 
 const zone = document.getElementById('zone');
@@ -78,15 +79,39 @@ window.choisir = async function(cle, nom) {
   verbeNom = nom;
   zone.innerHTML = `<div class="chargement">Chargement…</div>`;
   const snap = await getDocs(collection(db, cle));
-  cartes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.image);
+  let liste = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.image);
+  // règle "une image par station" pour les thèmes qui le demandent
+  const theme = VERBES.find(v => v.cle === cle);
+  if (theme && theme.unePar === 'station') {
+    liste = uneParStation(liste);
+  }
+  cartes = liste;
   if (!cartes.length) {
-    zone.innerHTML = `<h2>${nom}</h2><div class="sous">Aucune image pour ce verbe.</div><button class="btn btn-ghost" onclick="ecranChoix()">← Choisir un autre thème</button>`;
+    zone.innerHTML = `<h2>${nom}</h2><div class="sous">Aucune image pour ce thème.</div><button class="btn btn-ghost" onclick="ecranChoix()">← Choisir un autre thème</button>`;
     return;
   }
   ordre = melanger(cartes.map((_, i) => i));
   idx = 0;
   montrer();
 };
+
+// garde au maximum une image par station (au hasard parmi celles de la station) ;
+// les lieux sans station sont tous gardés
+function uneParStation(liste) {
+  const parStation = {};
+  const sansStation = [];
+  liste.forEach(c => {
+    const st = (c.station || '').trim();
+    if (!st) { sansStation.push(c); return; }
+    if (!parStation[st]) parStation[st] = [];
+    parStation[st].push(c);
+  });
+  const choisis = [];
+  Object.values(parStation).forEach(groupe => {
+    choisis.push(groupe[Math.floor(Math.random() * groupe.length)]);
+  });
+  return choisis.concat(sansStation);
+}
 
 function montrer() {
   const c = cartes[ordre[idx]];
