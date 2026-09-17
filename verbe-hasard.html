@@ -63,7 +63,9 @@ const VERBES = [
   { cle: 'verbe-prendre', nom: 'Prendre' },
   { cle: 'lieux-batiment', nom: 'Les lieux du bâtiment' },
   { cle: 'lieux-montreal', nom: 'Les lieux de Montréal', unePar: 'station' },
-  { cle: 'symptomes', nom: 'Décrire des symptômes' }
+  { cle: 'symptomes', nom: 'Décrire des symptômes' },
+  { cle: 'actes-medicaux', nom: 'Les tests et les examens', filtreCategorie: '3', texte: true },
+  { cle: 'professionnels-sante', nom: 'Les professionnels de la santé', filtreCategorie: '3', texte: true }
 ];
 
 const zone = document.getElementById('zone');
@@ -83,13 +85,18 @@ function ecranChoix() {
 window.ecranChoix = ecranChoix;
 
 window.choisir = async function(cle, nom) {
+  debloquerAudio();   // débloque le son pendant le tap (avant tout await)
   verbeNom = nom;
-  themeAvecTexte = (cle === 'lieux-montreal' || cle === 'symptomes');
+  const theme = VERBES.find(v => v.cle === cle);
+  themeAvecTexte = (cle === 'lieux-montreal' || cle === 'symptomes' || (theme && theme.texte));
   zone.innerHTML = `<div class="chargement">Chargement…</div>`;
   const snap = await getDocs(collection(db, cle));
   let liste = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.image);
+  // filtre par catégorie si le thème le demande (ex. catégorie "3" pour le cours 3)
+  if (theme && theme.filtreCategorie) {
+    liste = liste.filter(c => (c.categorie || '').trim().toLowerCase() === theme.filtreCategorie);
+  }
   // règle "une image par station" pour les thèmes qui le demandent
-  const theme = VERBES.find(v => v.cle === cle);
   if (theme && theme.unePar === 'station') {
     liste = uneParStation(liste);
   }
@@ -124,8 +131,9 @@ function uneParStation(liste) {
 function montrer() {
   const c = cartes[ordre[idx]];
   const pastilles = (c.lignes || []).map(l => `<span class="pastille ${l}"></span>`).join('');
-  const infoLieu = (themeAvecTexte && (c.nom || c.station))
-    ? `<div class="nom-lieu">${c.nom || ''}</div>${(c.station || (c.lignes && c.lignes.length)) ? `<div class="metro">${pastilles} <span>${c.station || ''}</span></div>` : ''}`
+  const nomAffiche = (c.nom || c.mot || '').split('/').map(s => s.trim()).join(' / ');
+  const infoLieu = (themeAvecTexte && (nomAffiche || c.station))
+    ? `<div class="nom-lieu">${nomAffiche}</div>${(c.station || (c.lignes && c.lignes.length)) ? `<div class="metro">${pastilles} <span>${c.station || ''}</span></div>` : ''}`
     : '';
   zone.innerHTML = `
     <div class="compteur">${verbeNom} — ${idx + 1} / ${cartes.length}</div>
@@ -138,6 +146,12 @@ function montrer() {
 }
 
 let player = null;
+// crée et débloque le lecteur audio au moment d'un tap (obligatoire sur tablette)
+function debloquerAudio() {
+  if (!player) { player = new Audio(); player.setAttribute('playsinline', ''); }
+  // "réveille" le lecteur pendant le geste : une lecture silencieuse autorise les suivantes
+  try { player.play().then(() => player.pause()).catch(()=>{}); } catch(e) {}
+}
 window.jouerAudio = function() {
   const c = cartes[ordre[idx]];
   if (!c || !c.audio) return;
@@ -147,6 +161,7 @@ window.jouerAudio = function() {
 };
 
 window.suivant = function() {
+  debloquerAudio();   // garde le son débloqué à chaque tap
   idx++;
   if (idx >= ordre.length) { ordre = melanger(cartes.map((_, i) => i)); idx = 0; }
   montrer();
