@@ -62,11 +62,12 @@ const VERBES = [
   { cle: 'verbe-aller', nom: 'Aller' },
   { cle: 'verbe-prendre', nom: 'Prendre' },
   { cle: 'lieux-batiment', nom: 'Les lieux du bâtiment' },
-  { cle: 'lieux-montreal', nom: 'Les lieux de Montréal', unePar: 'station' }
+  { cle: 'lieux-montreal', nom: 'Les lieux de Montréal', unePar: 'station' },
+  { cle: 'symptomes', nom: 'Décrire des symptômes' }
 ];
 
 const zone = document.getElementById('zone');
-let cartes = [], ordre = [], idx = 0, verbeNom = '';
+let cartes = [], ordre = [], idx = 0, verbeNom = '', themeAvecTexte = false;
 
 function melanger(arr) {
   const a = arr.slice();
@@ -83,6 +84,7 @@ window.ecranChoix = ecranChoix;
 
 window.choisir = async function(cle, nom) {
   verbeNom = nom;
+  themeAvecTexte = (cle === 'lieux-montreal' || cle === 'symptomes');
   zone.innerHTML = `<div class="chargement">Chargement…</div>`;
   const snap = await getDocs(collection(db, cle));
   let liste = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.image);
@@ -122,7 +124,7 @@ function uneParStation(liste) {
 function montrer() {
   const c = cartes[ordre[idx]];
   const pastilles = (c.lignes || []).map(l => `<span class="pastille ${l}"></span>`).join('');
-  const infoLieu = (c.nom || c.station)
+  const infoLieu = (themeAvecTexte && (c.nom || c.station))
     ? `<div class="nom-lieu">${c.nom || ''}</div>${(c.station || (c.lignes && c.lignes.length)) ? `<div class="metro">${pastilles} <span>${c.station || ''}</span></div>` : ''}`
     : '';
   zone.innerHTML = `
