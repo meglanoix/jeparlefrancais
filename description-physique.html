@@ -4,87 +4,59 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>La description physique | JeParle Français</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
-:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 8px 30px rgba(26,58,92,0.12); }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+nav { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); }
 .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
 .nav-logo span { color: var(--rouge); }
-.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back { color: var(--gris); font-size: 0.9rem; text-decoration: none; }
 .nav-back:hover { color: var(--bleu); }
-.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.page-header { background: var(--bleu); padding: 100px 5vw 50px; position: relative; overflow: hidden; }
-.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
-.page-header-inner { position: relative; z-index: 1; }
-.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
-.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.75rem; }
-.page-header p { font-size: 1rem; color: rgba(255,255,255,0.65); font-weight: 300; max-width: 500px; }
-.main { max-width: 1100px; margin: 0 auto; padding: 3rem 5vw 5rem; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
-.card { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
-.card:hover { transform: translateY(-4px); box-shadow: var(--ombre); }
-.card.playing { border: 2px solid var(--vert); }
-.card-img { width: 100%; aspect-ratio: 16/7; background: var(--creme); position: relative; }
-.card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.card-img .emoji-placeholder { font-size: 5rem; width: 100%; aspect-ratio: 16/7; display: flex; align-items: center; justify-content: center; background: var(--creme); }
-.play-overlay { position: absolute; inset: 0; background: rgba(26,58,92,0.35); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
-.card:hover .play-overlay { opacity: 1; }
-.card.playing .play-overlay { opacity: 1; background: rgba(26,122,74,0.35); }
-.play-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--blanc); display: flex; align-items: center; justify-content: center; }
-.play-btn svg { width: 22px; height: 22px; fill: var(--bleu); margin-left: 3px; }
-.card.playing .play-btn svg { fill: var(--vert); }
-.card-body { padding: 1rem; }
-.card-word { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--bleu); margin-bottom: 2px; }
-.card-audio-wave { display: none; align-items: center; gap: 3px; margin-top: 6px; height: 16px; }
-.card.playing .card-audio-wave { display: flex; }
-.wave-bar { width: 3px; border-radius: 2px; background: var(--vert); animation: wave 0.8s ease-in-out infinite; }
-.wave-bar:nth-child(1){ height: 6px; animation-delay: 0s; }
-.wave-bar:nth-child(2){ height: 12px; animation-delay: 0.1s; }
-.wave-bar:nth-child(3){ height: 8px; animation-delay: 0.2s; }
-.wave-bar:nth-child(4){ height: 14px; animation-delay: 0.15s; }
-.wave-bar:nth-child(5){ height: 6px; animation-delay: 0.05s; }
-@keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.8)} }
-.empty-grid { text-align: center; padding: 4rem 2rem; color: var(--gris); grid-column: 1/-1; }
-.empty-grid p { font-size: 1rem; margin-top: 0.5rem; }
-@media (max-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
+.page-header { background: linear-gradient(135deg, var(--bleu), var(--bleu-clair)); color: #fff; padding: 2.25rem 5vw 2.5rem; }
+.page-header .eyebrow { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; margin-top: 0.3rem; }
+.page-header p { opacity: 0.85; margin-top: 0.4rem; font-size: 0.95rem; }
+.page-header .jeu-cta { display: inline-block; margin-top: 1.25rem; background: var(--rouge); color: #fff; text-decoration: none; padding: 0.7rem 1.5rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 5vw 4rem; }
+.cat-titre { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--bleu); margin: 2rem 0 1rem; }
+.cat-titre:first-child { margin-top: 0.5rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+.carte { background: var(--blanc); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 14px rgba(26,58,92,0.08); cursor: pointer; border: 2px solid transparent; transition: transform 0.12s, box-shadow 0.2s, border-color 0.2s; }
+.carte:hover { transform: translateY(-4px); box-shadow: var(--ombre); }
+.carte:active { transform: scale(0.98); }
+.carte.playing { border-color: var(--vert); }
+.carte-img { position: relative; width: 100%; aspect-ratio: 1; background: var(--creme); }
+.carte-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.carte-img .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: rgba(26,58,92,0.25); }
+.play-overlay { position: absolute; bottom: 8px; right: 8px; width: 40px; height: 40px; border-radius: 50%; background: rgba(26,58,92,0.85); display: flex; align-items: center; justify-content: center; }
+.carte.playing .play-overlay { background: var(--vert); }
+.play-overlay svg { width: 16px; height: 16px; fill: #fff; margin-left: 2px; }
+.carte-body { padding: 0.75rem 0.85rem 0.9rem; text-align: center; }
+.carte-mot { font-weight: 500; color: var(--bleu); font-size: 1.02rem; line-height: 1.2; }
+.chargement { text-align: center; color: var(--gris); padding: 3rem; }
+.vide { text-align: center; color: var(--gris); padding: 2rem; }
 </style>
 </head>
 <body>
 <nav>
-  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
-  <a class="nav-back" href="index.html">
-    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    Retour à l'accueil
-  </a>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span></a>
+  <a class="nav-back" href="index.html">‹ Retour</a>
 </nav>
 <div class="page-header">
-  <div class="page-header-inner">
-    <p class="page-eyebrow">La description physique et les vêtements · La description physique</p>
-    <h1>La description physique</h1>
-    <p>Cliquez sur une image pour entendre la prononciation</p>
-    <div style="margin-top:1.25rem">
-      <a href="jeu-description-physique.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
-        🎯 Jeu : Écouter et trouver la bonne personne
-      </a>
-    </div>
-  </div>
+  <p class="eyebrow">Vocabulaire · La description physique</p>
+  <h1>La description physique</h1>
+  <p>Clique sur une image pour entendre le mot</p>
+  <a class="jeu-cta" href="jeu-description-physique.html">🎧 Jouer : écouter et trouver la bonne personne</a>
 </div>
-<div class="main">
-  <div class="grid" id="card-grid">
-    <div class="empty-grid"><p>Chargement des cartes...</p></div>
-  </div>
+
+<div class="wrap">
+  <div id="sections"></div>
+  <div id="chargement" class="chargement">Chargement…</div>
 </div>
+
 <script type="module">
-function parOrdreCartes(a, b) {
-  const oa = typeof a.ordre === 'number' ? a.ordre : 9999;
-  const ob = typeof b.ordre === 'number' ? b.ordre : 9999;
-  return oa - ob;
-}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const firebaseConfig = {
@@ -97,44 +69,72 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-let cartes = [], currentAudio = null;
-async function loadCards() {
-  try {
-    const snap = await getDocs(collection(db, 'description-physique'));
-    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdreCartes);
-    cartes = docs;
-    renderCards();
-  } catch(e) {
-    document.getElementById('card-grid').innerHTML = '<div class="empty-grid"><p>Erreur de connexion. Veuillez réessayer.</p></div>';
-  }
+const COL = 'description-physique';
+
+const CATS = [
+  { cle: 'taille', nom: 'La taille' },
+  { cle: 'corpulence', nom: 'La silhouette' },
+  { cle: 'teint', nom: 'Le teint' },
+  { cle: 'couleur-cheveux', nom: 'La couleur des cheveux' },
+  { cle: 'longueur-cheveux', nom: 'La longueur des cheveux' },
+  { cle: 'forme-cheveux', nom: 'La forme des cheveux' },
+  { cle: 'coiffure', nom: 'La coiffure' },
+  { cle: 'barbe-moustache', nom: 'Barbes et moustaches' },
+  { cle: 'particularites', nom: 'Les particularités physiques' },
+  { cle: 'age', nom: 'L\'âge approximatif' },
+  { cle: 'accessoires', nom: 'Les accessoires' }
+];
+
+let player = null;
+function jouer(dataUrl, carte) {
+  if (!dataUrl) return;
+  document.querySelectorAll('.carte.playing').forEach(c => c.classList.remove('playing'));
+  if (!player) { player = new Audio(); player.setAttribute('playsinline', ''); }
+  player.onended = () => carte.classList.remove('playing');
+  player.src = dataUrl;
+  carte.classList.add('playing');
+  player.play().catch(() => carte.classList.remove('playing'));
 }
-function renderCards() {
-  const grid = document.getElementById('card-grid');
-  if (!cartes.length) { grid.innerHTML = '<div class="empty-grid"><p>Aucune carte pour l\'instant.</p></div>'; return; }
-  grid.innerHTML = cartes.map((c, i) => `
-    <div class="card" id="card-${i}" onclick="playCard(${i})">
-      <div class="card-img">
-        ${c.image ? `<img src="${c.image}" alt="${c.mot || ''}"/>` : `<div class="emoji-placeholder">🍴</div>`}
-        <div class="play-overlay"><div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
-      </div>
-      <div class="card-body">
-        <div class="card-word">${(c.mot || '').split("/").map(s=>s.trim()).join("<br/>")}</div>
-        <div class="card-audio-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
-      </div>
-    </div>`).join('');
+
+function carteHtml(c) {
+  const div = document.createElement('div');
+  div.className = 'carte';
+  const img = c.image
+    ? `<img src="${c.image}" alt="${c.mot || ''}"/>`
+    : `<span class="ph">🕑</span>`;
+  div.innerHTML = `
+    <div class="carte-img">${img}
+      <div class="play-overlay"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+    </div>
+    <div class="carte-body"><div class="carte-mot">${(c.mot || '').split('/').map(s=>s.trim()).join('<br/>')}</div></div>`;
+  div.onclick = () => jouer(c.audio, div);
+  return div;
 }
-window.playCard = function(i) {
-  const carte = cartes[i];
-  if (!carte.audio) return;
-  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  document.querySelectorAll('.card').forEach(c => c.classList.remove('playing'));
-  const audio = new Audio(carte.audio);
-  currentAudio = audio;
-  document.getElementById('card-' + i).classList.add('playing');
-  audio.play();
-  audio.onended = () => { document.getElementById('card-' + i).classList.remove('playing'); currentAudio = null; };
-};
-loadCards();
+
+async function charger() {
+  const snap = await getDocs(collection(db, COL));
+  const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  document.getElementById('chargement').style.display = 'none';
+  const cont = document.getElementById('sections');
+  if (!items.length) { cont.innerHTML = '<div class="vide">Aucune carte pour le moment.</div>'; return; }
+  cont.innerHTML = '';
+  // sections dans l'ordre défini, + "Non classé" à la fin
+  const ordreCats = CATS.concat([{ cle: '', nom: 'Non classé' }]);
+  ordreCats.forEach(cat => {
+    const dansCat = items.filter(i => (i.categorie || '') === cat.cle)
+      .sort((a,b) => (a.ordre ?? 99) - (b.ordre ?? 99));
+    if (!dansCat.length) return;
+    const titre = document.createElement('div');
+    titre.className = 'cat-titre';
+    titre.textContent = cat.nom;
+    cont.appendChild(titre);
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    dansCat.forEach(c => grid.appendChild(carteHtml(c)));
+    cont.appendChild(grid);
+  });
+}
+charger();
 </script>
 </body>
 </html>
