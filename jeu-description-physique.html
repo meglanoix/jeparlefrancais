@@ -54,7 +54,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .choice.wrong { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.15); }
 .choice.disabled { pointer-events: none; opacity: 0.45; }
 .choice.correct.disabled { opacity: 1; }
-.choice-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+.choice-img { width: 100%; aspect-ratio: 3/4; object-fit: contain; background: var(--creme); display: block; }
 .choice-img-placeholder { width: 100%; aspect-ratio: 3/4; background: var(--creme); display: flex; align-items: center; justify-content: center; font-size: 2rem; }
 .feedback { text-align: center; min-height: 28px; font-size: 0.95rem; font-weight: 500; margin: 1rem 0; }
 .feedback.bon { color: var(--vert); }
@@ -117,8 +117,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
     <div class="score-num" id="score-num"></div>
     <p id="score-msg"></p>
     <button class="btn-rejouer" onclick="startGame()">🔄 Rejouer</button>
-        <a href="index.html" style="display:inline-block;margin-top:0.75rem;padding:0.85rem 2rem;background:var(--creme);color:var(--bleu);border-radius:10px;text-decoration:none;font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid rgba(26,58,92,0.15)" onmouseover="this.style.opacity=0.75" onmouseout="this.style.opacity=1">🏠 Page d'accueil</a>
-        <a href="index.html" style="display:inline-block;margin-top:0.75rem;padding:0.85rem 2rem;background:var(--creme);color:var(--bleu);border-radius:10px;text-decoration:none;font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid rgba(26,58,92,0.15);transition:opacity 0.2s" onmouseover="this.style.opacity=0.75" onmouseout="this.style.opacity=1">🏠 Page d'accueil</a>
         <a href="index.html" style="display:inline-block;margin-top:0.75rem;padding:0.85rem 2rem;background:var(--creme);color:var(--bleu);border-radius:10px;text-decoration:none;font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid rgba(26,58,92,0.15);transition:opacity 0.2s" onmouseover="this.style.opacity=0.75" onmouseout="this.style.opacity=1">🏠 Page d'accueil</a>
   </div>
 </div>
