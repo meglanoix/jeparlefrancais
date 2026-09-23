@@ -164,7 +164,7 @@ vocabulaire-ville</textarea>
 </div>
 
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
@@ -176,7 +176,8 @@ const firebaseConfig = {
   messagingSenderId: "840403407027",
   appId: "1:840403407027:web:46b370498fde6374aaa0c6"
 };
-const app = initializeApp(firebaseConfig);
+// réutilise l'app si admin-auth.js l'a déjà initialisée (évite le double init)
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
@@ -276,5 +277,7 @@ document.getElementById('btnMigrer').onclick = async function() {
   btn.disabled = false;
 };
 </script>
+<!-- Connexion admin (même compte que tes pages admin) : indispensable pour écrire dans Firestore -->
+<script type="module" src="admin-auth.js"></script>
 </body>
 </html>
