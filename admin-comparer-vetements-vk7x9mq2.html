@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Comparer des vêtements | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu:#1a3a5c; --bleu-clair:#2a5298; --rouge:#c0392b; --creme:#f9f5ef; --texte:#2c2c2c; --gris:#6b6b6b; --blanc:#fff; --vert:#1a7a4a; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; color:var(--texte); background:var(--creme); }
+nav { display:flex; align-items:center; justify-content:space-between; padding:0 5vw; height:60px; background:rgba(26,58,92,0.97); border-bottom:2px solid var(--rouge); }
+nav .logo { font-family:'Playfair Display',serif; color:#fff; font-size:1.15rem; }
+nav .logo span { color:#e88; }
+nav a { color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.85rem; }
+.header { background:var(--bleu); color:#fff; padding:1.5rem 5vw; border-bottom:3px solid var(--rouge); }
+.header h1 { font-family:'Playfair Display',serif; font-size:1.5rem; }
+.header p { opacity:0.7; font-size:0.9rem; margin-top:0.25rem; }
+.main { max-width:900px; margin:0 auto; padding:2rem 5vw 4rem; }
+.carte { background:var(--blanc); border-radius:14px; padding:1.5rem; box-shadow:0 2px 16px rgba(26,58,92,0.08); margin-bottom:1.5rem; }
+.carte h2 { font-family:'Playfair Display',serif; color:var(--bleu); font-size:1.15rem; margin-bottom:1rem; }
+label { display:block; font-weight:600; color:var(--bleu); font-size:0.88rem; margin-bottom:0.4rem; }
+input[type=text] { width:100%; padding:0.7rem; border:1.5px solid rgba(26,58,92,0.2); border-radius:9px; font-family:inherit; font-size:0.95rem; margin-bottom:1rem; }
+.drop { border:2px dashed rgba(26,58,92,0.25); border-radius:12px; padding:1.5rem; text-align:center; color:var(--gris); cursor:pointer; margin-bottom:1rem; background:var(--creme); }
+.drop img { max-height:180px; max-width:100%; border-radius:8px; }
+.btn { padding:0.8rem 1.6rem; border:none; border-radius:10px; font-family:inherit; font-size:0.98rem; font-weight:700; cursor:pointer; color:#fff; background:var(--bleu); }
+.btn:hover { background:var(--bleu-clair); }
+.btn:disabled { opacity:0.5; cursor:not-allowed; }
+.msg { font-size:0.9rem; margin-top:0.75rem; min-height:1.2em; }
+.msg.ok { color:var(--vert); } .msg.err { color:var(--rouge); }
+.grille { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:1rem; }
+.item { background:var(--blanc); border:1px solid rgba(26,58,92,0.1); border-radius:12px; overflow:hidden; }
+.item img { width:100%; aspect-ratio:4/3; object-fit:contain; background:var(--creme); display:block; }
+.item .bas { padding:0.5rem 0.6rem; display:flex; align-items:center; justify-content:space-between; gap:0.4rem; }
+.item .nom { font-size:0.85rem; color:var(--bleu); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.item .del { background:none; border:none; color:var(--rouge); cursor:pointer; font-size:1rem; flex-shrink:0; }
+.vide { color:var(--gris); text-align:center; padding:1.5rem; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">JeParle<span>Français</span> · Admin</div>
+  <a href="admin-vk7x9mq2-accueil.html">‹ Accueil admin</a>
+</nav>
+<div class="header">
+  <h1>Comparer des vêtements</h1>
+  <p>Banque d'images pour l'activité « Images au hasard ». Une image = deux vêtements. Sans audio.</p>
+</div>
+
+<div class="main">
+  <div class="carte">
+    <h2>Ajouter une image</h2>
+    <div class="drop" id="drop">📁 Clique pour choisir une image (2 vêtements)</div>
+    <input type="file" id="fichier" accept="image/*" style="display:none"/>
+    <label>Étiquette (facultatif — pour t'y retrouver, non affichée aux étudiants)</label>
+    <input type="text" id="etiquette" placeholder="ex. manteau vs veste"/>
+    <button class="btn" id="ajouter" disabled>Ajouter</button>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="carte">
+    <h2>Images existantes (<span id="compte">0</span>)</h2>
+    <div class="grille" id="grille"></div>
+    <div class="vide" id="vide" style="display:none">Aucune image pour le moment.</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const COL = 'comparer-vetements';
+
+let fichierChoisi = null;
+const drop = document.getElementById('drop');
+const fichier = document.getElementById('fichier');
+const btn = document.getElementById('ajouter');
+const msg = document.getElementById('msg');
+
+drop.onclick = () => fichier.click();
+fichier.onchange = () => {
+  const f = fichier.files[0];
+  if (!f) return;
+  fichierChoisi = f;
+  const url = URL.createObjectURL(f);
+  drop.innerHTML = `<img src="${url}"/>`;
+  btn.disabled = false;
+};
+
+btn.onclick = async () => {
+  if (!fichierChoisi) return;
+  btn.disabled = true; msg.className = 'msg'; msg.textContent = 'Envoi en cours…';
+  try {
+    const ext = (fichierChoisi.name.split('.').pop() || 'jpg').toLowerCase();
+    const chemin = COL + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+    const r = ref(storage, chemin);
+    await uploadBytes(r, fichierChoisi);
+    const url = await getDownloadURL(r);
+    await addDoc(collection(db, COL), {
+      image: url,
+      chemin: chemin,
+      mot: document.getElementById('etiquette').value.trim(),
+      ordre: Date.now(),
+      createdAt: Date.now()
+    });
+    msg.className = 'msg ok'; msg.textContent = '✅ Image ajoutée.';
+    fichierChoisi = null; fichier.value = '';
+    drop.innerHTML = '📁 Clique pour choisir une image (2 vêtements)';
+    document.getElementById('etiquette').value = '';
+    charger();
+  } catch (e) {
+    msg.className = 'msg err'; msg.textContent = '❌ ' + e.message;
+    btn.disabled = false;
+  }
+};
+
+async function charger() {
+  const grille = document.getElementById('grille');
+  const snap = await getDocs(collection(db, COL));
+  const items = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.ordre||0)-(b.ordre||0));
+  document.getElementById('compte').textContent = items.length;
+  document.getElementById('vide').style.display = items.length ? 'none' : 'block';
+  grille.innerHTML = items.map(c => `
+    <div class="item">
+      <img src="${c.image}" alt=""/>
+      <div class="bas"><span class="nom">${c.mot || '—'}</span>
+        <button class="del" title="Supprimer" onclick="supprimer('${c.id}','${(c.chemin||'').replace(/'/g,"\\'")}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+window.supprimer = async (id, chemin) => {
+  if (!confirm('Supprimer cette image ?')) return;
+  try {
+    await deleteDoc(doc(db, COL, id));
+    if (chemin) { try { await deleteObject(ref(storage, chemin)); } catch(e) {} }
+    charger();
+  } catch (e) { alert('Erreur : ' + e.message); }
+};
+
+charger();
+</script>
+<!-- Connexion admin (même compte que tes autres pages admin) -->
+<script type="module" src="admin-auth.js"></script>
+</body>
+</html>
