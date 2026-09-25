@@ -67,7 +67,8 @@ const VERBES = [
   { cle: 'actes-medicaux', nom: 'Les tests et les examens', filtreCategorie: '3', texte: true },
   { cle: 'professionnels-sante', nom: 'Les professionnels de la santé', filtreCategorie: '3', texte: true },
   { cle: 'vetements-accessoires', nom: 'Vêtements et accessoires', cles: ['vetements', 'accessoires'], texte: true },
-  { cle: 'comparer-vetements', nom: 'Comparer des vêtements' }
+  { cle: 'comparer-vetements', nom: 'Comparer des vêtements' },
+  { cle: 'pronom-le-la-les', nom: "Le pronom le / la / les / l'" }
 ];
 
 const zone = document.getElementById('zone');
@@ -81,15 +82,15 @@ function melanger(arr) {
 
 // écran de choix du verbe
 function ecranChoix() {
-  const boutons = VERBES.map(v => `<div class="vc" onclick="choisir('${v.cle}','${v.nom}')">${v.nom}</div>`).join('');
+  const boutons = VERBES.map(v => `<div class="vc" onclick="choisir('${v.cle}')">${v.nom}</div>`).join('');
   zone.innerHTML = `<h2>Images au hasard</h2><div class="sous">Choisis un thème :</div><div class="choix">${boutons}</div>`;
 }
 window.ecranChoix = ecranChoix;
 
-window.choisir = async function(cle, nom) {
+window.choisir = async function(cle) {
   debloquerAudio();   // débloque le son pendant le tap (avant tout await)
-  verbeNom = nom;
   const theme = VERBES.find(v => v.cle === cle);
+  verbeNom = theme ? theme.nom : cle;
   themeAvecTexte = (cle === 'lieux-montreal' || cle === 'symptomes' || (theme && theme.texte));
   zone.innerHTML = `<div class="chargement">Chargement…</div>`;
   const cles = (theme && theme.cles) ? theme.cles : [cle];
