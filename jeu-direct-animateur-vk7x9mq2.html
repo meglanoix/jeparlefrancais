@@ -65,6 +65,8 @@ h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem
 .res-col.donner { color: var(--orange); }
 .res-col.receptionniste { color: var(--bleu-clair); }
 .res-col.patient { color: var(--orange); }
+.res-col.client { color: var(--bleu-clair); }
+.res-col.vendeur { color: var(--orange); }
 .res-col.bonne { border-color: currentColor; box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
 .res-col.bonne::after { content: ' ✓ bonne réponse'; }
 .bonne-label { font-size: 1.1rem; color: var(--vert); font-weight: 600; margin-bottom: 1.5rem; }
@@ -116,7 +118,8 @@ const TYPES = {
   pf:  [ {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ],
   r12: [ {v:'reponse1',ico:'1️⃣',lib:'Réponse 1'}, {v:'reponse2',ico:'2️⃣',lib:'Réponse 2'} ],
   dd:  [ {v:'demander',ico:'❓',lib:'Demander'}, {v:'donner',ico:'❗',lib:'Donner'} ],
-  rp:  [ {v:'receptionniste',ico:'🧑‍💼',lib:'Réceptionniste'}, {v:'patient',ico:'🤒',lib:'Patient'} ]
+  rp:  [ {v:'receptionniste',ico:'🧑‍💼',lib:'Réceptionniste'}, {v:'patient',ico:'🤒',lib:'Patient'} ],
+  cv:  [ {v:'client',ico:'🙋',lib:'Client'}, {v:'vendeur',ico:'🧑‍💼',lib:'Vendeur'} ]
 };
 
 let quizzes = [];

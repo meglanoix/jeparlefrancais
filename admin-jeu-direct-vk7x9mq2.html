@@ -103,6 +103,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="r12">1️⃣ Réponse 1 / 2️⃣ Réponse 2</option>
         <option value="dd">❓ Demander / ❗ Donner (directions)</option>
         <option value="rp">🧑‍💼 Réceptionniste / 🤒 Patient</option>
+        <option value="cv">🙋 Client / 🧑‍💼 Vendeur</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="creerQuiz()">Créer le quiz</button>
@@ -196,6 +197,10 @@ const TYPES = {
   rp: { nom: 'Réceptionniste / Patient', reps: [
     { v: 'receptionniste', ico: '🧑‍💼', lib: 'Réceptionniste' },
     { v: 'patient', ico: '🤒', lib: 'Patient' }
+  ]},
+  cv: { nom: 'Client / Vendeur', reps: [
+    { v: 'client', ico: '🙋', lib: 'Client' },
+    { v: 'vendeur', ico: '🧑‍💼', lib: 'Vendeur' }
   ]}
 };
 function libRep(type, v) {
@@ -361,7 +366,7 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp'];
+  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv'];
   if (!typesSansContenu.includes(quizCourant.type) && !texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
   if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
