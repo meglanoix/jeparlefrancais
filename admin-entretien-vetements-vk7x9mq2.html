@@ -232,8 +232,8 @@ input[type=text]:focus { border-color: var(--bleu); }
       <input type="text" id="mot" placeholder="Ex : le soccer"/>
     </div>
     <div class="form-group" style="margin-bottom:1rem">
-      <label>Catégorie <span style="color:var(--gris);font-weight:300">(pour le jeu d'association)</span></label>
-      <input type="text" id="categorie" placeholder="Ex : soccer, natation, hockey..."/>
+      <label>Catégorie</label>
+      <select id="categorie" style="width:100%;padding:0.6rem;border:1.5px solid rgba(26,58,92,0.2);border-radius:8px;font-family:inherit;background:#fff"><option value="">— Choisir —</option><option value="lavage">Le lavage</option><option value="sechage">Le séchage</option><option value="repassage">Le repassage</option><option value="blanchiment">Le blanchiment</option><option value="nettoyage-sec">Le nettoyage à sec</option></select>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -899,8 +899,7 @@ loadCards();
     <h3>Modifier la catégorie</h3>
     <p style="color:var(--gris);font-size:0.85rem;margin-bottom:1.25rem">Entrez la catégorie pour le jeu d'association</p>
     <input type="hidden" id="categorie-id"/>
-    <input type="text" id="categorie-input" placeholder="Ex : soccer, natation, hockey..." style="width:100%;margin-bottom:0.75rem"
-      onkeydown="if(event.key==='Enter') saveCategorie()"/>
+    <select id="categorie-input" style="width:100%;margin-bottom:0.75rem;padding:0.6rem;border:1.5px solid rgba(26,58,92,0.2);border-radius:8px;font-family:inherit;background:#fff"><option value="">— Choisir —</option><option value="lavage">Le lavage</option><option value="sechage">Le séchage</option><option value="repassage">Le repassage</option><option value="blanchiment">Le blanchiment</option><option value="nettoyage-sec">Le nettoyage à sec</option></select>
     <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em;margin-bottom:0.75rem" id="categorie-status"></div>
     <div class="rec-modal-btns">
       <button class="app-btn" onclick="closeCategorie()">Annuler</button>
