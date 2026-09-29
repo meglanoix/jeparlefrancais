@@ -30,7 +30,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .card:hover { transform: translateY(-4px); box-shadow: var(--ombre); }
 .card.playing { border: 2px solid var(--vert); }
 .card-img { width: 100%; aspect-ratio: 4/3; background: var(--creme); position: relative; }
-.card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .card-img .emoji-placeholder { font-size: 5rem; width: 100%; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: var(--creme); }
 .play-overlay { position: absolute; inset: 0; background: rgba(26,58,92,0.35); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
 .card:hover .play-overlay { opacity: 1; }
@@ -49,6 +49,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .wave-bar:nth-child(4){ height: 14px; animation-delay: 0.15s; }
 .wave-bar:nth-child(5){ height: 6px; animation-delay: 0.05s; }
 @keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.8)} }
+.cat-titre { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--bleu); margin: 2.5rem 0 1.25rem; }
+.cat-titre:first-child { margin-top: 0; }
 .empty-grid { text-align: center; padding: 4rem 2rem; color: var(--gris); grid-column: 1/-1; }
 .empty-grid p { font-size: 1rem; margin-top: 0.5rem; }
 @media (max-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
@@ -67,6 +69,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
     <p class="page-eyebrow">La description physique et les vêtements · L'entretien des vêtements</p>
     <h1>L'entretien des vêtements</h1>
     <p>Cliquez sur une image pour entendre la prononciation</p>
+    <a href="jeu-entretien-vetements.html" style="display:inline-block;margin-top:1.25rem;background:var(--rouge);color:#fff;text-decoration:none;padding:0.7rem 1.5rem;border-radius:10px;font-weight:600;font-size:0.95rem">🎧 Jouer : écoute et trouve la bonne image</a>
   </div>
 </div>
 <div class="main">
@@ -103,20 +106,37 @@ async function loadCards() {
     document.getElementById('card-grid').innerHTML = '<div class="empty-grid"><p>Erreur de connexion. Veuillez réessayer.</p></div>';
   }
 }
-function renderCards() {
-  const grid = document.getElementById('card-grid');
-  if (!cartes.length) { grid.innerHTML = '<div class="empty-grid"><p>Aucune carte pour l\'instant.</p></div>'; return; }
-  grid.innerHTML = cartes.map((c, i) => `
+const CATS = [
+  { cle: 'lavage', nom: 'Le lavage' },
+  { cle: 'sechage', nom: 'Le séchage' },
+  { cle: 'repassage', nom: 'Le repassage' },
+  { cle: 'blanchiment', nom: 'Le blanchiment' },
+  { cle: 'nettoyage-sec', nom: 'Le nettoyage à sec' }
+];
+function carteHtml(c, i) {
+  return `
     <div class="card" id="card-${i}" onclick="playCard(${i})">
       <div class="card-img">
-        ${c.image ? `<img src="${c.image}" alt="${c.mot || ''}"/>` : `<div class="emoji-placeholder">🍴</div>`}
+        ${c.image ? `<img src="${c.image}" alt="${c.mot || ''}"/>` : `<div class="emoji-placeholder">🧺</div>`}
         <div class="play-overlay"><div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
       </div>
       <div class="card-body">
         <div class="card-word">${(c.mot || '').split("/").map(s=>s.trim()).join("<br/>")}</div>
         <div class="card-audio-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
       </div>
-    </div>`).join('');
+    </div>`;
+}
+function renderCards() {
+  const main = document.querySelector('.main');
+  if (!cartes.length) { main.innerHTML = '<div class="grid"><div class="empty-grid"><p>Aucune carte pour l\'instant.</p></div></div>'; return; }
+  const ordreCats = CATS.concat([{ cle: '', nom: 'Non classé' }]);
+  let html = '';
+  ordreCats.forEach(cat => {
+    const items = cartes.map((c, i) => ({ c, i })).filter(x => (x.c.categorie || '') === cat.cle);
+    if (!items.length) return;
+    html += `<h2 class="cat-titre">${cat.nom}</h2><div class="grid">` + items.map(x => carteHtml(x.c, x.i)).join('') + `</div>`;
+  });
+  main.innerHTML = html;
 }
 window.playCard = function(i) {
   const carte = cartes[i];
