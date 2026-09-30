@@ -68,7 +68,8 @@ const VERBES = [
   { cle: 'professionnels-sante', nom: 'Les professionnels de la santé', filtreCategorie: '3', texte: true },
   { cle: 'vetements-accessoires', nom: 'Vêtements et accessoires', cles: ['vetements', 'accessoires'], texte: true },
   { cle: 'comparer-vetements', nom: 'Comparer des vêtements' },
-  { cle: 'pronom-le-la-les', nom: "Le pronom le / la / les / l'" }
+  { cle: 'pronom-le-la-les', nom: "Le pronom le / la / les / l'" },
+  { cle: 'activites-habituelles', nom: 'Le passé composé 1 : Avoir et 1er groupe', filtreChamp: 'pc1' }
 ];
 
 const zone = document.getElementById('zone');
@@ -102,6 +103,10 @@ window.choisir = async function(cle) {
   // filtre par catégorie si le thème le demande (ex. catégorie "3" pour le cours 3)
   if (theme && theme.filtreCategorie) {
     liste = liste.filter(c => (c.categorie || '').trim().toLowerCase() === theme.filtreCategorie);
+  }
+  // filtre par champ booléen (ex. pc1 = passé composé 1)
+  if (theme && theme.filtreChamp) {
+    liste = liste.filter(c => c[theme.filtreChamp]);
   }
   // règle "une image par station" pour les thèmes qui le demandent
   if (theme && theme.unePar === 'station') {
