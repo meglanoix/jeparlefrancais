@@ -84,15 +84,16 @@ function melanger(arr) {
 
 // écran de choix du verbe
 function ecranChoix() {
-  const boutons = VERBES.map(v => `<div class="vc" onclick="choisir('${v.cle}')">${v.nom}</div>`).join('');
+  const boutons = VERBES.map((v, i) => `<div class="vc" onclick="choisir(${i})">${v.nom}</div>`).join('');
   zone.innerHTML = `<h2>Images au hasard</h2><div class="sous">Choisis un thème :</div><div class="choix">${boutons}</div>`;
 }
 window.ecranChoix = ecranChoix;
 
-window.choisir = async function(cle) {
+window.choisir = async function(i) {
   debloquerAudio();   // débloque le son pendant le tap (avant tout await)
-  const theme = VERBES.find(v => v.cle === cle);
-  verbeNom = theme ? theme.nom : cle;
+  const theme = VERBES[i];
+  const cle = theme.cle;
+  verbeNom = theme.nom;
   themeAvecTexte = (cle === 'lieux-montreal' || cle === 'symptomes' || (theme && theme.texte));
   zone.innerHTML = `<div class="chargement">Chargement…</div>`;
   const cles = (theme && theme.cles) ? theme.cles : [cle];
