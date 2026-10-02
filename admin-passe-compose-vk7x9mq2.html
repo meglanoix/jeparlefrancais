@@ -79,6 +79,14 @@ input[type=text] { width:100%; padding:0.7rem; border:1.5px solid rgba(26,58,92,
   </div>
 
   <div class="carte">
+    <h2>Ajouter plusieurs images d'un coup</h2>
+    <p style="color:var(--gris);font-size:0.9rem;margin-bottom:0.9rem">Choisis plusieurs images à la fois. Le <b>nom du fichier</b> devient le mot (modifiable après). Tu pourras ajouter l'audio et cocher l'activité ensuite, carte par carte.</p>
+    <button class="btn" id="btnLot" type="button">📁 Choisir plusieurs images…</button>
+    <input type="file" id="fichierLot" accept="image/*" multiple style="display:none"/>
+    <div class="msg" id="msgLot"></div>
+  </div>
+
+  <div class="carte">
     <h2>Banque (<span id="compte">0</span>) — coche l'activité de chaque image</h2>
     <div class="liste" id="liste"></div>
     <div class="vide" id="vide" style="display:none">Aucune image pour le moment.</div>
@@ -165,6 +173,32 @@ btn.onclick = async () => {
     audioOk.textContent=''; document.getElementById('btnEcouter').style.display='none';
     charger();
   } catch(e) { msg.className='msg err'; msg.textContent = '❌ ' + e.message; btn.disabled = false; }
+};
+
+// --- Upload en lot (plusieurs images) ---
+document.getElementById('btnLot').onclick = () => document.getElementById('fichierLot').click();
+document.getElementById('fichierLot').onchange = async (e) => {
+  const fichiers = Array.from(e.target.files || []);
+  if (!fichiers.length) return;
+  const mLot = document.getElementById('msgLot');
+  const btnLot = document.getElementById('btnLot');
+  btnLot.disabled = true;
+  let ok = 0, err = 0;
+  for (let i = 0; i < fichiers.length; i++) {
+    const f = fichiers[i];
+    mLot.className = 'msg'; mLot.textContent = `Envoi ${i+1} / ${fichiers.length}…`;
+    try {
+      const ext = (f.name.split('.').pop() || 'jpg').toLowerCase();
+      const img = await envoyer('image', f, ext);
+      const mot = f.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+      await addDoc(collection(db, COL), { image: img.url, chemin: img.chemin, mot, ordre: Date.now() + i, createdAt: Date.now() });
+      ok++;
+    } catch(er) { err++; }
+  }
+  mLot.className = 'msg ok'; mLot.textContent = `✅ ${ok} image(s) ajoutée(s)` + (err ? ` — ${err} erreur(s)` : '');
+  e.target.value = '';
+  btnLot.disabled = false;
+  charger();
 };
 
 let player = null;
