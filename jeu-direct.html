@@ -107,6 +107,7 @@ let questions = [];       // questions du quiz courant (chargées quand la parti
 let quizChargeId = null;
 let aVote = false;        // ai-je voté à la question courante ?
 let derniereQuestionVotee = -1;
+let monScore = 0, mesVotes = {};   // suivis localement -> pas de lecture réseau au vote
 
 const zone = document.getElementById('zone');
 
@@ -134,6 +135,7 @@ async function majAffichage() {
   // nouvelle partie détectée -> réinitialiser mon inscription
   if (maPartie && maPartie !== etat.partieId) {
     monNumero = null; maPartie = null; setMonNum();
+    monScore = 0; mesVotes = {}; derniereQuestionVotee = -1;
   }
 
   // pas encore inscrit -> montrer le choix de numéro
@@ -174,6 +176,7 @@ window.choisirNumero = async function(num) {
   if (existant.exists()) { await montrerChoixNumero(); return; }  // déjà pris, on rafraîchit
   await setDoc(ref, { partieId: etat.partieId, numero: num, score: 0, votes: {} });
   monNumero = num; maPartie = etat.partieId;
+  monScore = 0; mesVotes = {}; derniereQuestionVotee = -1;
   setMonNum();
   await majAffichage();
 };
@@ -211,25 +214,22 @@ window.jouerAudioQ = function() {
   audioQ.play().catch(()=>{});
 };
 
-window.voter = async function(v) {
+window.voter = function(v) {
   if (aVote) return;
   aVote = true;
-  const id = etat.partieId + '_' + monNumero;
   const q = questions[etat.questionIndex];
   const bon = q && q.reponse === v;
-  try {
-    const ref = doc(db, COL_JOUEURS, id);
-    const snap = await getDoc(ref);
-    const data = snap.exists() ? snap.data() : { votes: {}, score: 0 };
-    const votes = Object.assign({}, data.votes || {});
-    votes['q' + etat.questionIndex] = v;
-    const score = (data.score || 0) + (bon ? 1 : 0);
-    await updateDoc(ref, { votes, score });
-    derniereQuestionVotee = etat.questionIndex;
-    montrerReponseRecue();
-  } catch(e) {
-    aVote = false;  // permettre de réessayer
-  }
+
+  // 1) réagir TOUT DE SUITE (aucune attente réseau)
+  mesVotes['q' + etat.questionIndex] = v;
+  if (bon) monScore++;
+  derniereQuestionVotee = etat.questionIndex;
+  montrerReponseRecue();
+
+  // 2) enregistrer en arrière-plan (ne bloque pas l'écran) ; 1 réessai si échec
+  const ref = doc(db, COL_JOUEURS, etat.partieId + '_' + monNumero);
+  const payload = { votes: mesVotes, score: monScore };
+  updateDoc(ref, payload).catch(() => { updateDoc(ref, payload).catch(()=>{}); });
 };
 
 function montrerReponseRecue() {
