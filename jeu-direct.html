@@ -108,6 +108,7 @@ let questions = [];       // questions du quiz courant (chargées quand la parti
 let quizChargeId = null;
 let aVote = false;        // ai-je voté à la question courante ?
 let derniereQuestionVotee = -1;
+let renduQ = -1;   // évite de réafficher la même question
 let monScore = 0, mesVotes = {};   // suivis localement -> pas de lecture réseau au vote
 
 const zone = document.getElementById('zone');
@@ -196,10 +197,13 @@ async function montrerQuestion() {
 
   // ai-je déjà voté à CETTE question ?
   if (derniereQuestionVotee === etat.questionIndex) { montrerReponseRecue(); return; }
+  // déjà affichée -> ne pas reconstruire (évite le clignotement / rechargement)
+  if (renduQ === etat.questionIndex) return;
+  renduQ = etat.questionIndex;
 
   const reps = TYPES[etat.type] || TYPES.ipo;
   let boutons = reps.map(r => `<button class="rep ${r.v}" onclick="voter('${r.v}')"><span class="ico">${r.ico}</span>${r.lib}</button>`).join('');
-  const imgHtml = q.image ? `<img class="q-img" src="${q.image}"/>` : '';
+  const imgHtml = q.image ? `<img class="q-img" src="${q.image}" decoding="async"/>` : '';
   const audioHtml = q.audio ? `<button class="audio-play" onclick="jouerAudioQ()">🔊 Écouter</button>` : '';
   const vide = !q.image && !q.audio && !q.texte;
   const texteHtml = vide ? `<div class="q-texte" style="color:var(--gris)">👂 Écoute la phrase…</div>` : `<div class="q-texte">${q.texte || ''}</div>`;
@@ -234,12 +238,12 @@ window.voter = function(v) {
 };
 
 function montrerReponseRecue() {
-  aVote = false;
+  aVote = false; renduQ = -1;
   zone.innerHTML = `<div class="big-ico">✓</div><h2>Réponse reçue !</h2><div class="sous">Regarde l'écran et attends la prochaine question.</div>`;
 }
 
 function montrerAttente(txt) {
-  aVote = false;
+  aVote = false; renduQ = -1;
   zone.innerHTML = `<div class="big-ico">⏳</div><h2>${txt}</h2><div class="sous"><span class="attente-dot"></span><span class="attente-dot"></span><span class="attente-dot"></span></div>`;
 }
 </script>
