@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Raconter au passé (audios) | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu:#1a3a5c; --bleu-clair:#2a5298; --rouge:#c0392b; --creme:#f9f5ef; --texte:#2c2c2c; --gris:#6b6b6b; --blanc:#fff; --vert:#1a7a4a; --orange:#e67e22; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; color:var(--texte); background:var(--creme); }
+nav { display:flex; align-items:center; justify-content:space-between; padding:0 5vw; height:60px; background:rgba(26,58,92,0.97); border-bottom:2px solid var(--rouge); }
+nav .logo { font-family:'Playfair Display',serif; color:#fff; font-size:1.15rem; }
+nav .logo span { color:#e88; }
+nav a { color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.85rem; }
+.header { background:var(--bleu); color:#fff; padding:1.5rem 5vw; border-bottom:3px solid var(--rouge); }
+.header h1 { font-family:'Playfair Display',serif; font-size:1.5rem; }
+.header p { opacity:0.75; font-size:0.9rem; margin-top:0.25rem; }
+.main { max-width:860px; margin:0 auto; padding:1.5rem 5vw 4rem; }
+.tabs { display:flex; gap:8px; margin-bottom:1.25rem; }
+.tab { flex:1; max-width:240px; padding:0.8rem 1rem; border:1.5px solid rgba(26,58,92,0.15); background:var(--blanc); border-radius:12px; font-family:inherit; font-size:1rem; font-weight:600; color:var(--gris); cursor:pointer; }
+.tab.active { background:var(--bleu); color:#fff; border-color:var(--bleu); }
+.liste { display:flex; flex-direction:column; gap:0.6rem; }
+.ligne { display:flex; align-items:center; gap:0.9rem; background:var(--blanc); border:1px solid rgba(26,58,92,0.1); border-radius:12px; padding:0.6rem 0.9rem; flex-wrap:wrap; }
+.ligne.ok { border-color:var(--vert); background:#f2faf5; }
+.ligne img { width:64px; height:64px; object-fit:cover; background:var(--creme); border-radius:8px; flex-shrink:0; }
+.ligne .nom { flex:1; min-width:110px; font-size:1rem; color:var(--bleu); font-weight:600; }
+.ligne .nom small { display:block; color:var(--gris); font-weight:400; font-size:0.78rem; }
+.mini { padding:0.5rem 0.9rem; border-radius:9px; border:1.5px solid rgba(26,58,92,0.2); background:var(--blanc); font-family:inherit; font-size:0.85rem; cursor:pointer; }
+.mini.rec { background:var(--rouge); color:#fff; border:none; }
+.mini.rec.on { background:#7a1a12; }
+.mini.son { border:none; background:none; font-size:1.15rem; }
+.etat { font-size:0.82rem; font-weight:600; min-width:120px; }
+.etat.ok { color:var(--vert); } .etat.vide { color:var(--gris); } .etat.err { color:var(--rouge); }
+.vide, .chargement { color:var(--gris); text-align:center; padding:2rem; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">JeParle<span>Français</span> · Admin</div>
+  <a href="admin-vk7x9mq2-accueil.html">‹ Accueil admin</a>
+</nav>
+<div class="header">
+  <h1>Raconter au passé — audios (passé composé)</h1>
+  <p>Mêmes images que « Raconter sa routine ». Ajoute ici, pour chaque étape, l'audio au passé composé (il est séparé de l'audio du présent).</p>
+</div>
+
+<div class="main">
+  <div class="tabs">
+    <button class="tab active" id="tab-matin" onclick="changer('matin')">🌅 Mon matin</button>
+    <button class="tab" id="tab-ecole" onclick="changer('ecole')">🌆 Mon après-midi</button>
+  </div>
+  <div class="liste" id="liste"><div class="chargement">Chargement…</div></div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com",
+  projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app",
+  messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const COLLECTIONS = { matin: 'routine-matin', ecole: 'routine-apres-ecole' };
+
+let onglet = 'matin';
+let cartes = [];
+let player = null;
+
+function nomAffiche(c) { return (c.nom || c.mot || '').split('/').map(s=>s.trim()).join(' / '); }
+
+window.changer = async function(o) {
+  onglet = o;
+  document.getElementById('tab-matin').classList.toggle('active', o==='matin');
+  document.getElementById('tab-ecole').classList.toggle('active', o==='ecole');
+  document.getElementById('liste').innerHTML = '<div class="chargement">Chargement…</div>';
+  await charger();
+};
+
+async function charger() {
+  const snap = await getDocs(collection(db, COLLECTIONS[onglet]));
+  cartes = snap.docs.map(d => ({ id:d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+  rendre();
+}
+
+function rendre() {
+  const el = document.getElementById('liste');
+  if (!cartes.length) { el.innerHTML = '<div class="vide">Aucune étape dans cette section.</div>'; return; }
+  el.innerHTML = cartes.map(c => {
+    const verrou = (c.verrou === 'debut' || c.verrou === 'fin') ? ` <small>🔒 étape ${c.verrou === 'debut' ? 'de début' : 'de fin'}</small>` : '';
+    const a = c.audioPasse ? 'ok' : '';
+    return `
+    <div class="ligne ${a}" id="l-${c.id}">
+      ${c.image ? `<img src="${c.image}" alt=""/>` : '<div style="width:64px;height:64px"></div>'}
+      <div class="nom">${nomAffiche(c) || '—'}${verrou}</div>
+      ${c.audio ? `<button class="mini son" title="Écouter le présent" onclick="jouer('${c.id}','audio')">🔊<small> présent</small></button>` : ''}
+      ${c.audioPasse ? `<button class="mini son" title="Écouter le passé composé" onclick="jouer('${c.id}','audioPasse')">▶<small> passé</small></button>` : ''}
+      <button class="mini rec" id="rec-${c.id}" onclick="enregistrer('${c.id}')">🎙 Passé composé</button>
+      <button class="mini" onclick="document.getElementById('f-${c.id}').click()">📁</button>
+      <input type="file" id="f-${c.id}" accept="audio/*" style="display:none" onchange="fichier('${c.id}', event)"/>
+      <span class="etat ${c.audioPasse?'ok':'vide'}" id="e-${c.id}">${c.audioPasse ? '✓ enregistré' : 'à faire'}</span>
+    </div>`;
+  }).join('');
+}
+
+window.jouer = function(id, champ) {
+  const c = cartes.find(x => x.id === id); if (!c || !c[champ]) return;
+  if (!player) { player = new Audio(); player.setAttribute('playsinline',''); }
+  player.src = c[champ]; player.play().catch(()=>{});
+};
+
+async function envoyer(id, blob, ext) {
+  const chemin = COLLECTIONS[onglet] + '/' + id + '_passe.' + ext;
+  const r = ref(storage, chemin);
+  await uploadBytes(r, blob);
+  const url = await getDownloadURL(r);
+  await updateDoc(doc(db, COLLECTIONS[onglet], id), { audioPasse: url, cheminAudioPasse: chemin });
+  const c = cartes.find(x => x.id === id); if (c) { c.audioPasse = url; c.cheminAudioPasse = chemin; }
+  const e = document.getElementById('e-'+id); if (e) { e.textContent = '✓ enregistré'; e.className = 'etat ok'; }
+  const l = document.getElementById('l-'+id); if (l) l.classList.add('ok');
+}
+
+window.fichier = async function(id, ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const e = document.getElementById('e-'+id); e.textContent = 'Envoi…'; e.className='etat';
+  try { await envoyer(id, f, (f.name.split('.').pop()||'mp3').toLowerCase()); }
+  catch(err) { e.textContent = 'Erreur'; e.className='etat err'; }
+};
+
+// enregistrement micro, une ligne à la fois
+let recId = null, mediaRec = null, chunks = [];
+window.enregistrer = async function(id) {
+  const btn = document.getElementById('rec-'+id);
+  if (mediaRec && mediaRec.state === 'recording' && recId === id) { mediaRec.stop(); return; }
+  if (mediaRec && mediaRec.state === 'recording') { mediaRec.stop(); }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRec = new MediaRecorder(stream); chunks = []; recId = id;
+    mediaRec.ondataavailable = ev => chunks.push(ev.data);
+    mediaRec.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      btn.classList.remove('on'); btn.textContent = '🎙 Passé composé';
+      const blob = new Blob(chunks, { type:'audio/webm' });
+      const e = document.getElementById('e-'+id); e.textContent='Envoi…'; e.className='etat';
+      try { await envoyer(id, blob, 'webm'); } catch(err) { e.textContent='Erreur'; e.className='etat err'; }
+    };
+    mediaRec.start(); btn.classList.add('on'); btn.textContent = '⏹ Arrêter';
+  } catch(e) { alert('Micro indisponible : ' + e.message); }
+};
+
+changer('matin');
+</script>
+<!-- Connexion admin (même compte que tes autres pages admin) -->
+<script type="module" src="admin-auth.js"></script>
+</body>
+</html>
