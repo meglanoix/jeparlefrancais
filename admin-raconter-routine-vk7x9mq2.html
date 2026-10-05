@@ -74,6 +74,12 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
       <span class="msg" id="audio-status"></span>
       <span class="msg" id="rec-timer" style="display:none;color:var(--rouge)">0:00</span>
     </div>
+    <label>Audio passé composé <span style="color:var(--gris);font-weight:400">(facultatif)</span></label>
+    <div class="row">
+      <button class="btn btn-rec" id="rec-btn-passe" onclick="togglePasseRecord()">▶ Enregistrer</button>
+      <span class="msg" id="audio-status-passe"></span>
+      <span class="msg" id="rec-timer-passe" style="display:none;color:var(--rouge)">0:00</span>
+    </div>
     <label>Position</label>
     <select id="verrou" style="width:100%;padding:10px 12px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem;background:var(--blanc)">
       <option value="">Étape normale (l'étudiant la place où il veut)</option>
@@ -95,7 +101,7 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from './firestore-storage.js';
 const firebaseConfig = {
   apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
   authDomain: "audio-francisation.firebaseapp.com",
@@ -176,6 +182,30 @@ function stopRecord() {
   b.textContent = '▶ Enregistrer'; b.classList.remove('active');
   document.getElementById('rec-timer').style.display = 'none';
 }
+// --- enregistreur audio PASSÉ COMPOSÉ (formulaire d'ajout) ---
+let pendingAudioPasse = null;
+let passeRecorder = null, passeChunks = [], passeRecording = false, passeSeconds = 0, passeTimer = null;
+window.togglePasseRecord = function() { passeRecording ? stopPasseRecord() : startPasseRecord(); };
+function startPasseRecord() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    passeRecorder = new MediaRecorder(stream); passeChunks = [];
+    passeRecorder.ondataavailable = e => passeChunks.push(e.data);
+    passeRecorder.onstop = () => {
+      pendingAudioPasse = new Blob(passeChunks, { type: 'audio/webm' });
+      const s = document.getElementById('audio-status-passe'); s.textContent = '✓ Audio passé composé'; s.className = 'msg ok';
+    };
+    passeRecorder.start(); passeRecording = true; passeSeconds = 0;
+    const b = document.getElementById('rec-btn-passe'); b.textContent = '■ Arrêter'; b.classList.add('active');
+    const t = document.getElementById('rec-timer-passe'); t.style.display = 'inline';
+    passeTimer = setInterval(() => { passeSeconds++; t.textContent = Math.floor(passeSeconds/60)+':'+String(passeSeconds%60).padStart(2,'0'); }, 1000);
+  }).catch(() => alert('Accès au microphone refusé.'));
+}
+function stopPasseRecord() {
+  if (passeRecorder) { passeRecorder.stop(); passeRecorder.stream.getTracks().forEach(t => t.stop()); }
+  passeRecording = false; clearInterval(passeTimer);
+  const b = document.getElementById('rec-btn-passe'); b.textContent = '▶ Enregistrer'; b.classList.remove('active');
+  document.getElementById('rec-timer-passe').style.display = 'none';
+}
 
 function blobToDataUrl(blob) {
   return new Promise((resolve, reject) => {
@@ -195,12 +225,14 @@ window.saveCard = async function() {
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
     const audioUrl = await blobToDataUrl(pendingAudio);
-    await addDoc(collection(db, col()), {
+    const donneesCarte = {
       nom, image: pendingImage, audio: audioUrl,
       ordre: items.length,
       verrou: document.getElementById('verrou').value || null,
       date: new Date().toLocaleDateString('fr-CA')
-    });
+    };
+    if (pendingAudioPasse) donneesCarte.audioPasse = await blobToDataUrl(pendingAudioPasse);
+    await addDoc(collection(db, col()), donneesCarte);
     await loadCards();
     msg.textContent = '✓ Étape ajoutée !'; msg.className = 'msg ok';
     document.getElementById('nom').value = '';
@@ -209,7 +241,8 @@ window.saveCard = async function() {
     z.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
     z.classList.remove('has-file');
     document.getElementById('audio-status').textContent = '';
-    pendingImage = null; pendingAudio = null;
+    pendingImage = null; pendingAudio = null; pendingAudioPasse = null;
+    document.getElementById('audio-status-passe').textContent = '';
     setTimeout(() => msg.textContent = '', 3000);
   } catch(e) {
     msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err';
@@ -277,25 +310,27 @@ window.supprimer = async function(id) {
 };
 
 // --- Modification d'une étape ---
-let editId = null, editImage = null, editAudio = null;
+let editId = null, editImage = null, editAudio = null, editAudioPasse = null;
+let editPasseRecorder = null, editPasseChunks = [], editPasseRecording = false, editPasseSeconds = 0, editPasseTimer = null;
 let editRecorder = null, editChunks = [], editRecording = false, editSeconds = 0, editTimer = null;
 
 window.modifier = function(id) {
   const it = items.find(x => x.id === id);
   if (!it) return;
-  editId = id; editImage = null; editAudio = null;
+  editId = id; editImage = null; editAudio = null; editAudioPasse = null;
   document.getElementById('edit-nom').value = it.nom || '';
   const z = document.getElementById('edit-img-zone');
   z.innerHTML = 'Cliquer pour remplacer l\'image<input type="file" id="edit-img-input" accept="image/*" style="display:none" onchange="handleEditImage(event)"/>';
   z.classList.remove('has-file');
   document.getElementById('edit-audio-status').textContent = '';
+  document.getElementById('edit-audio-status-passe').textContent = '';
   document.getElementById('edit-msg').textContent = '';
   document.getElementById('modal').style.display = 'flex';
 };
 window.fermerModal = function() {
   if (editRecording) stopEditRecord();
   document.getElementById('modal').style.display = 'none';
-  editId = null; editImage = null; editAudio = null;
+  editId = null; editImage = null; editAudio = null; editAudioPasse = null;
 };
 
 window.handleEditImage = function(e) {
@@ -352,6 +387,28 @@ function stopEditRecord() {
   b.textContent = '▶ Réenregistrer'; b.classList.remove('active');
   document.getElementById('edit-rec-timer').style.display = 'none';
 }
+// --- enregistreur PASSÉ COMPOSÉ (fenêtre Modifier) ---
+window.toggleEditPasseRecord = function() { editPasseRecording ? stopEditPasseRecord() : startEditPasseRecord(); };
+function startEditPasseRecord() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    editPasseRecorder = new MediaRecorder(stream); editPasseChunks = [];
+    editPasseRecorder.ondataavailable = e => editPasseChunks.push(e.data);
+    editPasseRecorder.onstop = () => {
+      editAudioPasse = new Blob(editPasseChunks, { type: 'audio/webm' });
+      const s = document.getElementById('edit-audio-status-passe'); s.textContent = '✓ Nouvel audio passé'; s.className = 'msg ok';
+    };
+    editPasseRecorder.start(); editPasseRecording = true; editPasseSeconds = 0;
+    const b = document.getElementById('edit-rec-btn-passe'); b.textContent = '■ Arrêter'; b.classList.add('active');
+    const t = document.getElementById('edit-rec-timer-passe'); t.style.display = 'inline';
+    editPasseTimer = setInterval(() => { editPasseSeconds++; t.textContent = Math.floor(editPasseSeconds/60)+':'+String(editPasseSeconds%60).padStart(2,'0'); }, 1000);
+  }).catch(() => alert('Accès au microphone refusé.'));
+}
+function stopEditPasseRecord() {
+  if (editPasseRecorder) { editPasseRecorder.stop(); editPasseRecorder.stream.getTracks().forEach(t => t.stop()); }
+  editPasseRecording = false; clearInterval(editPasseTimer);
+  const b = document.getElementById('edit-rec-btn-passe'); b.textContent = '▶ Réenregistrer'; b.classList.remove('active');
+  document.getElementById('edit-rec-timer-passe').style.display = 'none';
+}
 
 window.enregistrerModif = async function() {
   if (!editId) return;
@@ -363,6 +420,7 @@ window.enregistrerModif = async function() {
     const maj = { nom };
     if (editImage) maj.image = editImage;
     if (editAudio) maj.audio = await blobToDataUrl(editAudio);
+    if (editAudioPasse) maj.audioPasse = await blobToDataUrl(editAudioPasse);
     await updateDoc(doc(db, col(), editId), maj);
     await loadCards();
     fermerModal();
@@ -389,6 +447,12 @@ loadCards();
       <button class="btn btn-rec" id="edit-rec-btn" onclick="toggleEditRecord()">▶ Réenregistrer</button>
       <span class="msg" id="edit-audio-status"></span>
       <span class="msg" id="edit-rec-timer" style="display:none;color:var(--rouge)">0:00</span>
+    </div>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Audio passé composé (laisser tel quel pour garder l'actuel)</label>
+    <div class="row">
+      <button class="btn btn-rec" id="edit-rec-btn-passe" onclick="toggleEditPasseRecord()">▶ Réenregistrer</button>
+      <span class="msg" id="edit-audio-status-passe"></span>
+      <span class="msg" id="edit-rec-timer-passe" style="display:none;color:var(--rouge)">0:00</span>
     </div>
     <div class="row" style="margin-top:1.5rem;justify-content:flex-end">
       <button class="btn" onclick="fermerModal()">Annuler</button>
