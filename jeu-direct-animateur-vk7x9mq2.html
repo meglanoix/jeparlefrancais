@@ -70,6 +70,7 @@ h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem
 .res-col.aime { color: var(--vert); }
 .res-col.naime { color: var(--rouge); }
 .res-col.passecompose { color: var(--orange); }
+.res-col.passe { color: var(--rouge); }
 .res-col.bonne { border-color: currentColor; box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
 .res-col.bonne::after { content: ' ✓ bonne réponse'; }
 .bonne-label { font-size: 1.1rem; color: var(--vert); font-weight: 600; margin-bottom: 1.5rem; }
@@ -124,7 +125,8 @@ const TYPES = {
   rp:  [ {v:'receptionniste',ico:'🧑‍💼',lib:'Réceptionniste'}, {v:'patient',ico:'🤒',lib:'Patient'} ],
   cv:  [ {v:'client',ico:'🙋',lib:'Client'}, {v:'vendeur',ico:'🧑‍💼',lib:'Vendeur'} ],
   an:  [ {v:'aime',ico:'❤️',lib:'Aime'}, {v:'naime',ico:'💔',lib:'N\'aime pas'} ],
-  cp:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'passecompose',ico:'⏪',lib:'Passé composé'} ]
+  cp:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'passecompose',ico:'⏪',lib:'Passé composé'} ],
+  ppf: [ {v:'passe',ico:'⏪',lib:'Passé'}, {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ]
 };
 
 let quizzes = [];

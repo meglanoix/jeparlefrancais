@@ -106,6 +106,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="cv">🙋 Client / 🧑‍💼 Vendeur</option>
         <option value="an">❤️ Aime / 💔 N'aime pas</option>
         <option value="cp">⏱️ Présent de l'indicatif / ⏪ Passé composé</option>
+        <option value="ppf">⏪ Passé / ⏱️ Présent / ⏩ Futur</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="creerQuiz()">Créer le quiz</button>
@@ -211,6 +212,11 @@ const TYPES = {
   cp: { nom: 'Présent / Passé composé', reps: [
     { v: 'present', ico: '⏱️', lib: 'Présent de l\'indicatif' },
     { v: 'passecompose', ico: '⏪', lib: 'Passé composé' }
+  ]},
+  ppf: { nom: 'Passé / Présent / Futur', reps: [
+    { v: 'passe', ico: '⏪', lib: 'Passé' },
+    { v: 'present', ico: '⏱️', lib: 'Présent' },
+    { v: 'futur', ico: '⏩', lib: 'Futur' }
   ]}
 };
 function libRep(type, v) {
@@ -376,7 +382,7 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp'];
+  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf'];
   if (!typesSansContenu.includes(quizCourant.type) && !texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
   if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
