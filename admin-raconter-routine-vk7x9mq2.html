@@ -80,6 +80,8 @@ input[type=text] { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,
       <span class="msg" id="audio-status-passe"></span>
       <span class="msg" id="rec-timer-passe" style="display:none;color:var(--rouge)">0:00</span>
     </div>
+    <label>Texte passé composé <span style="color:var(--gris);font-weight:400">(facultatif — affiché dans la page passé composé)</span></label>
+    <input type="text" id="nom-passe" placeholder="ex. : Je me suis réveillé" style="width:100%;padding:10px 12px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/>
     <label>Position</label>
     <select id="verrou" style="width:100%;padding:10px 12px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem;background:var(--blanc)">
       <option value="">Étape normale (l'étudiant la place où il veut)</option>
@@ -232,6 +234,8 @@ window.saveCard = async function() {
       date: new Date().toLocaleDateString('fr-CA')
     };
     if (pendingAudioPasse) donneesCarte.audioPasse = await blobToDataUrl(pendingAudioPasse);
+    const nomPasseVal = document.getElementById('nom-passe').value.trim();
+    if (nomPasseVal) donneesCarte.nomPasse = nomPasseVal;
     await addDoc(collection(db, col()), donneesCarte);
     await loadCards();
     msg.textContent = '✓ Étape ajoutée !'; msg.className = 'msg ok';
@@ -243,6 +247,7 @@ window.saveCard = async function() {
     document.getElementById('audio-status').textContent = '';
     pendingImage = null; pendingAudio = null; pendingAudioPasse = null;
     document.getElementById('audio-status-passe').textContent = '';
+    document.getElementById('nom-passe').value = '';
     setTimeout(() => msg.textContent = '', 3000);
   } catch(e) {
     msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err';
@@ -319,6 +324,7 @@ window.modifier = function(id) {
   if (!it) return;
   editId = id; editImage = null; editAudio = null; editAudioPasse = null;
   document.getElementById('edit-nom').value = it.nom || '';
+  document.getElementById('edit-nom-passe').value = it.nomPasse || '';
   const z = document.getElementById('edit-img-zone');
   z.innerHTML = 'Cliquer pour remplacer l\'image<input type="file" id="edit-img-input" accept="image/*" style="display:none" onchange="handleEditImage(event)"/>';
   z.classList.remove('has-file');
@@ -418,6 +424,7 @@ window.enregistrerModif = async function() {
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
     const maj = { nom };
+    maj.nomPasse = document.getElementById('edit-nom-passe').value.trim();
     if (editImage) maj.image = editImage;
     if (editAudio) maj.audio = await blobToDataUrl(editAudio);
     if (editAudioPasse) maj.audioPasse = await blobToDataUrl(editAudioPasse);
@@ -454,6 +461,8 @@ loadCards();
       <span class="msg" id="edit-audio-status-passe"></span>
       <span class="msg" id="edit-rec-timer-passe" style="display:none;color:var(--rouge)">0:00</span>
     </div>
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Texte passé composé (facultatif)</label>
+    <input type="text" id="edit-nom-passe" placeholder="ex. : Je me suis réveillé" style="width:100%;padding:10px 12px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/>
     <div class="row" style="margin-top:1.5rem;justify-content:flex-end">
       <button class="btn" onclick="fermerModal()">Annuler</button>
       <button class="btn btn-primary" onclick="enregistrerModif()">Enregistrer</button>

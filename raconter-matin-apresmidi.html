@@ -135,6 +135,7 @@ async function charger(o) {
   if (charge[o]) return;
   const snap = await getDocs(collection(db, COLLECTIONS[o]));
   cartes[o] = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .filter(c => c.audioPasse)   // seulement les images avec un audio au passé composé
     .sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99));
   charge[o] = true;
 }
@@ -184,10 +185,10 @@ function renderGrille() {
     const div = document.createElement('div');
     div.className = 'carte' + (pos >= 0 ? ' choisie' : '') + (verrou ? ' verrou' : '');
     if (!verrou) div.onclick = () => toggleCarte(c.id);
-    const img = c.image ? `<img src="${c.image}" alt="${c.nom || ''}"/>` : `<span class="ph">🕑</span>`;
+    const img = c.image ? `<img src="${c.image}" alt="${c.nomPasse || c.nom || ''}"/>` : `<span class="ph">🕑</span>`;
     const badge = pos >= 0 ? `<div class="badge">${pos + 1}</div>` : '';
     const cadenas = verrou ? `<div class="cadenas">🔒</div>` : '';
-    div.innerHTML = `${badge}${cadenas}<div class="photo">${img}</div><div class="nom">${c.nom || ''}</div>`;
+    div.innerHTML = `${badge}${cadenas}<div class="photo">${img}</div><div class="nom">${c.nomPasse || c.nom || ''}</div>`;
     g.appendChild(div);
   });
   majValider();
@@ -239,8 +240,8 @@ function renderRangee() {
     const div = document.createElement('div');
     div.className = 'carte-ecoute';
     div.dataset.id = id;
-    const img = c.image ? `<img src="${c.image}" alt="${c.nom || ''}"/>` : '';
-    div.innerHTML = `<div class="photo">${img}</div><div class="num">${idx + 1}</div><div class="nom">${c.nom || ''}</div>`;
+    const img = c.image ? `<img src="${c.image}" alt="${c.nomPasse || c.nom || ''}"/>` : '';
+    div.innerHTML = `<div class="photo">${img}</div><div class="num">${idx + 1}</div><div class="nom">${c.nomPasse || c.nom || ''}</div>`;
     r.appendChild(div);
   });
 }
