@@ -219,7 +219,7 @@ window.enlever = function(uid) {
 
 // --- tri intelligent : convertit les âges en années via le moment "naissance" daté ---
 function anneeNaissance() {
-  const n = ligne.find(m => m.unite === 'annee' && (/\bn[ée]e?s?\b/i.test(m.mot) || /naissance/i.test(m.mot)));
+  const n = ligne.find(m => m.unite === 'annee' && /\bn[ée]|naiss|naît/i.test(m.mot || ''));
   return n ? n.debut : null;
 }
 function cleDebut(m, birth) { return (m.unite === 'age' && birth != null) ? (birth + m.debut) : m.debut; }
