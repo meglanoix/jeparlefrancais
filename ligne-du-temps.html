@@ -217,13 +217,23 @@ window.enlever = function(uid) {
   rendreLigne();
 };
 
+// --- tri intelligent : convertit les âges en années via le moment "naissance" daté ---
+function anneeNaissance() {
+  const n = ligne.find(m => m.unite === 'annee' && (/\bn[ée]e?s?\b/i.test(m.mot) || /naissance/i.test(m.mot)));
+  return n ? n.debut : null;
+}
+function cleDebut(m, birth) { return (m.unite === 'age' && birth != null) ? (birth + m.debut) : m.debut; }
+function trier() {
+  const birth = anneeNaissance();
+  return ligne.slice().sort((a, b) => (cleDebut(a, birth) - cleDebut(b, birth)) || ((a.fin||a.debut) - (b.fin||b.debut)));
+}
 function label(m) { const u = m.unite === 'age' ? ' ans' : ''; return m.fin ? (m.debut + ' – ' + m.fin + u) : (m.debut + u); }
 
 function rendreLigne() {
   const el = document.getElementById('ligne');
   document.getElementById('btn-ecouter').disabled = ligne.length === 0;
   if (!ligne.length) { el.innerHTML = '<div class="vide">Ta ligne du temps est vide. Clique sur un moment ci-dessus.</div>'; return; }
-  const ordonne = ligne.slice().sort((a,b) => (a.debut - b.debut) || ((a.fin||a.debut) - (b.fin||b.debut)));
+  const ordonne = trier();
   el.className = 'timeline';
   el.innerHTML = ordonne.map(m => `
     <div class="noeud ${m.fin ? 'periode' : ''}" data-uid="${m.uid}">
@@ -247,7 +257,7 @@ window.jouer = function(uid) {
 // lecture de toute la ligne, dans l'ordre
 window.ecouter = function() {
   if (lecture) { clearTimeout(lecture); lecture = null; }
-  const ordonne = ligne.slice().sort((a,b) => (a.debut - b.debut) || ((a.fin||a.debut) - (b.fin||b.debut)));
+  const ordonne = trier();
   if (!player) { player = new Audio(); player.setAttribute('playsinline',''); }
   document.getElementById('btn-ecouter').disabled = true;
   document.getElementById('btn-arreter').style.display = 'inline-block';
