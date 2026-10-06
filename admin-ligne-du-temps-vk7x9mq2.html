@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Ligne du temps | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu:#1a3a5c; --bleu-clair:#2a5298; --rouge:#c0392b; --creme:#f9f5ef; --texte:#2c2c2c; --gris:#6b6b6b; --blanc:#fff; --vert:#1a7a4a; --orange:#e67e22; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; color:var(--texte); background:var(--creme); }
+nav { display:flex; align-items:center; justify-content:space-between; padding:0 5vw; height:60px; background:rgba(26,58,92,0.97); border-bottom:2px solid var(--rouge); }
+nav .logo { font-family:'Playfair Display',serif; color:#fff; font-size:1.15rem; } nav .logo span { color:#e88; }
+nav a { color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.85rem; }
+.header { background:var(--bleu); color:#fff; padding:1.5rem 5vw; border-bottom:3px solid var(--rouge); }
+.header h1 { font-family:'Playfair Display',serif; font-size:1.5rem; } .header p { opacity:0.75; font-size:0.9rem; margin-top:0.25rem; }
+.main { max-width:860px; margin:0 auto; padding:2rem 5vw 4rem; }
+.carte { background:var(--blanc); border-radius:14px; padding:1.5rem; box-shadow:0 2px 16px rgba(26,58,92,0.08); margin-bottom:1.5rem; }
+.carte h2 { font-family:'Playfair Display',serif; color:var(--bleu); font-size:1.15rem; margin-bottom:1rem; }
+label.lab { display:block; font-weight:600; color:var(--bleu); font-size:0.88rem; margin:0.6rem 0 0.4rem; }
+input[type=text], select { width:100%; padding:0.6rem 0.7rem; border:1.5px solid rgba(26,58,92,0.2); border-radius:9px; font-family:inherit; font-size:0.95rem; background:#fff; }
+.drop { border:2px dashed rgba(26,58,92,0.25); border-radius:12px; padding:1.3rem; text-align:center; color:var(--gris); cursor:pointer; margin-bottom:0.5rem; background:var(--creme); }
+.drop img { max-height:150px; max-width:100%; border-radius:8px; }
+.check { display:flex; align-items:center; gap:8px; margin:0.9rem 0; font-size:0.95rem; cursor:pointer; }
+.vrow { border:1.5px solid rgba(26,58,92,0.12); border-radius:12px; padding:0.8rem; margin-bottom:0.7rem; position:relative; }
+.vrow .suppr { position:absolute; top:8px; right:10px; background:none; border:none; color:var(--rouge); cursor:pointer; font-size:1rem; }
+.audio-zone { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-top:0.4rem; }
+.mini { padding:0.5rem 0.8rem; border-radius:8px; border:1.5px solid rgba(26,58,92,0.2); background:#fff; font-family:inherit; font-size:0.85rem; cursor:pointer; }
+.mini.rec { background:var(--rouge); color:#fff; border:none; } .mini.rec.on { background:#7a1a12; }
+.ok { color:var(--vert); font-size:0.82rem; font-weight:600; }
+.btn { padding:0.8rem 1.6rem; border:none; border-radius:10px; font-family:inherit; font-size:0.98rem; font-weight:700; cursor:pointer; color:#fff; background:var(--bleu); }
+.btn:disabled { opacity:0.5; cursor:not-allowed; }
+.btn-sec { background:var(--creme); color:var(--bleu); border:1.5px solid rgba(26,58,92,0.2); }
+.msg { font-size:0.9rem; margin-top:0.75rem; min-height:1.2em; } .msg.ok { color:var(--vert); } .msg.err { color:var(--rouge); }
+.grille { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:1rem; }
+.item { background:#fff; border:1px solid rgba(26,58,92,0.1); border-radius:12px; overflow:hidden; }
+.item img { width:100%; aspect-ratio:1; object-fit:cover; background:var(--creme); display:block; }
+.item .bas { padding:0.5rem 0.6rem; }
+.item .nom { font-size:0.85rem; color:var(--bleu); } .item .tags { font-size:0.72rem; color:var(--gris); margin-top:2px; }
+.item .actions { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+.item button { background:none; border:1px solid rgba(26,58,92,0.15); border-radius:6px; cursor:pointer; font-size:0.8rem; padding:3px 6px; }
+.item .del { color:var(--rouge); border-color:rgba(192,57,43,0.3); }
+.vide { color:var(--gris); text-align:center; padding:1.5rem; }
+.hidden { display:none !important; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">JeParle<span>Français</span> · Admin</div>
+  <a href="admin-vk7x9mq2-accueil.html">‹ Accueil admin</a>
+</nav>
+<div class="header">
+  <h1>Ligne du temps — banque d'images</h1>
+  <p>Images + audios dédiés à « Ma ligne du temps ». Un moment peut proposer plusieurs phrases au choix (ex. « Mon mari est mort » / « Ma femme est morte » / « Mon conjoint est décédé »).</p>
+</div>
+
+<div class="main">
+  <div class="carte">
+    <h2>Ajouter un moment</h2>
+    <div class="drop" id="drop">📁 Clique pour choisir une image</div>
+    <input type="file" id="fichier" accept="image/*" style="display:none"/>
+
+    <label class="lab">Titre court (affiché dans la banque)</label>
+    <input type="text" id="titre" placeholder="ex. : Le mariage"/>
+
+    <label class="check"><input type="checkbox" id="multi" onchange="majMulti()"/> Plusieurs phrases au choix pour ce moment</label>
+
+    <!-- une seule phrase -->
+    <div id="bloc-simple">
+      <label class="lab">Phrase (affichée à l'étudiant)</label>
+      <input type="text" id="mot" placeholder="ex. : Je suis né(e)"/>
+      <div class="audio-zone">
+        <button class="mini rec" id="rec-simple" onclick="rec('simple')">🎙 Audio</button>
+        <button class="mini" onclick="document.getElementById('f-simple').click()">📁 Fichier</button>
+        <input type="file" id="f-simple" accept="audio/*" style="display:none" onchange="fich('simple',event)"/>
+        <button class="mini" id="ec-simple" onclick="ecouterBlob('simple')" style="display:none">▶</button>
+        <span class="ok" id="ok-simple"></span>
+      </div>
+    </div>
+
+    <!-- plusieurs phrases -->
+    <div id="bloc-multi" class="hidden">
+      <label class="lab">Les phrases au choix</label>
+      <div id="versions"></div>
+      <button class="mini btn-sec" onclick="ajouterVersion()">+ Ajouter une phrase</button>
+    </div>
+
+    <label class="lab">Type sur la ligne du temps</label>
+    <select id="type-temps">
+      <option value="fixe">📅 Date fixe (un seul moment)</option>
+      <option value="periode">⏳ Période (de … à …)</option>
+    </select>
+    <div style="margin-top:1rem"><button class="btn" id="ajouter" disabled>Ajouter</button></div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="carte">
+    <h2>Banque (<span id="compte">0</span>)</h2>
+    <div class="grille" id="grille"></div>
+    <div class="vide" id="vide" style="display:none">Aucun moment pour le moment.</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
+  authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027",
+  appId: "1:840403407027:web:46b370498fde6374aaa0c6"
+};
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const COL = 'ligne-du-temps';
+
+let fichierImage = null;
+const blobs = {};   // clé 'simple' ou 'v{n}' -> {blob, ext}
+let player = null, vseq = 0;
+
+const drop = document.getElementById('drop'), fichier = document.getElementById('fichier'), btn = document.getElementById('ajouter'), msg = document.getElementById('msg');
+drop.onclick = () => fichier.click();
+fichier.onchange = () => { const f = fichier.files[0]; if (!f) return; fichierImage = f; drop.innerHTML = `<img src="${URL.createObjectURL(f)}"/>`; btn.disabled = false; };
+
+window.majMulti = function() {
+  const m = document.getElementById('multi').checked;
+  document.getElementById('bloc-simple').classList.toggle('hidden', m);
+  document.getElementById('bloc-multi').classList.toggle('hidden', !m);
+  if (m && !document.querySelector('#versions .vrow')) { ajouterVersion(); ajouterVersion(); }
+};
+
+window.ajouterVersion = function() {
+  const n = 'v' + (++vseq);
+  const div = document.createElement('div');
+  div.className = 'vrow'; div.id = 'row-' + n;
+  div.innerHTML = `
+    <button class="suppr" title="Enlever" onclick="supprVersion('${n}')">✕</button>
+    <input type="text" id="lab-${n}" placeholder="étiquette (ex. : avec un mari)" style="margin-bottom:0.4rem"/>
+    <input type="text" id="mot-${n}" placeholder="la phrase (ex. : Mon mari est mort)"/>
+    <div class="audio-zone">
+      <button class="mini rec" id="rec-${n}" onclick="rec('${n}')">🎙 Audio</button>
+      <button class="mini" onclick="document.getElementById('f-${n}').click()">📁 Fichier</button>
+      <input type="file" id="f-${n}" accept="audio/*" style="display:none" onchange="fich('${n}',event)"/>
+      <button class="mini" id="ec-${n}" onclick="ecouterBlob('${n}')" style="display:none">▶</button>
+      <span class="ok" id="ok-${n}"></span>
+    </div>`;
+  document.getElementById('versions').appendChild(div);
+};
+window.supprVersion = function(n) { const r = document.getElementById('row-'+n); if (r) r.remove(); delete blobs[n]; };
+
+window.fich = function(slot, ev) { const f = ev.target.files[0]; if (!f) return; blobs[slot] = { blob:f, ext:(f.name.split('.').pop()||'mp3').toLowerCase() }; document.getElementById('ok-'+slot).textContent='✓'; document.getElementById('ec-'+slot).style.display='inline-block'; };
+window.ecouterBlob = function(slot) { if (!blobs[slot]) return; new Audio(URL.createObjectURL(blobs[slot].blob)).play().catch(()=>{}); };
+
+let encours = null;
+window.rec = async function(slot) {
+  const b = document.getElementById('rec-'+slot);
+  if (encours && encours.mr.state==='recording' && encours.slot===slot) { encours.mr.stop(); return; }
+  if (encours && encours.mr.state==='recording') { encours.mr.stop(); }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    const mr = new MediaRecorder(stream); const chunks = []; encours = { slot, mr };
+    mr.ondataavailable = e => chunks.push(e.data);
+    mr.onstop = () => { stream.getTracks().forEach(t=>t.stop()); b.classList.remove('on'); b.textContent='🎙 Audio';
+      blobs[slot] = { blob:new Blob(chunks,{type:'audio/webm'}), ext:'webm' };
+      document.getElementById('ok-'+slot).textContent='✓'; document.getElementById('ec-'+slot).style.display='inline-block'; };
+    mr.start(); b.classList.add('on'); b.textContent='⏹ Arrêter';
+  } catch(e) { alert('Micro indisponible : ' + e.message); }
+};
+
+async function up(prefixe, o) {
+  const chemin = COL + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,6) + '_' + prefixe + '.' + o.ext;
+  const r = ref(storage, chemin); await uploadBytes(r, o.blob);
+  return { url: await getDownloadURL(r), chemin };
+}
+
+btn.onclick = async () => {
+  if (!fichierImage) return;
+  const multi = document.getElementById('multi').checked;
+  btn.disabled = true; msg.className='msg'; msg.textContent='Envoi en cours…';
+  try {
+    const img = await up('image', { blob:fichierImage, ext:(fichierImage.name.split('.').pop()||'jpg').toLowerCase() });
+    const d = { image: img.url, chemin: img.chemin, titre: document.getElementById('titre').value.trim(),
+      multi, type: document.getElementById('type-temps').value, ordre: Date.now(), createdAt: Date.now() };
+    if (!multi) {
+      d.mot = document.getElementById('mot').value.trim();
+      if (blobs.simple) { const a = await up('audio', blobs.simple); d.audio = a.url; d.cheminAudio = a.chemin; }
+    } else {
+      const rows = [...document.querySelectorAll('#versions .vrow')];
+      d.versions = [];
+      for (const row of rows) {
+        const n = row.id.replace('row-','');
+        const mot = document.getElementById('mot-'+n).value.trim();
+        if (!mot) continue;
+        const v = { label: document.getElementById('lab-'+n).value.trim(), mot };
+        if (blobs[n]) { const a = await up('audio-'+n, blobs[n]); v.audio = a.url; v.chemin = a.chemin; }
+        d.versions.push(v);
+      }
+      if (!d.versions.length) { msg.className='msg err'; msg.textContent='Ajoute au moins une phrase.'; btn.disabled=false; return; }
+    }
+    await addDoc(collection(db, COL), d);
+    msg.className='msg ok'; msg.textContent='✅ Moment ajouté.';
+    // reset
+    fichierImage=null; for (const k in blobs) delete blobs[k];
+    fichier.value=''; drop.innerHTML='📁 Clique pour choisir une image';
+    document.getElementById('titre').value=''; document.getElementById('mot').value='';
+    document.getElementById('ok-simple').textContent=''; document.getElementById('ec-simple').style.display='none';
+    document.getElementById('versions').innerHTML='';
+    if (multi) { ajouterVersion(); ajouterVersion(); }
+    charger();
+  } catch(e) { msg.className='msg err'; msg.textContent='❌ '+e.message; btn.disabled=false; }
+};
+
+window.ecouterItem = (url) => { if (!url) return; if (!player) player=new Audio(); player.src=url; player.play().catch(()=>{}); };
+window.basculerType = async (id, actuel) => { const n = actuel==='periode'?'fixe':'periode'; try { await updateDoc(doc(db,COL,id),{type:n}); charger(); } catch(e){ alert(e.message); } };
+window.supprimer = async (id) => {
+  const c = liste.find(x=>x.id===id); if (!confirm('Supprimer ce moment ?')) return;
+  try {
+    await deleteDoc(doc(db,COL,id));
+    const chemins = [c&&c.chemin, c&&c.cheminAudio, ...((c&&c.versions)||[]).map(v=>v.chemin)].filter(Boolean);
+    for (const ch of chemins) { try { await deleteObject(ref(storage, ch)); } catch(e){} }
+    charger();
+  } catch(e) { alert('Erreur : '+e.message); }
+};
+
+let liste = [];
+async function charger() {
+  const snap = await getDocs(collection(db, COL));
+  liste = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.ordre||0)-(b.ordre||0));
+  document.getElementById('compte').textContent = liste.length;
+  document.getElementById('vide').style.display = liste.length?'none':'block';
+  document.getElementById('grille').innerHTML = liste.map(c => {
+    const tag = (c.type==='periode'?'⏳ période':'📅 date') + (c.multi?` · ${(c.versions||[]).length} choix`:'');
+    let corps = '', audios = '';
+    if (c.multi) {
+      corps = (c.versions||[]).map(v=>`• ${v.mot||''}`).join('<br>');
+      audios = (c.versions||[]).map((v,i)=> v.audio?`<button onclick="ecouterItem('${v.audio}')">🔊 ${i+1}</button>`:'').join('');
+    } else { corps = c.mot||'—'; if (c.audio) audios = `<button onclick="ecouterItem('${c.audio}')">🔊</button>`; }
+    return `<div class="item"><img src="${c.image}" alt=""/><div class="bas">
+      ${c.titre?`<div class="nom"><b>${c.titre}</b></div>`:''}
+      <div class="nom">${corps}</div><div class="tags">${tag}</div>
+      <div class="actions">${audios}
+        <button onclick="basculerType('${c.id}','${c.type||'fixe'}')">⏱ ${c.type==='periode'?'Période':'Date'}</button>
+        <button class="del" onclick="supprimer('${c.id}')">🗑</button></div>
+    </div></div>`;
+  }).join('');
+}
+charger();
+</script>
+<script type="module" src="admin-auth.js"></script>
+</body>
+</html>

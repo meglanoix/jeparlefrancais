@@ -10,8 +10,7 @@
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 body { font-family:'DM Sans',sans-serif; color:var(--texte); background:var(--creme); }
 nav { position:sticky; top:0; z-index:40; display:flex; align-items:center; justify-content:space-between; padding:0 5vw; height:60px; background:rgba(255,255,255,0.96); backdrop-filter:blur(8px); border-bottom:1px solid rgba(26,58,92,0.08); }
-.nav-logo { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--bleu); text-decoration:none; }
-.nav-logo span { color:var(--rouge); }
+.nav-logo { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--bleu); text-decoration:none; } .nav-logo span { color:var(--rouge); }
 .nav-back { color:var(--gris); font-size:0.9rem; text-decoration:none; }
 .hero { background:var(--bleu); color:#fff; padding:2rem 5vw 2.25rem; }
 .hero .eyebrow { font-size:0.72rem; letter-spacing:2px; text-transform:uppercase; opacity:0.7; }
@@ -19,51 +18,45 @@ nav { position:sticky; top:0; z-index:40; display:flex; align-items:center; just
 .hero p { opacity:0.85; font-size:0.98rem; max-width:640px; }
 .main { max-width:1100px; margin:0 auto; padding:1.75rem 5vw 5rem; }
 .titre-sec { font-family:'Playfair Display',serif; color:var(--bleu); font-size:1.3rem; margin:1.5rem 0 0.9rem; }
-
-/* banque */
 .banque { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:0.9rem; }
 .moment { background:var(--blanc); border:2px solid rgba(26,58,92,0.1); border-radius:14px; overflow:hidden; cursor:pointer; box-shadow:0 2px 12px rgba(26,58,92,0.06); transition:transform .12s, border-color .2s; }
 .moment:hover { transform:translateY(-3px); border-color:var(--bleu-clair); }
 .moment .ph { width:100%; aspect-ratio:1; object-fit:cover; background:var(--creme); display:block; }
-.moment .nom { padding:0.5rem 0.6rem; text-align:center; font-size:0.88rem; color:var(--bleu); font-weight:500; }
+.moment .nom { padding:0.5rem 0.6rem; text-align:center; font-size:0.86rem; color:var(--bleu); font-weight:500; }
 .moment .type-badge { font-size:0.68rem; color:var(--gris); }
-
-/* ligne du temps */
 .actions { display:flex; gap:10px; flex-wrap:wrap; margin:0.5rem 0 1.25rem; }
 .btn { padding:0.75rem 1.4rem; border-radius:10px; border:1.5px solid transparent; font-family:inherit; font-size:0.95rem; font-weight:600; cursor:pointer; }
 .btn-primary { background:var(--bleu); color:#fff; } .btn-primary:hover { background:var(--bleu-clair); }
 .btn-primary:disabled { background:rgba(26,58,92,0.3); cursor:not-allowed; }
 .btn-ghost { background:var(--blanc); color:var(--gris); border-color:rgba(26,58,92,0.15); } .btn-ghost:hover { color:var(--rouge); border-color:var(--rouge); }
-
 .timeline-wrap { overflow-x:auto; padding:1.5rem 0 1rem; }
-.timeline { display:flex; align-items:flex-start; gap:0; min-width:min-content; position:relative; padding-top:14px; }
-.timeline::before { content:''; position:absolute; top:22px; left:40px; right:40px; height:4px; background:linear-gradient(90deg,var(--bleu-clair),var(--orange)); border-radius:2px; }
-.noeud { flex:0 0 auto; width:160px; display:flex; flex-direction:column; align-items:center; position:relative; }
-.noeud .annee { background:var(--bleu); color:#fff; font-weight:700; font-size:0.9rem; padding:0.25rem 0.7rem; border-radius:20px; margin-bottom:10px; white-space:nowrap; z-index:1; }
+#ligne.timeline { display:flex; align-items:flex-start; gap:0; min-width:min-content; position:relative; padding-top:14px; }
+#ligne.timeline::before { content:''; position:absolute; top:22px; left:40px; right:40px; height:4px; background:linear-gradient(90deg,var(--bleu-clair),var(--orange)); border-radius:2px; }
+.noeud { flex:0 0 auto; width:170px; display:flex; flex-direction:column; align-items:center; position:relative; }
+.noeud .annee { background:var(--bleu); color:#fff; font-weight:700; font-size:0.88rem; padding:0.25rem 0.7rem; border-radius:20px; margin-bottom:10px; white-space:nowrap; z-index:1; }
 .noeud.periode .annee { background:var(--orange); }
 .noeud .pastille { width:16px; height:16px; border-radius:50%; background:var(--bleu); border:3px solid #fff; box-shadow:0 0 0 2px var(--bleu); margin-bottom:10px; z-index:1; }
 .noeud.periode .pastille { background:var(--orange); box-shadow:0 0 0 2px var(--orange); }
-.noeud .carte { background:var(--blanc); border:2px solid rgba(26,58,92,0.1); border-radius:14px; padding:8px; width:140px; cursor:pointer; box-shadow:var(--ombre); }
+.noeud .carte { background:var(--blanc); border:2px solid rgba(26,58,92,0.1); border-radius:14px; padding:8px; width:150px; cursor:pointer; box-shadow:var(--ombre); }
 .noeud .carte img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:9px; display:block; }
-.noeud .carte .n { text-align:center; font-size:0.85rem; color:var(--bleu); font-weight:500; margin-top:6px; }
-.noeud .enlever { position:absolute; top:34px; right:18px; background:var(--rouge); color:#fff; border:none; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:0.8rem; z-index:2; }
+.noeud .carte .n { text-align:center; font-size:0.82rem; color:var(--bleu); font-weight:500; margin-top:6px; }
+.noeud .enlever { position:absolute; top:34px; right:22px; background:var(--rouge); color:#fff; border:none; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:0.8rem; z-index:2; }
 .noeud.actif .carte { border-color:var(--vert); box-shadow:0 6px 24px rgba(26,122,74,0.3); }
 .vide { color:var(--gris); padding:1.5rem; text-align:center; }
-
-/* modal */
 .overlay { position:fixed; inset:0; background:rgba(26,58,92,0.45); display:flex; align-items:center; justify-content:center; z-index:100; padding:1rem; }
 .overlay.hidden { display:none; }
-.box { background:#fff; border-radius:16px; padding:1.5rem; width:min(94vw,400px); }
-.box h3 { font-family:'Playfair Display',serif; color:var(--bleu); font-size:1.2rem; margin-bottom:0.3rem; }
-.box .sous { color:var(--gris); font-size:0.9rem; margin-bottom:1rem; }
-.modes { display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; }
-.modes label { font-size:0.95rem; color:var(--texte); cursor:pointer; display:flex; align-items:center; gap:8px; }
-.champs { display:flex; gap:10px; }
-.champs > div { flex:1; }
-.champs label { display:block; font-size:0.8rem; color:var(--gris); margin-bottom:4px; }
-.champs input { width:100%; padding:0.6rem; border:1.5px solid rgba(26,58,92,0.2); border-radius:9px; font-family:inherit; font-size:1rem; }
+.box { background:#fff; border-radius:16px; padding:1.5rem; width:min(94vw,420px); max-height:90vh; overflow:auto; }
+.box h3 { font-family:'Playfair Display',serif; color:var(--bleu); font-size:1.2rem; margin-bottom:0.9rem; }
+.box label { display:block; font-size:0.82rem; color:var(--gris); margin:0.6rem 0 4px; }
+.box select, .box input { width:100%; padding:0.6rem; border:1.5px solid rgba(26,58,92,0.2); border-radius:9px; font-family:inherit; font-size:1rem; background:#fff; }
+.rangee { display:flex; gap:10px; } .rangee > div { flex:1; }
 .err { color:var(--rouge); font-size:0.85rem; min-height:1.1em; margin-top:0.5rem; }
 .box .btns { display:flex; justify-content:flex-end; gap:10px; margin-top:1.1rem; }
+.vchoix { display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:var(--creme); border:1.5px solid rgba(26,58,92,0.15); border-radius:12px; padding:0.8rem 1rem; margin-bottom:0.6rem; cursor:pointer; font-family:inherit; font-size:1rem; color:var(--bleu); }
+.vchoix:hover { border-color:var(--bleu-clair); }
+.vchoix .ecoute { background:var(--vert); color:#fff; border:none; border-radius:50%; width:30px; height:30px; flex-shrink:0; cursor:pointer; }
+.vchoix .txt { flex:1; }
+.vchoix .lab { display:block; font-size:0.72rem; color:var(--gris); }
 .hidden { display:none !important; }
 </style>
 </head>
@@ -75,7 +68,7 @@ nav { position:sticky; top:0; z-index:40; display:flex; align-items:center; just
 <div class="hero">
   <p class="eyebrow">Activité · Raconter au passé</p>
   <h1>Ma ligne du temps</h1>
-  <p>Choisis les moments importants de ta vie. Pour chacun, indique l'année (ou la période). Ensuite, raconte ta vie au passé composé !</p>
+  <p>Choisis les moments importants de ta vie, indique quand, puis raconte ta vie au passé composé.</p>
 </div>
 
 <div class="main">
@@ -88,32 +81,29 @@ nav { position:sticky; top:0; z-index:40; display:flex; align-items:center; just
     <button class="btn btn-ghost" id="btn-arreter" onclick="arreter()" style="display:none">■ Arrêter</button>
     <button class="btn btn-ghost" onclick="recommencer()">🗑 Recommencer</button>
   </div>
-  <div class="timeline-wrap">
-    <div id="ligne"><div class="vide">Ta ligne du temps est vide. Clique sur un moment ci-dessus.</div></div>
+  <div class="timeline-wrap"><div id="ligne"><div class="vide">Ta ligne du temps est vide. Clique sur un moment ci-dessus.</div></div></div>
+</div>
+
+<!-- MODAL : choisir la phrase (versions) -->
+<div class="overlay hidden" id="modal-version">
+  <div class="box">
+    <h3>Choisis ta phrase</h3>
+    <div id="versions-liste"></div>
+    <div class="btns"><button class="btn btn-ghost" onclick="fermerVersion()">Annuler</button></div>
   </div>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL : quand ? -->
 <div class="overlay hidden" id="modal">
   <div class="box">
     <h3 id="modal-titre">Quand ?</h3>
-    <div class="sous" id="modal-sous"></div>
-    <div class="modes" id="unites">
-      <label><input type="radio" name="unite" value="annee" checked onchange="majMode()"/> 📅 Année</label>
-      <label><input type="radio" name="unite" value="age" onchange="majMode()"/> 🎂 Âge</label>
-    </div>
-    <div class="modes hidden" id="modes">
-      <label><input type="radio" name="mode" value="range" checked onchange="majMode()"/> Une période (de … à …)</label>
-      <label><input type="radio" name="mode" value="single" onchange="majMode()"/> Moins d'un an (une seule année)</label>
-    </div>
-    <div class="champs">
-      <div id="bloc-debut"><label id="lab-debut">En quelle année ?</label><input type="number" id="an-debut" inputmode="numeric" placeholder="ex. 2006"/></div>
-      <div id="bloc-fin"><label id="lab-fin">À quelle année ?</label><input type="number" id="an-fin" inputmode="numeric" placeholder="ex. 2008"/></div>
-    </div>
+    <label>Comment veux-tu le dire ?</label>
+    <select id="mode" onchange="majChamps()"></select>
+    <div id="champs"></div>
     <div class="err" id="modal-err"></div>
     <div class="btns">
       <button class="btn btn-ghost" onclick="fermerModal()">Annuler</button>
-      <button class="btn btn-primary" onclick="ajouterMoment()">Ajouter</button>
+      <button class="btn btn-primary" onclick="ajouter()">Ajouter</button>
     </div>
   </div>
 </div>
@@ -123,174 +113,182 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const firebaseConfig = {
   apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
-  authDomain: "audio-francisation.firebaseapp.com",
-  projectId: "audio-francisation",
-  storageBucket: "audio-francisation.firebasestorage.app",
-  messagingSenderId: "840403407027",
+  authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation",
+  storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027",
   appId: "1:840403407027:web:46b370498fde6374aaa0c6"
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const COL = 'moments-importants';
+const COL = 'ligne-du-temps';
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const ANNEE_AUJ = new Date().getFullYear();
 
-let cartes = [];          // banque (depuis Firestore)
-let ligne = [];           // moments placés par l'élève
-let carteEnCours = null;  // carte en attente d'année (modal)
-let lecture = null, player = null;
+let cartes = [], ligne = [], carteEnCours = null, choixEnCours = null, lecture = null, player = null;
 
-function debloquerAudio() {
-  if (!player) { player = new Audio(); player.setAttribute('playsinline',''); }
-  try { player.play().then(()=>player.pause()).catch(()=>{}); } catch(e) {}
-}
+function debloquerAudio() { if (!player) { player = new Audio(); player.setAttribute('playsinline',''); } try { player.play().then(()=>player.pause()).catch(()=>{}); } catch(e){} }
+function texteBanque(c) { return c.titre || (c.multi ? ((c.versions&&c.versions[0]&&c.versions[0].mot)||'') : (c.mot||'')); }
 
 async function charger() {
   const snap = await getDocs(collection(db, COL));
   cartes = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(c => c.image);
   rendreBanque();
 }
-
 function rendreBanque() {
   const b = document.getElementById('banque');
   if (!cartes.length) { b.innerHTML = '<div class="vide">Aucun moment pour le moment.</div>'; return; }
   b.innerHTML = cartes.map((c,i) => `
-    <div class="moment" onclick="ouvrirModal(${i})">
+    <div class="moment" onclick="choisirMoment(${i})">
       <img class="ph" src="${c.image}" alt=""/>
-      <div class="nom">${c.mot || ''}<div class="type-badge">${c.typeTemps === 'periode' ? '⏳ période' : '📅 date'}</div></div>
+      <div class="nom">${texteBanque(c)}<div class="type-badge">${c.type==='periode'?'⏳ période':'📅 date'}</div></div>
     </div>`).join('');
 }
 
-// ---- modal ----
-window.ouvrirModal = function(i) {
+// ---------- clic sur un moment ----------
+window.choisirMoment = function(i) {
   debloquerAudio();
   carteEnCours = cartes[i];
-  const periode = carteEnCours.typeTemps === 'periode';
-  document.getElementById('modal-titre').textContent = carteEnCours.mot || 'Quand ?';
-  document.getElementById('modal-sous').textContent = periode ? 'Indique la période (ou juste une année si moins d\'un an).' : 'Indique l\'année.';
-  document.getElementById('modes').classList.toggle('hidden', !periode);
-  document.getElementById('an-debut').value = '';
-  document.getElementById('an-fin').value = '';
-  document.getElementById('modal-err').textContent = '';
-  if (periode) { document.querySelector('input[name=mode][value=range]').checked = true; }
-  document.querySelector('input[name=unite][value=annee]').checked = true;
-  majMode();
-  document.getElementById('modal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('an-debut').focus(), 100);
-};
-window.fermerModal = function() { document.getElementById('modal').classList.add('hidden'); carteEnCours = null; };
-
-window.majMode = function() {
-  const periode = carteEnCours && carteEnCours.typeTemps === 'periode';
-  const range = periode && document.querySelector('input[name=mode]:checked').value === 'range';
-  const age = document.querySelector('input[name=unite]:checked').value === 'age';
-  document.getElementById('bloc-fin').classList.toggle('hidden', !range);
-  document.getElementById('lab-debut').textContent = range
-    ? (age ? 'À partir de quel âge ?' : 'De quelle année ?')
-    : (age ? 'À quel âge ?' : 'En quelle année ?');
-  document.getElementById('lab-fin').textContent = age ? 'Jusqu\'à quel âge ?' : 'À quelle année ?';
-  document.getElementById('an-debut').placeholder = age ? 'ex. 5' : 'ex. 2006';
-  document.getElementById('an-fin').placeholder = age ? 'ex. 7' : 'ex. 2008';
-};
-
-window.ajouterMoment = function() {
-  const err = document.getElementById('modal-err');
-  const unite = document.querySelector('input[name=unite]:checked').value;
-  const age = unite === 'age';
-  const ok = (v) => age ? (!isNaN(v) && v >= 0 && v <= 120) : (!isNaN(v) && v >= 1900 && v <= 2100);
-  const debut = parseInt(document.getElementById('an-debut').value, 10);
-  if (!ok(debut)) { err.textContent = age ? 'Entre un âge valide (0 à 120).' : 'Entre une année valide (ex. 2006).'; return; }
-  const periode = carteEnCours.typeTemps === 'periode';
-  const range = periode && document.querySelector('input[name=mode]:checked').value === 'range';
-  let fin = null;
-  if (range) {
-    fin = parseInt(document.getElementById('an-fin').value, 10);
-    if (!ok(fin) || fin < debut) { err.textContent = age ? 'L\'âge de fin doit être après le début.' : 'L\'année de fin doit être après le début.'; return; }
+  if (carteEnCours.multi && carteEnCours.versions && carteEnCours.versions.length > 1) {
+    const l = document.getElementById('versions-liste');
+    l.innerHTML = carteEnCours.versions.map((v,idx) => `
+      <button class="vchoix" onclick="choisirVersion(${idx})">
+        ${v.audio ? `<span class="ecoute" onclick="event.stopPropagation(); ecouterUrl('${v.audio}')">▶</span>` : '<span style="width:30px"></span>'}
+        <span class="txt">${v.mot||''}${v.label?`<span class="lab">${v.label}</span>`:''}</span>
+      </button>`).join('');
+    document.getElementById('modal-version').classList.remove('hidden');
+  } else {
+    // une seule version
+    const v = carteEnCours.multi ? carteEnCours.versions[0] : { mot: carteEnCours.mot, audio: carteEnCours.audio };
+    choixEnCours = { text: v.mot||'', audio: v.audio||null };
+    ouvrirQuand();
   }
-  ligne.push({ uid: Date.now()+'-'+Math.random().toString(36).slice(2,6),
-    mot: carteEnCours.mot || '', image: carteEnCours.image, audio: carteEnCours.audio || null,
-    debut, fin, unite });
-  fermerModal();
-  rendreLigne();
 };
-
-window.enlever = function(uid) {
-  ligne = ligne.filter(m => m.uid !== uid);
-  rendreLigne();
+window.choisirVersion = function(idx) {
+  const v = carteEnCours.versions[idx];
+  choixEnCours = { text: v.mot||'', audio: v.audio||null };
+  document.getElementById('modal-version').classList.add('hidden');
+  ouvrirQuand();
 };
+window.fermerVersion = function() { document.getElementById('modal-version').classList.add('hidden'); carteEnCours = null; };
+window.ecouterUrl = function(url) { if (!url) return; if (!player) player=new Audio(); player.src=url; player.play().catch(()=>{}); };
 
-// --- tri intelligent : convertit les âges en années via le moment "naissance" daté ---
+// ---------- modal "quand ?" ----------
+const MODES_FIXE = [
+  { v:'annee', t:"L'année (en 2006)" },
+  { v:'date',  t:'La date complète (le 12 mars 2006)' },
+  { v:'age',   t:'À quel âge (à 6 ans)' },
+  { v:'ilya',  t:'Il y a combien de temps (il y a 20 ans)' }
+];
+const MODES_PERIODE = [
+  { v:'pa',  t:'De … à … (années)' },
+  { v:'pg',  t:'De … à … (âges)' },
+  { v:'dur', t:'Une durée (pendant X ans)' }
+];
+function ouvrirQuand() {
+  document.getElementById('modal-titre').textContent = choixEnCours.text || 'Quand ?';
+  const modes = carteEnCours.type === 'periode' ? MODES_PERIODE : MODES_FIXE;
+  document.getElementById('mode').innerHTML = modes.map(m => `<option value="${m.v}">${m.t}</option>`).join('');
+  document.getElementById('modal-err').textContent = '';
+  majChamps();
+  document.getElementById('modal').classList.remove('hidden');
+}
+window.fermerModal = function() { document.getElementById('modal').classList.add('hidden'); carteEnCours = null; choixEnCours = null; };
+
+function selJour() { let o=''; for (let j=1;j<=31;j++) o+=`<option value="${j}">${j}</option>`; return o; }
+function selMois() { return MOIS.map((m,i)=>`<option value="${i}">${m}</option>`).join(''); }
+window.majChamps = function() {
+  const mode = document.getElementById('mode').value;
+  const c = document.getElementById('champs');
+  if (mode==='annee') c.innerHTML = `<label>En quelle année ?</label><input type="number" id="v1" inputmode="numeric" placeholder="ex. 2006"/>`;
+  else if (mode==='age') c.innerHTML = `<label>À quel âge ?</label><input type="number" id="v1" inputmode="numeric" placeholder="ex. 6"/>`;
+  else if (mode==='ilya') c.innerHTML = `<label>Il y a combien d'années ?</label><input type="number" id="v1" inputmode="numeric" placeholder="ex. 20"/>`;
+  else if (mode==='date') c.innerHTML = `<div class="rangee"><div><label>Jour</label><select id="vj">${selJour()}</select></div><div><label>Mois</label><select id="vm">${selMois()}</select></div><div><label>Année</label><input type="number" id="v1" inputmode="numeric" placeholder="2006"/></div></div>`;
+  else if (mode==='pa') c.innerHTML = `<div class="rangee"><div><label>De (année)</label><input type="number" id="v1" placeholder="2006"/></div><div><label>À (année)</label><input type="number" id="v2" placeholder="2008"/></div></div>`;
+  else if (mode==='pg') c.innerHTML = `<div class="rangee"><div><label>De (âge)</label><input type="number" id="v1" placeholder="6"/></div><div><label>À (âge)</label><input type="number" id="v2" placeholder="13"/></div></div>`;
+  else if (mode==='dur') c.innerHTML = `<label>À partir de…</label><div class="rangee"><div><select id="unit"><option value="annee">une année</option><option value="age">un âge</option></select></div><div><input type="number" id="v1" placeholder="ex. 2006 ou 6"/></div></div><label>Pendant combien d'années ?</label><input type="number" id="v2" placeholder="ex. 7"/>`;
+};
+function val(id) { const el = document.getElementById(id); return el ? parseInt(el.value,10) : NaN; }
+
+window.ajouter = function() {
+  const err = document.getElementById('modal-err');
+  const mode = document.getElementById('mode').value;
+  const m = { uid: Date.now()+'-'+Math.random().toString(36).slice(2,6), text: choixEnCours.text, image: carteEnCours.image, audio: choixEnCours.audio||null, mode };
+  if (mode==='annee' || mode==='age' || mode==='ilya') {
+    const v1 = val('v1');
+    if (isNaN(v1) || (mode==='age' && (v1<0||v1>120))) { err.textContent='Entre une valeur valide.'; return; }
+    m.v1 = v1;
+  } else if (mode==='date') {
+    const v1 = val('v1'); if (isNaN(v1)||v1<1900||v1>2100) { err.textContent='Entre une année valide.'; return; }
+    m.v1 = val('vj'); m.mois = val('vm'); m.annee = v1;
+  } else if (mode==='pa' || mode==='pg') {
+    const v1=val('v1'), v2=val('v2'); if (isNaN(v1)||isNaN(v2)||v2<v1) { err.textContent='Vérifie les deux valeurs (fin après début).'; return; }
+    m.v1=v1; m.v2=v2;
+  } else if (mode==='dur') {
+    const v1=val('v1'), v2=val('v2'); if (isNaN(v1)||isNaN(v2)||v2<1) { err.textContent='Entre un début et une durée.'; return; }
+    m.v1=v1; m.v2=v2; m.unit=document.getElementById('unit').value;
+  }
+  ligne.push(m); fermerModal(); rendreLigne();
+};
+window.enlever = function(uid) { ligne = ligne.filter(x => x.uid !== uid); rendreLigne(); };
+
+// ---------- calculs ----------
 function anneeNaissance() {
-  const n = ligne.find(m => m.unite === 'annee' && /\bn[ée]|naiss|naît/i.test(m.mot || ''));
-  return n ? n.debut : null;
+  const n = ligne.find(m => (m.mode==='annee'||m.mode==='date') && /\bn[ée]|naiss|naît/i.test(m.text||''));
+  if (!n) return null; return n.mode==='date' ? n.annee : n.v1;
 }
-function cleDebut(m, birth) { return (m.unite === 'age' && birth != null) ? (birth + m.debut) : m.debut; }
-function trier() {
-  const birth = anneeNaissance();
-  return ligne.slice().sort((a, b) => (cleDebut(a, birth) - cleDebut(b, birth)) || ((a.fin||a.debut) - (b.fin||b.debut)));
+function cle(m, birth) {
+  switch (m.mode) {
+    case 'annee': return m.v1; case 'date': return m.annee; case 'ilya': return ANNEE_AUJ - m.v1;
+    case 'age': return birth!=null ? birth+m.v1 : m.v1; case 'pa': return m.v1;
+    case 'pg': return birth!=null ? birth+m.v1 : m.v1;
+    case 'dur': return (m.unit==='annee') ? m.v1 : (birth!=null ? birth+m.v1 : m.v1);
+    default: return 0;
+  }
 }
-function label(m) { const u = m.unite === 'age' ? ' ans' : ''; return m.fin ? (m.debut + ' – ' + m.fin + u) : (m.debut + u); }
+function estPeriode(m) { return m.mode==='pa'||m.mode==='pg'||m.mode==='dur'; }
+function label(m) {
+  switch (m.mode) {
+    case 'annee': return 'en '+m.v1; case 'age': return 'à '+m.v1+' ans'; case 'ilya': return 'il y a '+m.v1+' ans';
+    case 'date': return 'le '+m.v1+' '+MOIS[m.mois]+' '+m.annee;
+    case 'pa': return 'de '+m.v1+' à '+m.v2; case 'pg': return 'de '+m.v1+' à '+m.v2+' ans';
+    case 'dur': return (m.unit==='annee') ? ('de '+m.v1+' à '+(m.v1+m.v2)) : ('de '+m.v1+' à '+(m.v1+m.v2)+' ans');
+    default: return '';
+  }
+}
+function trier() { const b = anneeNaissance(); return ligne.slice().sort((a,c)=>cle(a,b)-cle(c,b)); }
 
 function rendreLigne() {
   const el = document.getElementById('ligne');
-  document.getElementById('btn-ecouter').disabled = ligne.length === 0;
-  if (!ligne.length) { el.innerHTML = '<div class="vide">Ta ligne du temps est vide. Clique sur un moment ci-dessus.</div>'; return; }
-  const ordonne = trier();
+  document.getElementById('btn-ecouter').disabled = ligne.length===0;
+  if (!ligne.length) { el.className=''; el.innerHTML = '<div class="vide">Ta ligne du temps est vide. Clique sur un moment ci-dessus.</div>'; return; }
   el.className = 'timeline';
-  el.innerHTML = ordonne.map(m => `
-    <div class="noeud ${m.fin ? 'periode' : ''}" data-uid="${m.uid}">
-      <div class="annee">${label(m)}</div>
-      <div class="pastille"></div>
+  el.innerHTML = trier().map(m => `
+    <div class="noeud ${estPeriode(m)?'periode':''}" data-uid="${m.uid}">
+      <div class="annee">${label(m)}</div><div class="pastille"></div>
       <button class="enlever" title="Enlever" onclick="enlever('${m.uid}')">✕</button>
-      <div class="carte" onclick="jouer('${m.uid}')">
-        <img src="${m.image}" alt=""/>
-        <div class="n">${m.mot}</div>
-      </div>
+      <div class="carte" onclick="jouer('${m.uid}')"><img src="${m.image||''}" alt=""/><div class="n">${m.text}</div></div>
     </div>`).join('');
 }
+window.jouer = function(uid) { const m = ligne.find(x=>x.uid===uid); if (!m||!m.audio) return; if (!player){player=new Audio();player.setAttribute('playsinline','');} player.src=m.audio; player.play().catch(()=>{}); };
 
-window.jouer = function(uid) {
-  const m = ligne.find(x => x.uid === uid);
-  if (!m || !m.audio) return;
-  if (!player) { player = new Audio(); player.setAttribute('playsinline',''); }
-  player.src = m.audio; player.play().catch(()=>{});
-};
-
-// lecture de toute la ligne, dans l'ordre
 window.ecouter = function() {
-  if (lecture) { clearTimeout(lecture); lecture = null; }
-  const ordonne = trier();
-  if (!player) { player = new Audio(); player.setAttribute('playsinline',''); }
-  document.getElementById('btn-ecouter').disabled = true;
-  document.getElementById('btn-arreter').style.display = 'inline-block';
-  let i = 0;
+  if (lecture) { clearTimeout(lecture); lecture=null; }
+  const ord = trier(); if (!player){player=new Audio();player.setAttribute('playsinline','');}
+  document.getElementById('btn-ecouter').disabled=true; document.getElementById('btn-arreter').style.display='inline-block';
+  let i=0;
   function suite() {
-    document.querySelectorAll('.noeud.actif').forEach(n => n.classList.remove('actif'));
-    if (i >= ordonne.length) { fin(); return; }
-    const m = ordonne[i];
-    const el = document.querySelector('.noeud[data-uid="'+m.uid+'"]');
-    if (el) { el.classList.add('actif'); el.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' }); }
+    document.querySelectorAll('.noeud.actif').forEach(n=>n.classList.remove('actif'));
+    if (i>=ord.length) { fin(); return; }
+    const m=ord[i]; const el=document.querySelector('.noeud[data-uid="'+m.uid+'"]');
+    if (el){ el.classList.add('actif'); el.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}); }
     i++;
-    if (m.audio) {
-      player.onended = () => { lecture = setTimeout(suite, 2500); };
-      player.onerror = () => { lecture = setTimeout(suite, 2500); };
-      player.src = m.audio; const p = player.play(); if (p && p.catch) p.catch(() => { lecture = setTimeout(suite, 2500); });
-    } else { lecture = setTimeout(suite, 2500); }
+    if (m.audio){ player.onended=()=>{lecture=setTimeout(suite,2500);}; player.onerror=()=>{lecture=setTimeout(suite,2500);}; player.src=m.audio; const p=player.play(); if(p&&p.catch)p.catch(()=>{lecture=setTimeout(suite,2500);}); }
+    else { lecture=setTimeout(suite,2500); }
   }
-  function fin() {
-    document.querySelectorAll('.noeud.actif').forEach(n => n.classList.remove('actif'));
-    document.getElementById('btn-ecouter').disabled = false;
-    document.getElementById('btn-arreter').style.display = 'none';
-  }
-  window._finLecture = fin;
-  suite();
+  function fin(){ document.querySelectorAll('.noeud.actif').forEach(n=>n.classList.remove('actif')); document.getElementById('btn-ecouter').disabled=false; document.getElementById('btn-arreter').style.display='none'; }
+  window._fin=fin; suite();
 };
-window.arreter = function() {
-  if (player) { try { player.pause(); player.onended = null; } catch(e) {} }
-  if (lecture) { clearTimeout(lecture); lecture = null; }
-  if (window._finLecture) window._finLecture();
-};
-window.recommencer = function() {
-  arreter(); ligne = []; rendreLigne();
-};
+window.arreter = function(){ if (player){try{player.pause();player.onended=null;}catch(e){}} if (lecture){clearTimeout(lecture);lecture=null;} if (window._fin) window._fin(); };
+window.recommencer = function(){ arreter(); ligne=[]; rendreLigne(); };
 
 charger();
 </script>
