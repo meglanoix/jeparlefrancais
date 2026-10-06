@@ -235,6 +235,13 @@ input[type=text]:focus { border-color: var(--bleu); }
       <label>Catégorie <span style="color:var(--gris);font-weight:300">(pour le jeu d'association)</span></label>
       <input type="text" id="categorie" placeholder="Ex : soccer, natation, hockey..."/>
     </div>
+    <div class="form-group" style="margin-bottom:1rem">
+      <label>Type sur la ligne du temps</label>
+      <select id="type-temps" style="padding:10px 12px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem;background:var(--blanc)">
+        <option value="fixe">📅 Date fixe (une seule année)</option>
+        <option value="periode">⏳ Période (de … à …)</option>
+      </select>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label>Image</label>
@@ -373,6 +380,7 @@ window.saveCard = async function() {
     await addDoc(collection(db, 'moments-importants'), {
       mot,
       categorie: document.getElementById('categorie').value.trim().toLowerCase(),
+      typeTemps: document.getElementById('type-temps').value,
       image: pendingImage,
       audio: audioUrl,
       date: new Date().toLocaleDateString('fr-CA')
@@ -477,6 +485,16 @@ function titreCarte(c) {
   return '<span style="color:#999">(sans texte)</span>';
 }
 
+window.toggleType = async function(e, id, actuel) {
+  e.stopPropagation();
+  const nouveau = actuel === 'periode' ? 'fixe' : 'periode';
+  try {
+    const { updateDoc, doc: fsDoc } = await import('./firestore-storage.js');
+    await updateDoc(fsDoc(db, 'moments-importants', id), { typeTemps: nouveau });
+    await loadCards();
+  } catch(err) { alert('Erreur : ' + err.message); }
+};
+
 function renderCards() {
   const grid = document.getElementById('card-grid');
   if (!cartes.length) {
@@ -503,6 +521,9 @@ function renderCards() {
           </button>
           <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4);margin-top:4px" onclick="openCategorie(event,'${c.id}','${(c.categorie||'').replace(/'/g,"\\'")}')">
             🏷 Catégorie${c.categorie ? ': '+c.categorie : ''}
+          </button>
+          <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4);margin-top:4px" onclick="toggleType(event,'${c.id}','${c.typeTemps || 'fixe'}')">
+            ⏱ ${c.typeTemps === 'periode' ? 'Période' : 'Date fixe'}
           </button>
           <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}',this.dataset.mot)" data-mot="${(c.mot || '').replace(/'/g, '&#39;')}">
             ⬛ QR Code
