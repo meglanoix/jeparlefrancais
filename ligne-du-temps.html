@@ -130,7 +130,8 @@ function texteBanque(c) { return c.titre || (c.multi ? ((c.versions&&c.versions[
 
 async function charger() {
   const snap = await getDocs(collection(db, COL));
-  cartes = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(c => c.image);
+  cartes = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(c => c.image)
+    .sort((a,b)=>(a.ordre||0)-(b.ordre||0));
   rendreBanque();
 }
 function rendreBanque() {
