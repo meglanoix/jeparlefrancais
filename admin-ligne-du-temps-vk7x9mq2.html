@@ -42,6 +42,12 @@ input[type=text], select { width:100%; padding:0.6rem 0.7rem; border:1.5px solid
 .item .del { color:var(--rouge); border-color:rgba(192,57,43,0.3); }
 .vide { color:var(--gris); text-align:center; padding:1.5rem; }
 .hidden { display:none !important; }
+.overlay { position:fixed; inset:0; background:rgba(26,58,92,0.45); display:none; align-items:flex-start; justify-content:center; padding:4vh 4vw; z-index:50; overflow:auto; }
+.overlay.on { display:flex; }
+.modal { background:#fff; border-radius:16px; width:100%; max-width:560px; padding:1.6rem 1.6rem 1.4rem; box-shadow:0 10px 40px rgba(0,0,0,0.25); }
+.modal h2 { font-family:'Playfair Display',serif; color:var(--bleu); font-size:1.2rem; margin-bottom:0.8rem; }
+.modal .drop { margin-top:0.4rem; }
+.modal-actions { display:flex; gap:0.7rem; justify-content:flex-end; margin-top:1.2rem; }
 </style>
 </head>
 <body>
@@ -98,6 +104,50 @@ input[type=text], select { width:100%; padding:0.6rem 0.7rem; border:1.5px solid
     <h2>Banque (<span id="compte">0</span>)</h2>
     <div class="grille" id="grille"></div>
     <div class="vide" id="vide" style="display:none">Aucun moment pour le moment.</div>
+  </div>
+</div>
+
+<!-- Fenêtre d'édition -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Modifier le moment</h2>
+    <div class="drop" id="e-drop">📁 Clique pour remplacer l'image</div>
+    <input type="file" id="e-fichier" accept="image/*" style="display:none"/>
+
+    <label class="lab">Titre court</label>
+    <input type="text" id="e-titre" placeholder="ex. : Le mariage"/>
+
+    <!-- phrase unique -->
+    <div id="e-bloc-simple">
+      <label class="lab">Phrase</label>
+      <input type="text" id="e-mot" placeholder="ex. : Je suis né(e)"/>
+      <div class="audio-zone">
+        <button class="mini rec" id="rec-es" onclick="rec('es')">🎙 Remplacer l'audio</button>
+        <button class="mini" onclick="document.getElementById('f-es').click()">📁 Fichier</button>
+        <input type="file" id="f-es" accept="audio/*" style="display:none" onchange="fich('es',event)"/>
+        <button class="mini" id="ec-es" onclick="ecouterEdit('es')" style="display:none">▶</button>
+        <span class="ok" id="ok-es"></span>
+      </div>
+    </div>
+
+    <!-- phrases au choix -->
+    <div id="e-bloc-multi" class="hidden">
+      <label class="lab">Les phrases au choix</label>
+      <div id="e-versions"></div>
+      <button class="mini btn-sec" onclick="ajouterEditVersion()">+ Ajouter une phrase</button>
+    </div>
+
+    <label class="lab">Type sur la ligne du temps</label>
+    <select id="e-type">
+      <option value="fixe">📅 Date fixe (un seul moment)</option>
+      <option value="periode">⏳ Période (de … à …)</option>
+    </select>
+
+    <div class="msg" id="e-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-sec" onclick="fermerEdit()">Annuler</button>
+      <button class="btn" id="e-save" onclick="enregistrerEdit()">Enregistrer</button>
+    </div>
   </div>
 </div>
 
@@ -240,12 +290,129 @@ async function charger() {
     return `<div class="item"><img src="${c.image}" alt=""/><div class="bas">
       ${c.titre?`<div class="nom"><b>${c.titre}</b></div>`:''}
       <div class="nom">${corps}</div><div class="tags">${tag}</div>
-      <div class="actions">${audios}
+      <div class="actions">
+        <button onclick="deplacer('${c.id}',-1)" title="Reculer">◀</button>
+        <button onclick="deplacer('${c.id}',1)" title="Avancer">▶</button>
+        ${audios}
+        <button onclick="ouvrirEdit('${c.id}')" title="Modifier">✏️</button>
         <button onclick="basculerType('${c.id}','${c.type||'fixe'}')">⏱ ${c.type==='periode'?'Période':'Date'}</button>
         <button class="del" onclick="supprimer('${c.id}')">🗑</button></div>
     </div></div>`;
   }).join('');
 }
+
+// ---------- réordonner avec les flèches ----------
+window.deplacer = async (id, dir) => {
+  const i = liste.findIndex(x=>x.id===id); if (i<0) return;
+  const j = i + dir; if (j<0 || j>=liste.length) return;
+  const a = liste[i], b = liste[j];
+  let oa = (typeof a.ordre==='number')?a.ordre:i, ob = (typeof b.ordre==='number')?b.ordre:j;
+  if (oa===ob) { oa=i; ob=j; }               // valeurs égales : on force un écart
+  try {
+    await updateDoc(doc(db,COL,a.id), { ordre: ob });
+    await updateDoc(doc(db,COL,b.id), { ordre: oa });
+    charger();
+  } catch(e) { alert('Erreur : '+e.message); }
+};
+
+// ---------- édition d'un moment ----------
+let editId=null, editDoc=null, editImageFile=null, evseq=0;
+const eDrop = document.getElementById('e-drop'), eFichier = document.getElementById('e-fichier'), eMsg = document.getElementById('e-msg');
+eDrop.onclick = () => eFichier.click();
+eFichier.onchange = () => { const f=eFichier.files[0]; if(!f) return; editImageFile=f; eDrop.innerHTML=`<img src="${URL.createObjectURL(f)}"/>`; };
+
+window.ecouterEdit = (slot) => {
+  if (blobs[slot]) { new Audio(URL.createObjectURL(blobs[slot].blob)).play().catch(()=>{}); return; }
+  if (slot==='es' && editDoc && editDoc.audio) { ecouterItem(editDoc.audio); return; }
+  const r = document.getElementById('row-'+slot); const u = r && r.dataset.audio; if (u) ecouterItem(u);
+};
+
+function rangeeEditVersion(v) {
+  const n = 'ev' + (++evseq);
+  const div = document.createElement('div');
+  div.className='vrow'; div.id='row-'+n;
+  div.dataset.audio = (v&&v.audio)||''; div.dataset.chemin = (v&&v.chemin)||'';
+  const esc = s => (s||'').replace(/"/g,'&quot;');
+  const aExiste = !!(v&&v.audio);
+  div.innerHTML = `
+    <button class="suppr" title="Enlever" onclick="supprEditVersion('${n}')">✕</button>
+    <input type="text" id="lab-${n}" placeholder="étiquette (ex. : avec un mari)" value="${esc(v&&v.label)}" style="margin-bottom:0.4rem"/>
+    <input type="text" id="mot-${n}" placeholder="la phrase" value="${esc(v&&v.mot)}"/>
+    <div class="audio-zone">
+      <button class="mini rec" id="rec-${n}" onclick="rec('${n}')">🎙 Audio</button>
+      <button class="mini" onclick="document.getElementById('f-${n}').click()">📁 Fichier</button>
+      <input type="file" id="f-${n}" accept="audio/*" style="display:none" onchange="fich('${n}',event)"/>
+      <button class="mini" id="ec-${n}" onclick="ecouterEdit('${n}')" ${aExiste?'':'style="display:none"'}>▶</button>
+      <span class="ok" id="ok-${n}">${aExiste?'audio actuel':''}</span>
+    </div>`;
+  document.getElementById('e-versions').appendChild(div);
+}
+window.ajouterEditVersion = () => rangeeEditVersion(null);
+window.supprEditVersion = (n) => { const r=document.getElementById('row-'+n); if(r) r.remove(); delete blobs[n]; };
+
+window.ouvrirEdit = (id) => {
+  const c = liste.find(x=>x.id===id); if (!c) return;
+  editId=id; editDoc=c; editImageFile=null; evseq=0;
+  for (const k in blobs) delete blobs[k];
+  eMsg.className='msg'; eMsg.textContent=''; document.getElementById('e-save').disabled=false;
+  eDrop.innerHTML = c.image ? `<img src="${c.image}"/>` : "📁 Clique pour remplacer l'image";
+  document.getElementById('e-titre').value = c.titre || '';
+  document.getElementById('e-type').value = c.type || 'fixe';
+  const multi = !!c.multi;
+  document.getElementById('e-bloc-simple').classList.toggle('hidden', multi);
+  document.getElementById('e-bloc-multi').classList.toggle('hidden', !multi);
+  if (!multi) {
+    document.getElementById('e-mot').value = c.mot || '';
+    const ec = document.getElementById('ec-es'), ok = document.getElementById('ok-es');
+    if (c.audio) { ec.style.display='inline-block'; ok.textContent='audio actuel'; }
+    else { ec.style.display='none'; ok.textContent=''; }
+  } else {
+    document.getElementById('e-versions').innerHTML='';
+    (c.versions||[]).forEach(v=>rangeeEditVersion(v));
+    if (!(c.versions||[]).length) { rangeeEditVersion(null); rangeeEditVersion(null); }
+  }
+  document.getElementById('overlay').classList.add('on');
+};
+window.fermerEdit = () => { document.getElementById('overlay').classList.remove('on'); editId=null; editDoc=null; };
+
+window.enregistrerEdit = async () => {
+  if (!editId || !editDoc) return;
+  const c = editDoc, save = document.getElementById('e-save');
+  save.disabled=true; eMsg.className='msg'; eMsg.textContent='Enregistrement…';
+  const aSupprimer = [];  // chemins Storage remplacés
+  try {
+    const d = { titre: document.getElementById('e-titre').value.trim(), type: document.getElementById('e-type').value };
+    // image remplacée ?
+    if (editImageFile) {
+      const img = await up('image', { blob:editImageFile, ext:(editImageFile.name.split('.').pop()||'jpg').toLowerCase() });
+      d.image = img.url; d.chemin = img.chemin;
+      if (c.chemin) aSupprimer.push(c.chemin);
+    }
+    if (!c.multi) {
+      d.mot = document.getElementById('e-mot').value.trim();
+      if (blobs.es) { const a = await up('audio', blobs.es); d.audio=a.url; d.cheminAudio=a.chemin; if (c.cheminAudio) aSupprimer.push(c.cheminAudio); }
+    } else {
+      const rows = [...document.querySelectorAll('#e-versions .vrow')];
+      const versions = [];
+      for (const row of rows) {
+        const n = row.id.replace('row-','');
+        const mot = document.getElementById('mot-'+n).value.trim();
+        if (!mot) continue;
+        const v = { label: document.getElementById('lab-'+n).value.trim(), mot };
+        if (blobs[n]) { const a = await up('audio-'+n, blobs[n]); v.audio=a.url; v.chemin=a.chemin; if (row.dataset.chemin) aSupprimer.push(row.dataset.chemin); }
+        else if (row.dataset.audio) { v.audio=row.dataset.audio; v.chemin=row.dataset.chemin||''; }
+        versions.push(v);
+      }
+      if (!versions.length) { eMsg.className='msg err'; eMsg.textContent='Garde au moins une phrase.'; save.disabled=false; return; }
+      d.versions = versions;
+    }
+    await updateDoc(doc(db,COL,editId), d);
+    for (const ch of aSupprimer) { try { await deleteObject(ref(storage, ch)); } catch(e){} }
+    fermerEdit();
+    charger();
+  } catch(e) { eMsg.className='msg err'; eMsg.textContent='❌ '+e.message; save.disabled=false; }
+};
+
 charger();
 </script>
 <script type="module" src="admin-auth.js"></script>
