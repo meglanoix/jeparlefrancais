@@ -200,7 +200,7 @@ window.majChamps = function() {
   const c = document.getElementById('champs');
   if (mode==='annee') c.innerHTML = `<label>En quelle année ?</label><input type="number" id="v1" inputmode="numeric" placeholder="ex. 2006"/>`;
   else if (mode==='age') c.innerHTML = `<label>À quel âge ?</label><input type="number" id="v1" inputmode="numeric" placeholder="ex. 6"/>`;
-  else if (mode==='ilya') c.innerHTML = `<label>Il y a combien d'années ?</label><input type="number" id="v1" inputmode="numeric" placeholder="ex. 20"/>`;
+  else if (mode==='ilya') c.innerHTML = `<label>Il y a combien de temps ?</label><div class="rangee"><div><input type="number" id="v1" inputmode="numeric" placeholder="ex. 20"/></div><div><select id="unit-ilya"><option value="annee">années</option><option value="mois">mois</option></select></div></div>`;
   else if (mode==='date') c.innerHTML = `<div class="rangee"><div><label>Jour</label><select id="vj">${selJour()}</select></div><div><label>Mois</label><select id="vm">${selMois()}</select></div><div><label>Année</label><input type="number" id="v1" inputmode="numeric" placeholder="2006"/></div></div>`;
   else if (mode==='pa') c.innerHTML = `<div class="rangee"><div><label>De (année)</label><input type="number" id="v1" placeholder="2006"/></div><div><label>À (année)</label><input type="number" id="v2" placeholder="2008"/></div></div>`;
   else if (mode==='pg') c.innerHTML = `<div class="rangee"><div><label>De (âge)</label><input type="number" id="v1" placeholder="6"/></div><div><label>À (âge)</label><input type="number" id="v2" placeholder="13"/></div></div>`;
@@ -216,6 +216,7 @@ window.ajouter = function() {
     const v1 = val('v1');
     if (isNaN(v1) || (mode==='age' && (v1<0||v1>120))) { err.textContent='Entre une valeur valide.'; return; }
     m.v1 = v1;
+    if (mode==='ilya') m.unit = document.getElementById('unit-ilya').value;
   } else if (mode==='date') {
     const v1 = val('v1'); if (isNaN(v1)||v1<1900||v1>2100) { err.textContent='Entre une année valide.'; return; }
     m.v1 = val('vj'); m.mois = val('vm'); m.annee = v1;
@@ -237,7 +238,7 @@ function anneeNaissance() {
 }
 function cle(m, birth) {
   switch (m.mode) {
-    case 'annee': return m.v1; case 'date': return m.annee; case 'ilya': return ANNEE_AUJ - m.v1;
+    case 'annee': return m.v1; case 'date': return m.annee; case 'ilya': return m.unit==='mois' ? (ANNEE_AUJ - m.v1/12) : (ANNEE_AUJ - m.v1);
     case 'age': return birth!=null ? birth+m.v1 : m.v1; case 'pa': return m.v1;
     case 'pg': return birth!=null ? birth+m.v1 : m.v1;
     case 'dur': return (m.unit==='annee') ? m.v1 : (birth!=null ? birth+m.v1 : m.v1);
@@ -247,7 +248,7 @@ function cle(m, birth) {
 function estPeriode(m) { return m.mode==='pa'||m.mode==='pg'||m.mode==='dur'; }
 function label(m) {
   switch (m.mode) {
-    case 'annee': return 'en '+m.v1; case 'age': return 'à '+m.v1+' ans'; case 'ilya': return 'il y a '+m.v1+' ans';
+    case 'annee': return 'en '+m.v1; case 'age': return 'à '+m.v1+' ans'; case 'ilya': return 'il y a '+m.v1+(m.unit==='mois'?' mois':' ans');
     case 'date': return 'le '+m.v1+' '+MOIS[m.mois]+' '+m.annee;
     case 'pa': return 'de '+m.v1+' à '+m.v2; case 'pg': return 'de '+m.v1+' à '+m.v2+' ans';
     case 'dur': return (m.unit==='annee') ? ('de '+m.v1+' à '+(m.v1+m.v2)) : ('de '+m.v1+' à '+(m.v1+m.v2)+' ans');
