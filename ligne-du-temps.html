@@ -274,6 +274,7 @@ window.ecouter = function() {
   if (lecture) { clearTimeout(lecture); lecture=null; }
   const ord = trier(); if (!player){player=new Audio();player.setAttribute('playsinline','');}
   document.getElementById('btn-ecouter').disabled=true; document.getElementById('btn-arreter').style.display='inline-block';
+  const PAUSE=5000; // pause entre deux moments, pour laisser le temps de prononcer
   let i=0;
   function suite() {
     document.querySelectorAll('.noeud.actif').forEach(n=>n.classList.remove('actif'));
@@ -281,8 +282,8 @@ window.ecouter = function() {
     const m=ord[i]; const el=document.querySelector('.noeud[data-uid="'+m.uid+'"]');
     if (el){ el.classList.add('actif'); el.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}); }
     i++;
-    if (m.audio){ player.onended=()=>{lecture=setTimeout(suite,2500);}; player.onerror=()=>{lecture=setTimeout(suite,2500);}; player.src=m.audio; const p=player.play(); if(p&&p.catch)p.catch(()=>{lecture=setTimeout(suite,2500);}); }
-    else { lecture=setTimeout(suite,2500); }
+    if (m.audio){ player.onended=()=>{lecture=setTimeout(suite,PAUSE);}; player.onerror=()=>{lecture=setTimeout(suite,PAUSE);}; player.src=m.audio; const p=player.play(); if(p&&p.catch)p.catch(()=>{lecture=setTimeout(suite,PAUSE);}); }
+    else { lecture=setTimeout(suite,PAUSE); }
   }
   function fin(){ document.querySelectorAll('.noeud.actif').forEach(n=>n.classList.remove('actif')); document.getElementById('btn-ecouter').disabled=false; document.getElementById('btn-arreter').style.display='none'; }
   window._fin=fin; suite();
