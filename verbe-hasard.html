@@ -70,11 +70,12 @@ const VERBES = [
   { cle: 'comparer-vetements', nom: 'Comparer des vêtements' },
   { cle: 'pronom-le-la-les', nom: "Le pronom le / la / les / l'" },
   { cle: 'passe-compose', nom: 'Le passé composé 1 : Avoir et 1er groupe', filtreChamp: 'pc1', texte: true },
-  { cle: 'passe-compose', nom: 'Les verbes pronominaux', filtreChamp: 'pron', texte: true }
+  { cle: 'passe-compose', nom: 'Les verbes pronominaux', filtreChamp: 'pron', texte: true },
+  { cle: 'objets-magasin', nom: 'Demander un objet au magasin', texte: true, consigne: 'Dans quelle section du magasin se trouve cet objet&nbsp;?' }
 ];
 
 const zone = document.getElementById('zone');
-let cartes = [], ordre = [], idx = 0, verbeNom = '', themeAvecTexte = false;
+let cartes = [], ordre = [], idx = 0, verbeNom = '', themeAvecTexte = false, themeConsigne = '';
 
 function melanger(arr) {
   const a = arr.slice();
@@ -94,6 +95,7 @@ window.choisir = async function(i) {
   const theme = VERBES[i];
   const cle = theme.cle;
   verbeNom = theme.nom;
+  themeConsigne = (theme && theme.consigne) || '';
   themeAvecTexte = (cle === 'lieux-montreal' || cle === 'symptomes' || (theme && theme.texte));
   zone.innerHTML = `<div class="chargement">Chargement…</div>`;
   const cles = (theme && theme.cles) ? theme.cles : [cle];
@@ -151,6 +153,7 @@ function montrer() {
     : '';
   zone.innerHTML = `
     <div class="compteur">${verbeNom} — ${idx + 1} / ${cartes.length}</div>
+    ${themeConsigne ? `<div class="sous" style="max-width:460px">${themeConsigne}</div>` : ''}
     <img class="img-hasard" src="${c.image}"/>
     ${infoLieu}
     ${c.audio ? `<div><button class="btn btn-ghost" style="margin-top:0.75rem" onclick="jouerAudio()">🔊 Écouter</button></div>` : ''}
