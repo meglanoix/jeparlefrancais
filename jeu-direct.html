@@ -51,6 +51,12 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.receptionniste { background: var(--bleu-clair); }
 .rep.patient { background: var(--orange); }
 
+/* grille d'images (type grille) */
+.grille-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 680px; }
+.grille-img { border: 2px solid rgba(26,58,92,0.15); background: #fff; border-radius: 12px; padding: 0; overflow: hidden; cursor: pointer; aspect-ratio: 1; }
+.grille-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.grille-img:active { border-color: var(--bleu); transform: scale(0.97); }
+@media (max-width: 520px) { .grille-board { grid-template-columns: repeat(3, 1fr); } }
 .big-ico { font-size: 4rem; margin-bottom: 1rem; }
 .attente-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gris); margin:0 3px; animation: blink 1.4s infinite both; }
 .attente-dot:nth-child(2){animation-delay:.2s} .attente-dot:nth-child(3){animation-delay:.4s}
@@ -192,6 +198,7 @@ async function chargerQuestions() {
 
 async function montrerQuestion() {
   await chargerQuestions();
+  if (etat.type === 'grille') { montrerGrille(); return; }
   const q = questions[etat.questionIndex];
   if (!q) { montrerAttente('En attente…'); return; }
 
@@ -209,6 +216,30 @@ async function montrerQuestion() {
   const texteHtml = vide ? `<div class="q-texte" style="color:var(--gris)">👂 Écoute la phrase…</div>` : `<div class="q-texte">${q.texte || ''}</div>`;
   zone.innerHTML = `${imgHtml}${audioHtml}${texteHtml}<div class="reps">${boutons}</div>`;
 }
+
+// --- type "grille" : tableau d'images, l'enseignant dit le mot, l'élève touche la bonne image ---
+function montrerGrille() {
+  if (derniereQuestionVotee === etat.questionIndex) { montrerReponseRecue(); return; }
+  if (renduQ === etat.questionIndex) return;
+  renduQ = etat.questionIndex;
+  const board = questions; // ordre fixe (trié par ordre)
+  if (!board.length) { montrerAttente('En attente…'); return; }
+  const tuiles = board.map((c, i) => `<button class="grille-img" onclick="voterGrille(${i})"><img src="${c.image}" decoding="async" alt=""/></button>`).join('');
+  zone.innerHTML = `<div class="q-texte" style="color:var(--gris);font-size:1.1rem">👂 Touche la bonne image</div><div class="grille-board">${tuiles}</div>`;
+}
+
+window.voterGrille = function(i) {
+  if (aVote) return;
+  aVote = true;
+  const bon = (i === etat.questionIndex);   // la cible du tour = l'index du tableau
+  mesVotes['q' + etat.questionIndex] = i;
+  if (bon) monScore++;
+  derniereQuestionVotee = etat.questionIndex;
+  montrerReponseRecue();
+  const ref = doc(db, COL_JOUEURS, etat.partieId + '_' + monNumero);
+  const payload = { votes: mesVotes, score: monScore };
+  updateDoc(ref, payload).catch(() => { updateDoc(ref, payload).catch(()=>{}); });
+};
 
 let audioQ = null;
 window.jouerAudioQ = function() {

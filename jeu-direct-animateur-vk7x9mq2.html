@@ -128,6 +128,9 @@ const TYPES = {
   cp:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'passecompose',ico:'⏪',lib:'Passé composé'} ],
   ppf: [ {v:'passe',ico:'⏪',lib:'Passé'}, {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ]
 };
+const TYPE_NOMS = { ipo:'Interdit / Permis / Obligatoire', vf:'Vrai / Faux', ph:'Ponctuelle / Habituelle', pf:'Présent / Futur', r12:'Réponse 1 / 2', dd:'Demander / Donner', rp:'Réceptionniste / Patient', cv:'Client / Vendeur', an:"Aime / N'aime pas", cp:'Présent / Passé composé', ppf:'Passé / Présent / Futur', grille:"Grille d'images" };
+function estGrille() { return etat && etat.type === 'grille'; }
+function melanger(arr) { const a = arr.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
 let quizzes = [];
 let quizSel = null;
@@ -180,7 +183,7 @@ async function ecranChoixQuiz() {
     return;
   }
   let cartes = quizzes.map(q => {
-    const tn = q.type === 'vf' ? 'Vrai / Faux' : 'Interdit / Permis / Obligatoire';
+    const tn = TYPE_NOMS[q.type] || q.type;
     return `<div class="qc" onclick="choisirQuiz('${q.id}')"><span>${q.nom}</span><span class="t">${tn}</span></div>`;
   }).join('');
   stage.innerHTML = `<h1>Choisir un quiz</h1><div class="sous">Quel quiz veux-tu lancer ?</div><div class="quiz-choix">${cartes}</div>`;
@@ -239,13 +242,19 @@ function ecranAttente() {
 }
 
 window.premiereQuestion = async function() {
-  await updateDoc(ETAT_DOC, { phase: 'question', questionIndex: 0 });
+  if (estGrille()) {
+    const seq = melanger([...Array(questions.length).keys()]);
+    await updateDoc(ETAT_DOC, { phase: 'question', tour: 0, questionIndex: seq[0], ordreTours: seq });
+  } else {
+    await updateDoc(ETAT_DOC, { phase: 'question', questionIndex: 0 });
+  }
 };
 
 // 4) question affichée
 function ecranQuestion() {
   const q = questions[etat.questionIndex];
   if (!q) { chargerQuestions(etat.quizId).then(rendre); return; }
+  if (estGrille()) { ecranQuestionGrille(q); return; }
   // combien ont voté à cette question ?
   const cle = 'q' + etat.questionIndex;
   const nbVotes = joueurs.filter(j => j.votes && j.votes[cle]).length;
@@ -268,6 +277,28 @@ function ecranQuestion() {
   if (!tousVote) window.__basculeFaite = false;
 }
 
+// --- console enseignant pour le type "grille" ---
+function ecranQuestionGrille(q) {
+  const seq = etat.ordreTours || [];
+  const tour = etat.tour || 0;
+  const cle = 'q' + etat.questionIndex;
+  const nbVotes = joueurs.filter(j => j.votes && j.votes[cle] !== undefined).length;
+  const total = etat.nbJoueurs;
+  const tousVote = nbVotes >= total;
+  stage.innerHTML = `
+    <div class="q-wrap">
+      <div class="q-num">Tour ${tour + 1} / ${seq.length || questions.length}</div>
+      <div class="sous" style="margin-bottom:0.4rem">Dis ce mot à voix haute :</div>
+      ${q.image ? `<img class="q-img" src="${q.image}" style="max-height:200px"/>` : ''}
+      <div class="q-texte" style="font-size:2rem;color:var(--bleu)">${q.texte || '(sans mot écrit)'}</div>
+      ${q.audio ? `<div><button class="btn btn-ghost" onclick="jouerAudioQ()">🔊 Écouter</button></div>` : ''}
+      <div class="votes-compteur">${nbVotes} / ${total} ont répondu</div>
+      <button class="btn btn-lg" onclick="voirResultats()">${tousVote ? 'Voir les résultats' : 'Afficher les résultats maintenant'}</button>
+    </div>`;
+  if (tousVote && !window.__basculeFaite) { window.__basculeFaite = true; setTimeout(() => voirResultats(), 600); }
+  if (!tousVote) window.__basculeFaite = false;
+}
+
 window.voirResultats = async function() {
   window.__basculeFaite = false;
   await updateDoc(ETAT_DOC, { phase: 'resultats' });
@@ -286,6 +317,7 @@ window.jouerAudioQ = function() {
 function ecranResultats() {
   const q = questions[etat.questionIndex];
   if (!q) return;
+  if (estGrille()) { ecranResultatsGrille(q); return; }
   const reps = TYPES[etat.type] || TYPES.ipo;
   const cle = 'q' + etat.questionIndex;
   const compte = {};
@@ -307,7 +339,33 @@ function ecranResultats() {
     </div>`;
 }
 
+function ecranResultatsGrille(q) {
+  const seq = etat.ordreTours || [];
+  const tour = etat.tour || 0;
+  const cle = 'q' + etat.questionIndex;
+  const bons = joueurs.filter(j => j.votes && j.votes[cle] === etat.questionIndex).length;
+  const repondu = joueurs.filter(j => j.votes && j.votes[cle] !== undefined).length;
+  const dernier = tour >= (seq.length || questions.length) - 1;
+  stage.innerHTML = `
+    <div class="q-wrap">
+      <div class="q-num">Tour ${tour + 1} / ${seq.length || questions.length} — Résultats</div>
+      <div class="q-texte" style="font-size:1.6rem;margin-bottom:0.5rem">${q.texte || ''}</div>
+      ${q.image ? `<img class="q-img" src="${q.image}" style="max-height:200px;border:3px solid var(--vert);border-radius:14px"/>` : ''}
+      <div class="votes-compteur" style="font-size:1.4rem;margin-top:0.75rem">✅ ${bons} / ${repondu} ont trouvé la bonne image</div>
+      <button class="btn btn-lg" onclick="${dernier ? 'finPartie()' : 'questionSuivante()'}">
+        ${dernier ? 'Voir le classement final 🏆' : 'Tour suivant →'}
+      </button>
+    </div>`;
+}
+
 window.questionSuivante = async function() {
+  if (estGrille()) {
+    const seq = etat.ordreTours || [];
+    const t = (etat.tour || 0) + 1;
+    if (t >= seq.length) { await updateDoc(ETAT_DOC, { phase: 'fin' }); return; }
+    await updateDoc(ETAT_DOC, { phase: 'question', tour: t, questionIndex: seq[t] });
+    return;
+  }
   await updateDoc(ETAT_DOC, { phase: 'question', questionIndex: etat.questionIndex + 1 });
 };
 

@@ -107,6 +107,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="an">❤️ Aime / 💔 N'aime pas</option>
         <option value="cp">⏱️ Présent de l'indicatif / ⏪ Passé composé</option>
         <option value="ppf">⏪ Passé / ⏱️ Présent / ⏩ Futur</option>
+        <option value="grille">🖼️ Grille d'images (dire le mot, choisir l'image)</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="creerQuiz()">Créer le quiz</button>
@@ -126,9 +127,9 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
     <div class="card">
       <h2 id="q-titre">Questions</h2>
       <span class="type-badge" id="q-typebadge"></span>
-      <label style="margin-top:1rem">Texte de la question (ex. : Stationner ici)</label>
+      <label style="margin-top:1rem" id="texte-label">Texte de la question (ex. : Stationner ici)</label>
       <input type="text" id="texte" placeholder="Stationner ici"/>
-      <label>Image</label>
+      <label id="image-label">Image</label>
       <div class="upload-zone" id="img-zone" onclick="document.getElementById('img-input').click()">
         Cliquer pour choisir une image
         <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
@@ -140,8 +141,10 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <span class="msg" id="rec-timer" style="display:none;color:var(--rouge)">0:00</span>
         <button class="btn" id="audio-clear" onclick="effacerAudio()" style="display:none">Retirer l'audio</button>
       </div>
+      <div id="rep-zone">
       <label>Bonne réponse</label>
       <div class="rep-choix" id="rep-choix"></div>
+      </div>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="saveq()">Ajouter la question</button>
         <span class="msg" id="save-msg"></span>
@@ -217,7 +220,8 @@ const TYPES = {
     { v: 'passe', ico: '⏪', lib: 'Passé' },
     { v: 'present', ico: '⏱️', lib: 'Présent' },
     { v: 'futur', ico: '⏩', lib: 'Futur' }
-  ]}
+  ]},
+  grille: { nom: 'Grille d\'images (dire le mot)', reps: [], grille: true }
 };
 function libRep(type, v) {
   const t = TYPES[type]; if (!t) return v;
@@ -338,7 +342,12 @@ window.retourQuiz = function() {
   loadQuiz();
 };
 
+function estGrille() { return (TYPES[quizCourant.type] || {}).grille === true; }
 function renderRepChoix() {
+  const grille = estGrille();
+  document.getElementById('rep-zone').style.display = grille ? 'none' : '';
+  document.getElementById('texte-label').textContent = grille ? 'Mot (ex. : lavable) — optionnel, non montré à l\'élève' : 'Texte de la question (ex. : Stationner ici)';
+  document.getElementById('image-label').textContent = grille ? 'Image (obligatoire)' : 'Image';
   const box = document.getElementById('rep-choix');
   box.innerHTML = ''; repChoisie = null;
   (TYPES[quizCourant.type] || TYPES.ipo).reps.forEach(r => {
@@ -383,8 +392,12 @@ window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
   const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf'];
-  if (!typesSansContenu.includes(quizCourant.type) && !texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
-  if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  if (estGrille()) {
+    if (!pendingImage) { msg.textContent = 'Ajoutez une image.'; msg.className = 'msg err'; return; }
+  } else {
+    if (!typesSansContenu.includes(quizCourant.type) && !texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
+    if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
     const donnees = {
@@ -425,7 +438,7 @@ function render() {
     div.innerHTML = `
       <span class="pos">${i + 1}</span>
       ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
-      <div class="txt"><div class="q">${it.texte || (it.image || it.audio ? '' : '<span style=\'color:var(--gris);font-style:italic\'>Question orale ' + (i+1) + '</span>')} ${it.audio ? '🔊' : ''}</div><div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div></div>
+      <div class="txt"><div class="q">${it.texte || (it.image || it.audio ? '' : '<span style=\'color:var(--gris);font-style:italic\'>Question orale ' + (i+1) + '</span>')} ${it.audio ? '🔊' : ''}</div>${estGrille() ? `<div class="r"><span style="color:var(--gris);font-size:0.82rem">🖼️ image ${i+1}${it.texte ? ' · ' + it.texte : ''}</span></div>` : `<div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div>`}</div>
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
       <button class="mini" onclick="modifierQ('${it.id}')">✎</button>
@@ -469,6 +482,7 @@ window.modifierQ = function(id) {
   st.textContent = it.audio ? '🔊 Audio actuel' : ''; st.className = 'msg';
   document.getElementById('edit-audio-clear').style.display = it.audio ? 'inline-block' : 'none';
   document.getElementById('edit-msg').textContent = '';
+  document.getElementById('edit-rep-zone').style.display = estGrille() ? 'none' : '';
   const box = document.getElementById('edit-rep-choix');
   box.innerHTML = '';
   (TYPES[quizCourant.type] || TYPES.ipo).reps.forEach(r => {
@@ -547,11 +561,12 @@ window.enregistrerModifQ = async function() {
   if (!editId) return;
   const texte = document.getElementById('edit-texte').value.trim();
   const msg = document.getElementById('edit-msg');
-  if (!texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
-  if (!editRep) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  const grille = estGrille();
+  if (!grille && !texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
+  if (!grille && !editRep) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
-    const maj = { texte, reponse: editRep };
+    const maj = grille ? { texte } : { texte, reponse: editRep };
     if (editImage) maj.image = editImage;
     if (editAudio) maj.audio = await blobToDataUrl(editAudio);
     else if (editAudioSupprime) maj.audio = null;
@@ -581,8 +596,10 @@ loadQuiz();
       <span class="msg" id="edit-rec-timer" style="display:none;color:var(--rouge)">0:00</span>
       <button class="btn" id="edit-audio-clear" onclick="effacerEditAudio()" style="display:none">Retirer l'audio</button>
     </div>
+    <div id="edit-rep-zone">
     <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Bonne réponse</label>
     <div class="rep-choix" id="edit-rep-choix"></div>
+    </div>
     <div class="row" style="margin-top:1.5rem;justify-content:flex-end">
       <button class="btn" onclick="fermerModalQ()">Annuler</button>
       <button class="btn btn-primary" onclick="enregistrerModifQ()">Enregistrer</button>
