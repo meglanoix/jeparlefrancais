@@ -347,6 +347,7 @@ function renderRepChoix() {
   const grille = estGrille();
   document.getElementById('rep-zone').style.display = grille ? 'none' : '';
   document.getElementById('texte-label').textContent = grille ? 'Mot (ex. : lavable) — optionnel, non montré à l\'élève' : 'Texte de la question (ex. : Stationner ici)';
+  document.getElementById('texte').placeholder = grille ? 'lavable' : 'Stationner ici';
   document.getElementById('image-label').textContent = grille ? 'Image (obligatoire)' : 'Image';
   const box = document.getElementById('rep-choix');
   box.innerHTML = ''; repChoisie = null;

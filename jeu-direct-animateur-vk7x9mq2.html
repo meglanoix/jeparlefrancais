@@ -45,6 +45,12 @@ h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem
 .q-img { max-width: 100%; max-height: 46vh; border-radius: 18px; box-shadow: 0 8px 32px rgba(26,58,92,0.18); margin-bottom: 1rem; }
 .q-texte { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--bleu); margin-bottom: 1.5rem; }
 .votes-compteur { font-size: 1.3rem; color: var(--gris); margin-bottom: 1.5rem; }
+.grille-console { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+.grille-choix { border: 2px solid rgba(26,58,92,0.15); background: #fff; border-radius: 12px; overflow: hidden; cursor: pointer; padding: 0; display: flex; flex-direction: column; font-family: inherit; }
+.grille-choix img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.grille-choix span { font-size: 0.85rem; color: var(--bleu); padding: 4px 6px; }
+.grille-choix:hover { border-color: var(--bleu-clair); }
+.grille-choix:active { transform: scale(0.97); }
 
 /* résultats */
 .resultats { display: flex; gap: 1.5rem; justify-content: center; width: 100%; max-width: 760px; margin-bottom: 1.5rem; }
@@ -243,8 +249,7 @@ function ecranAttente() {
 
 window.premiereQuestion = async function() {
   if (estGrille()) {
-    const seq = melanger([...Array(questions.length).keys()]);
-    await updateDoc(ETAT_DOC, { phase: 'question', tour: 0, questionIndex: seq[0], ordreTours: seq });
+    await updateDoc(ETAT_DOC, { phase: 'question', tour: 0, corriges: {} });
   } else {
     await updateDoc(ETAT_DOC, { phase: 'question', questionIndex: 0 });
   }
@@ -252,9 +257,9 @@ window.premiereQuestion = async function() {
 
 // 4) question affichée
 function ecranQuestion() {
+  if (estGrille()) { ecranQuestionGrille(); return; }
   const q = questions[etat.questionIndex];
   if (!q) { chargerQuestions(etat.quizId).then(rendre); return; }
-  if (estGrille()) { ecranQuestionGrille(q); return; }
   // combien ont voté à cette question ?
   const cle = 'q' + etat.questionIndex;
   const nbVotes = joueurs.filter(j => j.votes && j.votes[cle]).length;
@@ -278,26 +283,31 @@ function ecranQuestion() {
 }
 
 // --- console enseignant pour le type "grille" ---
-function ecranQuestionGrille(q) {
-  const seq = etat.ordreTours || [];
+// Tu dis un mot à voix haute ; les élèves touchent une image ; puis TU touches la bonne
+// image sur la console pour révéler la réponse et compter les points.
+function ecranQuestionGrille() {
+  if (!questions.length) { chargerQuestions(etat.quizId).then(rendre); return; }
   const tour = etat.tour || 0;
-  const cle = 'q' + etat.questionIndex;
+  const cle = 'q' + tour;
   const nbVotes = joueurs.filter(j => j.votes && j.votes[cle] !== undefined).length;
   const total = etat.nbJoueurs;
-  const tousVote = nbVotes >= total;
+  const tuiles = questions.map((c, i) => `<button class="grille-choix" onclick="designerBonne(${i})"><img src="${c.image}" alt=""/>${c.texte ? `<span>${c.texte}</span>` : ''}</button>`).join('');
   stage.innerHTML = `
     <div class="q-wrap">
-      <div class="q-num">Tour ${tour + 1} / ${seq.length || questions.length}</div>
-      <div class="sous" style="margin-bottom:0.4rem">Dis ce mot à voix haute :</div>
-      ${q.image ? `<img class="q-img" src="${q.image}" style="max-height:200px"/>` : ''}
-      <div class="q-texte" style="font-size:2rem;color:var(--bleu)">${q.texte || '(sans mot écrit)'}</div>
-      ${q.audio ? `<div><button class="btn btn-ghost" onclick="jouerAudioQ()">🔊 Écouter</button></div>` : ''}
-      <div class="votes-compteur">${nbVotes} / ${total} ont répondu</div>
-      <button class="btn btn-lg" onclick="voirResultats()">${tousVote ? 'Voir les résultats' : 'Afficher les résultats maintenant'}</button>
+      <div class="q-num">Tour ${tour + 1}</div>
+      <div class="sous" style="margin-bottom:0.6rem">Dis un mot à voix haute. Quand les élèves ont répondu, <b>touche la bonne image</b> ci-dessous.</div>
+      <div class="votes-compteur" style="margin-bottom:0.8rem">${nbVotes} / ${total} ont répondu</div>
+      <div class="grille-console">${tuiles}</div>
     </div>`;
-  if (tousVote && !window.__basculeFaite) { window.__basculeFaite = true; setTimeout(() => voirResultats(), 600); }
-  if (!tousVote) window.__basculeFaite = false;
 }
+
+// l'enseignant désigne la bonne image -> on l'enregistre et on montre les résultats
+window.designerBonne = async function(i) {
+  const tour = etat.tour || 0;
+  const corriges = Object.assign({}, etat.corriges || {});
+  corriges['q' + tour] = i;
+  await updateDoc(ETAT_DOC, { corriges, phase: 'resultats' });
+};
 
 window.voirResultats = async function() {
   window.__basculeFaite = false;
@@ -315,9 +325,9 @@ window.jouerAudioQ = function() {
 
 // 5) résultats d'une question
 function ecranResultats() {
+  if (estGrille()) { ecranResultatsGrille(); return; }
   const q = questions[etat.questionIndex];
   if (!q) return;
-  if (estGrille()) { ecranResultatsGrille(q); return; }
   const reps = TYPES[etat.type] || TYPES.ipo;
   const cle = 'q' + etat.questionIndex;
   const compte = {};
@@ -339,31 +349,31 @@ function ecranResultats() {
     </div>`;
 }
 
-function ecranResultatsGrille(q) {
-  const seq = etat.ordreTours || [];
+function ecranResultatsGrille() {
+  if (!questions.length) { chargerQuestions(etat.quizId).then(rendre); return; }
   const tour = etat.tour || 0;
-  const cle = 'q' + etat.questionIndex;
-  const bons = joueurs.filter(j => j.votes && j.votes[cle] === etat.questionIndex).length;
+  const cle = 'q' + tour;
+  const bonne = (etat.corriges || {})[cle];
+  const q = (bonne !== undefined) ? questions[bonne] : null;
+  const bons = joueurs.filter(j => j.votes && j.votes[cle] === bonne).length;
   const repondu = joueurs.filter(j => j.votes && j.votes[cle] !== undefined).length;
-  const dernier = tour >= (seq.length || questions.length) - 1;
   stage.innerHTML = `
     <div class="q-wrap">
-      <div class="q-num">Tour ${tour + 1} / ${seq.length || questions.length} — Résultats</div>
-      <div class="q-texte" style="font-size:1.6rem;margin-bottom:0.5rem">${q.texte || ''}</div>
-      ${q.image ? `<img class="q-img" src="${q.image}" style="max-height:200px;border:3px solid var(--vert);border-radius:14px"/>` : ''}
+      <div class="q-num">Tour ${tour + 1} — Résultats</div>
+      <div class="sous" style="margin-bottom:0.4rem">Bonne réponse :</div>
+      ${q && q.image ? `<img class="q-img" src="${q.image}" style="max-height:200px;border:3px solid var(--vert);border-radius:14px"/>` : ''}
+      ${q && q.texte ? `<div class="q-texte" style="font-size:1.5rem">${q.texte}</div>` : ''}
       <div class="votes-compteur" style="font-size:1.4rem;margin-top:0.75rem">✅ ${bons} / ${repondu} ont trouvé la bonne image</div>
-      <button class="btn btn-lg" onclick="${dernier ? 'finPartie()' : 'questionSuivante()'}">
-        ${dernier ? 'Voir le classement final 🏆' : 'Tour suivant →'}
-      </button>
+      <div class="row-btns" style="margin-top:1rem">
+        <button class="btn btn-ghost" onclick="finPartie()">Terminer 🏆</button>
+        <button class="btn btn-lg" onclick="questionSuivante()">Tour suivant →</button>
+      </div>
     </div>`;
 }
 
 window.questionSuivante = async function() {
   if (estGrille()) {
-    const seq = etat.ordreTours || [];
-    const t = (etat.tour || 0) + 1;
-    if (t >= seq.length) { await updateDoc(ETAT_DOC, { phase: 'fin' }); return; }
-    await updateDoc(ETAT_DOC, { phase: 'question', tour: t, questionIndex: seq[t] });
+    await updateDoc(ETAT_DOC, { phase: 'question', tour: (etat.tour || 0) + 1 });
     return;
   }
   await updateDoc(ETAT_DOC, { phase: 'question', questionIndex: etat.questionIndex + 1 });
@@ -374,11 +384,21 @@ window.finPartie = async function() {
   await updateDoc(ETAT_DOC, { phase: 'fin' });
 };
 
+function scoreGrille(j) {
+  const corriges = etat.corriges || {};
+  let s = 0;
+  for (const cle in corriges) { if (j.votes && j.votes[cle] === corriges[cle]) s++; }
+  return s;
+}
 function ecranFin() {
-  const tri = [...joueurs].sort((a,b) => (b.score||0) - (a.score||0));
-  let lignes = tri.map((j, i) => {
+  const grille = estGrille();
+  const totalPts = grille ? Object.keys(etat.corriges || {}).length : etat.nbQuestions;
+  const avecScore = joueurs.map(j => ({ j, s: grille ? scoreGrille(j) : (j.score||0) }));
+  const tri = avecScore.sort((a,b) => b.s - a.s);
+  let lignes = tri.map((o, i) => {
+    const j = o.j;
     const medaille = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-    return `<div class="rang ${i===0?'top1':''}"><span class="pos">${medaille}</span><span class="qui">N° ${j.numero}</span><span class="sc">${j.score||0} / ${etat.nbQuestions}</span></div>`;
+    return `<div class="rang ${i===0?'top1':''}"><span class="pos">${medaille}</span><span class="qui">N° ${j.numero}</span><span class="sc">${o.s} / ${totalPts}</span></div>`;
   }).join('');
   if (!tri.length) lignes = '<div class="sous">Aucun joueur.</div>';
   stage.innerHTML = `

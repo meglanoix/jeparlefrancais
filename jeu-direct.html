@@ -218,10 +218,12 @@ async function montrerQuestion() {
 }
 
 // --- type "grille" : tableau d'images, l'enseignant dit le mot, l'élève touche la bonne image ---
+// L'enseignant indique la bonne image sur sa console ; le score est calculé par l'écran animateur.
 function montrerGrille() {
-  if (derniereQuestionVotee === etat.questionIndex) { montrerReponseRecue(); return; }
-  if (renduQ === etat.questionIndex) return;
-  renduQ = etat.questionIndex;
+  const tour = etat.tour || 0;
+  if (derniereQuestionVotee === 'g' + tour) { montrerReponseRecue(); return; }
+  if (renduQ === 'g' + tour) return;
+  renduQ = 'g' + tour;
   const board = questions; // ordre fixe (trié par ordre)
   if (!board.length) { montrerAttente('En attente…'); return; }
   const tuiles = board.map((c, i) => `<button class="grille-img" onclick="voterGrille(${i})"><img src="${c.image}" decoding="async" alt=""/></button>`).join('');
@@ -231,13 +233,12 @@ function montrerGrille() {
 window.voterGrille = function(i) {
   if (aVote) return;
   aVote = true;
-  const bon = (i === etat.questionIndex);   // la cible du tour = l'index du tableau
-  mesVotes['q' + etat.questionIndex] = i;
-  if (bon) monScore++;
-  derniereQuestionVotee = etat.questionIndex;
+  const tour = etat.tour || 0;
+  mesVotes['q' + tour] = i;              // on enregistre seulement le choix
+  derniereQuestionVotee = 'g' + tour;
   montrerReponseRecue();
   const ref = doc(db, COL_JOUEURS, etat.partieId + '_' + monNumero);
-  const payload = { votes: mesVotes, score: monScore };
+  const payload = { votes: mesVotes };
   updateDoc(ref, payload).catch(() => { updateDoc(ref, payload).catch(()=>{}); });
 };
 
