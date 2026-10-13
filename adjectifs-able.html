@@ -25,7 +25,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.75rem; }
 .page-header p { font-size: 1rem; color: rgba(255,255,255,0.65); font-weight: 300; max-width: 500px; }
 .main { max-width: 1100px; margin: 0 auto; padding: 3rem 5vw 5rem; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
 .card { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
 .card:hover { transform: translateY(-4px); box-shadow: var(--ombre); }
 .card.playing { border: 2px solid var(--vert); }
@@ -51,7 +51,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 @keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.8)} }
 .empty-grid { text-align: center; padding: 4rem 2rem; color: var(--gris); grid-column: 1/-1; }
 .empty-grid p { font-size: 1rem; margin-top: 0.5rem; }
-@media (max-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
+@media (max-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } }
 </style>
 </head>
 <body>
