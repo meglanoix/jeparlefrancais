@@ -190,7 +190,25 @@ input[type=text]:focus { border-color: var(--bleu); }
   .form-row { grid-template-columns: 1fr; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
 }
+.exp-row { display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(26,58,92,0.07); }
+.exp-row:last-child { border-bottom: none; }
+.exp-num { font-size: 0.78rem; color: var(--gris); text-align: center; }
+.exp-row input[type=text] { width: 100%; padding: 7px 10px; font-size: 0.85rem; }
+.exp-btns { display: flex; gap: 5px; }
+.exp-mini { width: 32px; height: 32px; border-radius: 7px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--creme); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; padding: 0; }
+.exp-mini:hover { border-color: var(--bleu); }
+.exp-mini.on { background: #fdf2f2; border-color: rgba(192,57,43,0.35); color: var(--rouge); }
+.exp-mini:disabled { opacity: 0.3; cursor: not-allowed; }
+.exp-new { font-size: 0.7rem; color: var(--vert); margin-left: 4px; }
 </style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ELGPLZQGVN"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-ELGPLZQGVN");
+</script>
 </head>
 <body>
 <script type="module" src="admin-auth.js"></script>
@@ -235,16 +253,51 @@ input[type=text]:focus { border-color: var(--bleu); }
           <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>
         </div>
       </div>
+      
       <div class="form-group">
-        <label>Audio (prononciation)</label>
-        <div class="rec-row">
-          <button class="app-btn" id="rec-btn" onclick="toggleRecord()">▶ Enregistrer</button>
-          <span id="rec-status" style="display:none" class="rec-row">
-            <span class="rec-dot"></span>
-            <span class="timer" id="rec-timer">0:00</span>
-          </span>
+        <label style="font-weight:600;color:var(--bleu)">Expressions supplémentaires (optionnel)</label>
+        <p style="font-size:0.78rem;color:var(--gris);margin-bottom:8px">Jusqu'à 5 expressions avec leur audio</p>
+        
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 1</span>
+          <input type="text" id="label1" placeholder="Ex: Bonjour !" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(1)" id="rec-extra1">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra1" onclick="playExtra(1)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra1').click()">📁</button>
+          <input type="file" id="file-extra1" accept="audio/*" style="display:none" onchange="handleFileExtra(1, event)"/>
         </div>
-        <div style="font-size:0.78rem;color:var(--gris);margin-top:6px" id="audio-status"></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 2</span>
+          <input type="text" id="label2" placeholder="Ex: Ça va bien ?" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(2)" id="rec-extra2">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra2" onclick="playExtra(2)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra2').click()">📁</button>
+          <input type="file" id="file-extra2" accept="audio/*" style="display:none" onchange="handleFileExtra(2, event)"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 3</span>
+          <input type="text" id="label3" placeholder="Ex: Et toi ?" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(3)" id="rec-extra3">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra3" onclick="playExtra(3)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra3').click()">📁</button>
+          <input type="file" id="file-extra3" accept="audio/*" style="display:none" onchange="handleFileExtra(3, event)"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 4</span>
+          <input type="text" id="label4" placeholder="(optionnel)" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(4)" id="rec-extra4">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra4" onclick="playExtra(4)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra4').click()">📁</button>
+          <input type="file" id="file-extra4" accept="audio/*" style="display:none" onchange="handleFileExtra(4, event)"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;background:var(--creme);border-radius:8px;padding:8px">
+          <span style="font-size:0.78rem;color:var(--gris);min-width:80px">Expression 5</span>
+          <input type="text" id="label5" placeholder="(optionnel)" style="flex:1;padding:5px 8px;border:1.5px solid rgba(26,58,92,0.15);border-radius:6px;font-size:0.82rem;background:var(--blanc)"/>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="toggleRecordExtra(5)" id="rec-extra5">🎙</button>
+          <button style="padding:5px 10px;border-radius:6px;border:none;background:var(--bleu);color:white;font-size:0.78rem;cursor:pointer" disabled id="play-extra5" onclick="playExtra(5)">▶</button>
+          <button style="padding:5px 10px;border-radius:6px;border:1.5px solid rgba(26,58,92,0.15);background:var(--blanc);font-size:0.78rem;cursor:pointer" onclick="document.getElementById('file-extra5').click()">📁</button>
+          <input type="file" id="file-extra5" accept="audio/*" style="display:none" onchange="handleFileExtra(5, event)"/>
+        </div>
       </div>
     </div>
     <div class="sep"></div>
@@ -252,6 +305,7 @@ input[type=text]:focus { border-color: var(--bleu); }
       <button class="app-btn primary" onclick="saveCard()">Ajouter la carte</button>
       <span id="save-msg" class="success-msg" style="display:none"></span>
       <span id="save-err" class="err-msg" style="display:none"></span>
+      <span id="rec-status" style="display:none"><span class="rec-dot"></span><span id="rec-timer">0:00</span></span>
     </div>
   </div>
 
@@ -274,9 +328,23 @@ input[type=text]:focus { border-color: var(--bleu); }
   </div>
 </div>
 
+
+<div class="rec-modal-overlay" id="exp-modal" style="display:none">
+  <div class="rec-modal-box" style="max-width:620px;text-align:left">
+    <h3>Modifier les expressions</h3>
+    <p>Reecrivez le texte ou reenregistrez l'audio de chaque enonce, individuellement.</p>
+    <div id="exp-rows"></div>
+    <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em;margin-top:0.75rem" id="exp-status"></div>
+    <div class="rec-modal-btns" style="justify-content:flex-end">
+      <button class="app-btn" onclick="closeExpressions()">Annuler</button>
+      <button class="app-btn primary" onclick="saveExpressions()">Enregistrer les modifications</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from './firestore-storage.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
@@ -294,6 +362,39 @@ let cartes = [];
 let mediaRecorder = null, chunks = [], recording = false;
 let timerInterval = null, seconds = 0;
 let pendingAudio = null, pendingImage = null, currentAudio = null;
+let extraBlobs = { 1: null, 2: null, 3: null, 4: null, 5: null };
+let extraRecorder = null, extraChunks = [], extraRecording = false, extraSlot = null;
+
+window.toggleRecordExtra = async function(slot) {
+  if (extraRecording && extraSlot === slot) {
+    extraRecorder.stop(); extraRecording = false; extraSlot = null;
+    document.getElementById('rec-extra' + slot).textContent = '🎙';
+  } else {
+    if (extraRecording) { extraRecorder.stop(); document.getElementById('rec-extra' + extraSlot).textContent = '🎙'; }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    extraChunks = [];
+    extraRecorder = new MediaRecorder(stream);
+    extraRecorder.ondataavailable = e => extraChunks.push(e.data);
+    extraRecorder.onstop = () => {
+      extraBlobs[slot] = new Blob(extraChunks, { type: 'audio/webm' });
+      document.getElementById('play-extra' + slot).disabled = false;
+      stream.getTracks().forEach(t => t.stop());
+    };
+    extraRecorder.start(); extraRecording = true; extraSlot = slot;
+    document.getElementById('rec-extra' + slot).textContent = '⏹';
+  }
+};
+
+window.playExtra = function(slot) {
+  const blob = extraBlobs[slot]; if (!blob) return;
+  new Audio(URL.createObjectURL(blob)).play();
+};
+
+window.handleFileExtra = function(slot, e) {
+  const file = e.target.files[0]; if (!file) return;
+  extraBlobs[slot] = file;
+  document.getElementById('play-extra' + slot).disabled = false;
+};
 
 window.handleImage = function(e) {
   const file = e.target.files[0];
@@ -329,13 +430,13 @@ function startRecord() {
     mediaRecorder.ondataavailable = e => chunks.push(e.data);
     mediaRecorder.onstop = () => {
       pendingAudio = new Blob(chunks, { type: 'audio/webm' });
-      document.getElementById('audio-status').textContent = '✓ Audio enregistré';
+      // audio-status supprimé
     };
     mediaRecorder.start();
     recording = true; seconds = 0;
-    document.getElementById('rec-btn').textContent = '■ Arrêter';
+    // rec-btn supprimé
     document.getElementById('rec-btn').classList.add('rec-active');
-    document.getElementById('rec-status').style.display = 'flex';
+    // rec-status supprimé
     timerInterval = setInterval(() => {
       seconds++;
       document.getElementById('rec-timer').textContent = Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
@@ -346,39 +447,51 @@ function startRecord() {
 function stopRecord() {
   if (mediaRecorder) { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
   recording = false; clearInterval(timerInterval);
-  document.getElementById('rec-btn').textContent = '▶ Enregistrer';
-  document.getElementById('rec-btn').classList.remove('rec-active');
-  document.getElementById('rec-status').style.display = 'none';
+  // rec-btn supprimé
+  // rec-btn supprimé
+  // rec-status supprimé
 }
 
 window.saveCard = async function() {
   const mot = document.getElementById('mot').value.trim();
   if (!mot) { alert('Veuillez entrer un mot.'); return; }
   if (!pendingImage) { alert('Veuillez choisir une image.'); return; }
-  if (!pendingAudio) { alert('Veuillez enregistrer un audio.'); return; }
+  // audio principal optionnel
   const saveMsg = document.getElementById('save-msg');
   const saveErr = document.getElementById('save-err');
   saveMsg.style.display = 'none'; saveErr.style.display = 'none';
   saveMsg.textContent = 'Sauvegarde...'; saveMsg.style.display = 'inline';
   try {
-    const audioUrl = await blobToDataUrl(pendingAudio);
-    await addDoc(collection(db, 's-informer-logement'), {
+    const data = {
       mot,
       categorie: document.getElementById('categorie').value.trim().toLowerCase(),
       image: pendingImage,
-      audio: audioUrl,
       date: new Date().toLocaleDateString('fr-CA')
-    });
+    };
+    for (let i = 1; i <= 5; i++) {
+      const blob = extraBlobs[i];
+      const label = document.getElementById('label' + i)?.value?.trim();
+      if (blob) {
+        data['audio' + i] = await blobToDataUrl(blob);
+        data['label' + i] = label || ('Expression ' + i);
+      }
+    }
+    await addDoc(collection(db, 's-informer-logement'), data);
     await loadCards();
     saveMsg.textContent = '✓ Carte ajoutée !';
     document.getElementById('mot').value = '';
     document.getElementById('categorie').value = '';
-    // Réinitialiser la zone image (recrée l'input pour permettre un 2e upload sans recharger)
     const imgZone = document.getElementById('img-zone');
     imgZone.innerHTML = 'Cliquer pour choisir une image<input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImage(event)"/>';
     imgZone.classList.remove('has-file');
-    document.getElementById('audio-status').textContent = '';
+    // audio-status supprimé
     pendingAudio = null; pendingImage = null;
+    extraBlobs = { 1: null, 2: null, 3: null, 4: null, 5: null };
+    [1,2,3,4,5].forEach(i => {
+      if (document.getElementById('label' + i)) document.getElementById('label' + i).value = '';
+      if (document.getElementById('play-extra' + i)) document.getElementById('play-extra' + i).disabled = true;
+      if (document.getElementById('rec-extra' + i)) document.getElementById('rec-extra' + i).textContent = '🎙';
+    });
     setTimeout(() => saveMsg.style.display = 'none', 3000);
   } catch(e) {
     saveMsg.style.display = 'none';
@@ -419,7 +532,7 @@ function ordreCle() { return 'cartes-order-' + ordreCol(); }
 
 async function ecrireOrdre(liste) {
   const col = ordreCol();
-  const { updateDoc, doc: fsDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const { updateDoc, doc: fsDoc } = await import('./firestore-storage.js');
   const jobs = [];
   liste.forEach((c, i) => {
     if (c.ordre !== i) jobs.push(updateDoc(fsDoc(db, col, c.id), { ordre: i }));
@@ -495,6 +608,9 @@ function renderCards() {
           </button>
           <button class="overlay-btn play" style="background:rgba(255,255,255,0.15);color:var(--blanc);border:1px solid rgba(255,255,255,0.4);margin-top:4px" onclick="openCategorie(event,'${c.id}','${(c.categorie||'').replace(/'/g,"\\'")}')">
             🏷 Catégorie${c.categorie ? ': '+c.categorie : ''}
+          </button>
+          <button class="overlay-btn play" style="background:var(--blanc);color:var(--bleu)" onclick="openExpressions(event,'${c.id}')">
+            &#127911; Expressions
           </button>
           <button class="overlay-btn play" style="background:var(--creme);color:var(--bleu)" onclick="openQR(event,'${c.id}',this.dataset.mot)" data-mot="${(c.mot || '').replace(/'/g, '&#39;')}">
             ⬛ QR Code
@@ -598,12 +714,132 @@ window.saveReRecord = async function() {
   const blob = new Blob(reChunks, { type: 'audio/webm' });
   const audioUrl = await blobToDataUrl(blob);
   try {
-    const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const { updateDoc, doc: firestoreDoc } = await import('./firestore-storage.js');
     await updateDoc(firestoreDoc(db, ordreCol(), reRecId), { audio: audioUrl });
     document.getElementById('re-status').textContent = '✓ Sauvegardé !';
     setTimeout(() => { closeReRecord(); loadCards(); }, 1200);
   } catch(err) {
     document.getElementById('re-status').textContent = 'Erreur : ' + err.message;
+  }
+};
+
+// --- Edition individuelle des expressions (multi-audio) ---
+let expCarteId = null;
+let expData = {};            // { 1: {label, audio, modifie}, ... }
+let expRecorder = null, expChunks = [], expRecSlot = null;
+
+window.openExpressions = function(e, id) {
+  e.stopPropagation();
+  const c = cartes.find(x => x.id === id);
+  if (!c) return;
+  expCarteId = id;
+  expData = {};
+  for (let i = 1; i <= 5; i++) {
+    expData[i] = { label: c['label' + i] || '', audio: c['audio' + i] || '', modifie: false };
+  }
+  expStopRec();
+  document.getElementById('exp-status').textContent = '';
+  renderExpRows();
+  document.getElementById('exp-modal').style.display = 'flex';
+};
+
+window.closeExpressions = function() {
+  expStopRec();
+  document.getElementById('exp-modal').style.display = 'none';
+  expCarteId = null;
+};
+
+function renderExpRows() {
+  const wrap = document.getElementById('exp-rows');
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    const d = expData[i];
+    const enReg = expRecSlot === i;
+    html += '<div class="exp-row">'
+      + '<div class="exp-num">' + i + '</div>'
+      + '<div><input type="text" id="exp-label-' + i + '" value="' + (d.label || '').replace(/"/g, '&quot;') + '" placeholder="(vide)"/>'
+      + (d.modifie ? '<span class="exp-new">nouvel audio</span>' : '') + '</div>'
+      + '<div class="exp-btns">'
+      + '<button class="exp-mini" onclick="expPlay(' + i + ')" ' + (d.audio ? '' : 'disabled') + ' title="Ecouter">&#9654;</button>'
+      + '<button class="exp-mini' + (enReg ? ' on' : '') + '" onclick="expToggleRec(' + i + ')" title="Reenregistrer">' + (enReg ? '&#9632;' : '&#9679;') + '</button>'
+      + '<button class="exp-mini" onclick="expClear(' + i + ')" ' + (d.audio ? '' : 'disabled') + ' title="Supprimer l\'audio">&#10005;</button>'
+      + '</div></div>';
+  }
+  wrap.innerHTML = html;
+}
+
+function lireChamps() {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('exp-label-' + i);
+    if (el) expData[i].label = el.value.trim();
+  }
+}
+
+window.expPlay = function(i) {
+  const d = expData[i];
+  if (!d.audio) return;
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  currentAudio = new Audio(d.audio);
+  currentAudio.play();
+};
+
+window.expClear = function(i) {
+  lireChamps();
+  expData[i].audio = '';
+  expData[i].modifie = true;
+  renderExpRows();
+};
+
+window.expToggleRec = function(i) {
+  if (expRecSlot === i) { expStopRec(); return; }
+  lireChamps();
+  if (expRecSlot !== null) expStopRec();
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    expRecorder = new MediaRecorder(stream);
+    expChunks = [];
+    expRecorder.ondataavailable = ev => expChunks.push(ev.data);
+    expRecorder.onstop = async () => {
+      const blob = new Blob(expChunks, { type: 'audio/webm' });
+      if (blob.size > 0) {
+        expData[i].audio = await blobToDataUrl(blob);
+        expData[i].modifie = true;
+      }
+      expRecSlot = null;
+      renderExpRows();
+    };
+    expRecorder.start();
+    expRecSlot = i;
+    renderExpRows();
+  }).catch(() => alert('Acces au microphone refuse.'));
+};
+
+function expStopRec() {
+  if (expRecorder && expRecorder.state === 'recording') {
+    expRecorder.stop();
+    expRecorder.stream.getTracks().forEach(t => t.stop());
+  } else {
+    expRecSlot = null;
+  }
+}
+
+window.saveExpressions = async function() {
+  if (expRecSlot !== null) { alert('Arretez l\'enregistrement en cours avant de sauvegarder.'); return; }
+  lireChamps();
+  const st = document.getElementById('exp-status');
+  st.textContent = 'Enregistrement...';
+  const maj = {};
+  for (let i = 1; i <= 5; i++) {
+    const d = expData[i];
+    maj['label' + i] = d.label || '';
+    maj['audio' + i] = d.audio || '';
+  }
+  try {
+    const { updateDoc, doc: fsDoc } = await import('./firestore-storage.js');
+    await updateDoc(fsDoc(db, ordreCol(), expCarteId), maj);
+    st.textContent = 'Sauvegarde !';
+    setTimeout(() => { closeExpressions(); loadCards(); }, 900);
+  } catch (err) {
+    st.textContent = 'Erreur : ' + err.message;
   }
 };
 
@@ -702,10 +938,25 @@ window.printSelected = function() {
             try { doc.addImage(group[i].carte.image, 'JPEG', x, y, cellW, imgH, '', 'FAST'); } catch(e) {}
           }
           const mots = group[i].carte.mot.split('/').map(s => s.trim());
-          doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(26, 58, 92);
-          const lineH = 6, totalH = mots.length * lineH;
-          const startY = y + imgH + (cellH - imgH - totalH) / 2 + 5;
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(26, 58, 92);
+          const lineH = 5.5, totalTextH = mots.length * lineH;
+          const startY = y + imgH + 4;
           mots.forEach((m, mi) => doc.text(m, x + cellW/2, startY + mi * lineH, { align: 'center' }));
+
+          // Expressions label1-label5
+          const expressions = [];
+          for (let ei = 1; ei <= 5; ei++) {
+            const lbl = group[i].carte['label' + ei];
+            if (lbl && lbl.trim()) expressions.push(lbl.trim());
+          }
+          if (expressions.length) {
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(80, 80, 80);
+            const exprStartY = startY + mots.length * lineH + 2;
+            expressions.forEach((ex, ei) => {
+              if (exprStartY + ei * 4.5 < y + cellH - 2)
+                doc.text('• ' + ex, x + cellW/2, exprStartY + ei * 4.5, { align: 'center' });
+            });
+          }
         }
       }
 
@@ -791,7 +1042,7 @@ window.saveCategorie = async function() {
   const newCat = document.getElementById('categorie-input').value.trim().toLowerCase();
   document.getElementById('categorie-status').textContent = 'Sauvegarde...';
   try {
-    const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const { updateDoc, doc: firestoreDoc } = await import('./firestore-storage.js');
     await updateDoc(firestoreDoc(db, ordreCol(), id), { categorie: newCat });
     document.getElementById('categorie-status').textContent = '✓ Catégorie mise à jour !';
     setTimeout(() => { closeCategorie(); loadCards(); }, 900);
@@ -819,7 +1070,7 @@ window.saveRename = async function() {
   if (!newMot) { document.getElementById('rename-status').textContent = 'Le titre ne peut pas être vide.'; return; }
   document.getElementById('rename-status').textContent = 'Sauvegarde...';
   try {
-    const { updateDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const { updateDoc, doc: firestoreDoc } = await import('./firestore-storage.js');
     await updateDoc(firestoreDoc(db, ordreCol(), id), { mot: newMot });
     document.getElementById('rename-status').textContent = '✓ Renommé !';
     setTimeout(() => { closeRename(); loadCards(); }, 900);
@@ -832,7 +1083,7 @@ window.deleteCard = async function(e, id) {
   e.stopPropagation();
   if (!confirm('Supprimer cette carte ?')) return;
   try {
-    await deleteDoc(doc(db, ordreCol(), id));
+    await deleteDoc(doc(db, 's-informer-logement', id));
     await loadCards();
   } catch(err) { alert('Erreur : ' + err.message); }
 };

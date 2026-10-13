@@ -79,8 +79,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 
 <div class="page-header">
   <div class="page-header-inner">
-    <p class="page-eyebrow">Le logement · S'informer sur un logement · Jeu</p>
-    <h1>S'informer sur un logement</h1>
+    <p class="page-eyebrow">S'informer sur un logement · Jeu</p>
+    <h1>Testez vos connaissances !</h1>
     <p>Écoutez l'audio et cliquez sur la bonne image</p>
   </div>
 </div>
@@ -96,7 +96,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
     </div>
 
     <div class="audio-card">
-      <div class="audio-label">Quelle pièce entendez-vous ?</div>
+      <div class="audio-label">Quelle question entendez-vous ?</div>
       <button class="play-btn" id="play-btn" onclick="jouerAudio()">
         <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       </button>
@@ -141,9 +141,9 @@ async function loadCartes() {
   try {
     const snap = await getDocs(collection(db, 's-informer-logement'));
     cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .filter(c => c.audio && c.image && c.audio && c.image);
+      .filter(c => c.image && (c.audio || c.audio1 || c.audio2));
     if (cartes.length < 3) {
-      document.getElementById('loading').textContent = 'Pas assez de cartes déjeuner avec image et audio. Ajoutez du contenu dans l\'admin.';
+      document.getElementById('loading').textContent = 'Pas assez de cartes avec image. Ajoutez du contenu dans l\'admin.';
       return;
     }
     document.getElementById('loading').style.display = 'none';
@@ -159,7 +159,12 @@ window.startGame = function() {
   document.getElementById('jeu').style.display = 'block';
 
   const shuffled = shuffle([...cartes]);
-  questions = shuffled.slice(0, 10).map(bonneCarte => {
+  questions = shuffled.slice(0, Math.min(10, cartes.length)).map(bonneCarte => {
+      // Choisir un audio au hasard parmi les expressions disponibles
+      const audios = [];
+      for (let i = 1; i <= 5; i++) { if (bonneCarte["audio" + i]) audios.push(bonneCarte["audio" + i]); }
+      if (bonneCarte.audio) audios.push(bonneCarte.audio);
+      bonneCarte._audioChoisi = audios.length > 0 ? audios[Math.floor(Math.random() * audios.length)] : null;
     const autres = cartes.filter(c => c.id !== bonneCarte.id);
     const mauvais = shuffle(autres).slice(0, 2);
     const choix = shuffle([bonneCarte, ...mauvais]);
@@ -195,9 +200,9 @@ function afficherQuestion() {
 
 window.jouerAudio = function() {
   const q = questions[qIndex];
-  if (!q.bonneCarte.audio) return;
+  if (!q.bonneCarte._audioChoisi) return;
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  const audio = new Audio(q.bonneCarte.audio);
+  const audio = new Audio(q.bonneCarte._audioChoisi);
   currentAudio = audio;
   const btn = document.getElementById('play-btn');
   btn.classList.add('playing');
