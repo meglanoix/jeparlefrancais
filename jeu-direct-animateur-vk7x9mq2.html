@@ -73,6 +73,8 @@ h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem
 .res-col.patient { color: var(--orange); }
 .res-col.client { color: var(--bleu-clair); }
 .res-col.vendeur { color: var(--orange); }
+.res-col.locataire { color: var(--bleu-clair); }
+.res-col.proprietaire { color: var(--orange); }
 .res-col.aime { color: var(--vert); }
 .res-col.naime { color: var(--rouge); }
 .res-col.passecompose { color: var(--orange); }
@@ -132,9 +134,10 @@ const TYPES = {
   cv:  [ {v:'client',ico:'🙋',lib:'Client'}, {v:'vendeur',ico:'🧑‍💼',lib:'Vendeur'} ],
   an:  [ {v:'aime',ico:'❤️',lib:'Aime'}, {v:'naime',ico:'💔',lib:'N\'aime pas'} ],
   cp:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'passecompose',ico:'⏪',lib:'Passé composé'} ],
-  ppf: [ {v:'passe',ico:'⏪',lib:'Passé'}, {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ]
+  ppf: [ {v:'passe',ico:'⏪',lib:'Passé'}, {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ],
+  lp:  [ {v:'locataire',ico:'🔑',lib:'Locataire'}, {v:'proprietaire',ico:'🏡',lib:'Propriétaire'} ]
 };
-const TYPE_NOMS = { ipo:'Interdit / Permis / Obligatoire', vf:'Vrai / Faux', ph:'Ponctuelle / Habituelle', pf:'Présent / Futur', r12:'Réponse 1 / 2', dd:'Demander / Donner', rp:'Réceptionniste / Patient', cv:'Client / Vendeur', an:"Aime / N'aime pas", cp:'Présent / Passé composé', ppf:'Passé / Présent / Futur', grille:"Grille d'images" };
+const TYPE_NOMS = { ipo:'Interdit / Permis / Obligatoire', vf:'Vrai / Faux', ph:'Ponctuelle / Habituelle', pf:'Présent / Futur', r12:'Réponse 1 / 2', dd:'Demander / Donner', rp:'Réceptionniste / Patient', cv:'Client / Vendeur', an:"Aime / N'aime pas", cp:'Présent / Passé composé', ppf:'Passé / Présent / Futur', lp:'Locataire / Propriétaire', grille:"Grille d'images" };
 function estGrille() { return etat && etat.type === 'grille'; }
 function melanger(arr) { const a = arr.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 

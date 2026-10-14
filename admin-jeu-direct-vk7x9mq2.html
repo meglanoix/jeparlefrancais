@@ -107,6 +107,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="an">❤️ Aime / 💔 N'aime pas</option>
         <option value="cp">⏱️ Présent de l'indicatif / ⏪ Passé composé</option>
         <option value="ppf">⏪ Passé / ⏱️ Présent / ⏩ Futur</option>
+        <option value="lp">🔑 Locataire / 🏡 Propriétaire</option>
         <option value="grille">🖼️ Grille d'images (dire le mot, choisir l'image)</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
@@ -220,6 +221,10 @@ const TYPES = {
     { v: 'passe', ico: '⏪', lib: 'Passé' },
     { v: 'present', ico: '⏱️', lib: 'Présent' },
     { v: 'futur', ico: '⏩', lib: 'Futur' }
+  ]},
+  lp: { nom: 'Locataire / Propriétaire', reps: [
+    { v: 'locataire', ico: '🔑', lib: 'Locataire' },
+    { v: 'proprietaire', ico: '🏡', lib: 'Propriétaire' }
   ]},
   grille: { nom: 'Grille d\'images (dire le mot)', reps: [], grille: true }
 };
@@ -392,7 +397,7 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf'];
+  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf', 'lp'];
   if (estGrille()) {
     if (!pendingImage) { msg.textContent = 'Ajoutez une image.'; msg.className = 'msg err'; return; }
   } else {
