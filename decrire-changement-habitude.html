@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Décrire un changement d'habitude | JeParle Français</title>
+<title>Comparer avant et maintenant | JeParle Français</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -25,13 +25,13 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.75rem; }
 .page-header p { font-size: 1rem; color: rgba(255,255,255,0.65); font-weight: 300; max-width: 500px; }
 .main { max-width: 1100px; margin: 0 auto; padding: 3rem 5vw 5rem; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
 .card { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
 .card:hover { transform: translateY(-4px); box-shadow: var(--ombre); }
 .card.playing { border: 2px solid var(--vert); }
-.card-img { width: 100%; aspect-ratio: 4/3; background: var(--creme); position: relative; }
-.card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.card-img .emoji-placeholder { font-size: 5rem; width: 100%; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: var(--creme); }
+.card-img { width: 100%; aspect-ratio: 16/9; background: var(--creme); position: relative; }
+.card-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.card-img .emoji-placeholder { font-size: 5rem; width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; background: var(--creme); }
 .play-overlay { position: absolute; inset: 0; background: rgba(26,58,92,0.35); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
 .card:hover .play-overlay { opacity: 1; }
 .card.playing .play-overlay { opacity: 1; background: rgba(26,122,74,0.35); }
@@ -51,7 +51,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 @keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.8)} }
 .empty-grid { text-align: center; padding: 4rem 2rem; color: var(--gris); grid-column: 1/-1; }
 .empty-grid p { font-size: 1rem; margin-top: 0.5rem; }
-@media (max-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
+@media (max-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
 </style>
 </head>
 <body>
@@ -65,7 +65,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 <div class="page-header">
   <div class="page-header-inner">
     <p class="page-eyebrow">Raconter au passé · L'imparfait</p>
-    <h1>Décrire un changement d'habitude</h1>
+    <h1>Comparer avant et maintenant</h1>
     <p>Cliquez sur une image pour entendre la prononciation</p>
     <div style="margin-top:1.25rem">
       <a href="jeu-decrire-changement-habitude.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
