@@ -1159,9 +1159,13 @@ loadCards();
 <div class="rec-modal-overlay" id="categorie-modal" style="display:none">
   <div class="rec-modal-box">
     <h3>Modifier la catégorie</h3>
-    <p style="color:var(--gris);font-size:0.85rem;margin-bottom:1.25rem">Entrez la catégorie pour le jeu d'association</p>
+    <p style="color:var(--gris);font-size:0.85rem;margin-bottom:1rem">Pour l'onglet « Informer » : choisis <strong>prof</strong> ou <strong>téléphone</strong> (classe les cartes déjà créées sans réenregistrer).</p>
     <input type="hidden" id="categorie-id"/>
-    <input type="text" id="categorie-input" placeholder="Ex : soccer, natation, hockey..." style="width:100%;margin-bottom:0.75rem"
+    <div style="display:flex;gap:8px;margin-bottom:0.75rem;flex-wrap:wrap">
+      <button type="button" class="app-btn" onclick="document.getElementById('categorie-input').value='prof'" style="flex:1">👩‍🏫 prof</button>
+      <button type="button" class="app-btn" onclick="document.getElementById('categorie-input').value='telephone'" style="flex:1">📞 telephone</button>
+    </div>
+    <input type="text" id="categorie-input" placeholder="prof ou telephone" style="width:100%;margin-bottom:0.75rem"
       onkeydown="if(event.key==='Enter') saveCategorie()"/>
     <div style="font-size:0.82rem;color:var(--vert);min-height:1.2em;margin-bottom:0.75rem" id="categorie-status"></div>
     <div class="rec-modal-btns">

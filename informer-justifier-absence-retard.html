@@ -47,6 +47,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .audio-btn svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
 .empty-grid { text-align: center; padding: 3rem; color: var(--gris); grid-column: 1/-1; font-size: 0.9rem; }
 .loading-msg { text-align: center; padding: 3rem; color: var(--gris); }
+.sous-filtre { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.sf { padding: 7px 16px; border-radius: 20px; border: 1.5px solid rgba(26,58,92,0.15); background: var(--blanc); color: var(--gris); font-size: 0.85rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.sf:hover { border-color: var(--bleu); color: var(--bleu); }
+.sf.active { background: var(--bleu); color: var(--blanc); border-color: var(--bleu); }
 </style>
 </head>
 <body>
@@ -77,7 +81,14 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 <div class="main">
   <div id="loading" class="loading-msg">Chargement...</div>
   <div class="panel active" id="panel-demander-partir-classe"><div class="card-grid" id="grid-demander-partir-classe"></div></div>
-  <div class="panel" id="panel-informer-absence-retard"><div class="card-grid" id="grid-informer-absence-retard"></div></div>
+  <div class="panel" id="panel-informer-absence-retard">
+    <div class="sous-filtre">
+      <button class="sf active" data-cat="" onclick="filtrerInformer(this,'')">Tous</button>
+      <button class="sf" data-cat="prof" onclick="filtrerInformer(this,'prof')">👩‍🏫 Avertir le professeur</button>
+      <button class="sf" data-cat="telephone" onclick="filtrerInformer(this,'telephone')">📞 Au téléphone</button>
+    </div>
+    <div class="card-grid" id="grid-informer-absence-retard"></div>
+  </div>
   <div class="panel" id="panel-justifier-absence-retard"><div class="card-grid" id="grid-justifier-absence-retard"></div></div>
 </div>
 
@@ -95,6 +106,15 @@ const db = getFirestore(app);
 let currentAudio = null, currentBtn = null;
 
 const sections = ['demander-partir-classe','informer-absence-retard','justifier-absence-retard'];
+
+// filtre prof / téléphone dans l'onglet « Informer »
+window.filtrerInformer = function(btn, cat) {
+  document.querySelectorAll('#panel-informer-absence-retard .sf').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#grid-informer-absence-retard .card').forEach(c => {
+    c.style.display = (!cat || (c.dataset.cat || '') === cat) ? '' : 'none';
+  });
+};
 
 window.afficherSection = function(section) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -114,7 +134,7 @@ function renderCards(cartes, gridId) {
     }
     if (c.audio && audios.length === 0) audios.push({ url: c.audio, label: c.mot || '', idx: 0 });
     return `
-      <div class="card">
+      <div class="card" data-cat="${(c.categorie || '').toLowerCase()}">
         ${c.image ? `<img class="card-img" src="${c.image}" alt=""/>` : `<div class="card-img-placeholder">🏫</div>`}
         <div class="card-body">
           <div class="audio-list">
