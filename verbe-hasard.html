@@ -71,11 +71,16 @@ const VERBES = [
   { cle: 'pronom-le-la-les', nom: "Le pronom le / la / les / l'" },
   { cle: 'passe-compose', nom: 'Le passé composé 1 : Avoir et 1er groupe', filtreChamp: 'pc1', texte: true },
   { cle: 'passe-compose', nom: 'Les verbes pronominaux', filtreChamp: 'pron', texte: true },
-  { cle: 'acheter-objet-maison', nom: 'Demander un objet au magasin', texte: true, consigne: 'Dans quelle section du magasin se trouve cet objet&nbsp;?' }
+  { cle: 'acheter-objet-maison', nom: 'Demander un objet au magasin', texte: true, consigne: 'Dans quelle section du magasin se trouve cet objet&nbsp;?' },
+  { cle: 'radical-imparfait', nom: "Le radical de l'imparfait" },
+  { cle: 'demander-partir-classe', nom: '🚪 En classe : demander de partir', sansAudio: true },
+  { cle: 'informer-absence-retard', nom: '📞 En classe : avertir d\'une absence imprévue (téléphone)', filtreCategorie: 'telephone', sansAudio: true },
+  { cle: 'informer-absence-retard', nom: '👩‍🏫 En classe : avertir le professeur (absence future)', filtreCategorie: 'prof', sansAudio: true },
+  { cle: 'justifier-absence-retard', nom: '📝 En classe : justifier une absence ou un retard', sansAudio: true }
 ];
 
 const zone = document.getElementById('zone');
-let cartes = [], ordre = [], idx = 0, verbeNom = '', themeAvecTexte = false, themeConsigne = '';
+let cartes = [], ordre = [], idx = 0, verbeNom = '', themeAvecTexte = false, themeConsigne = '', themeSansAudio = false;
 
 function melanger(arr) {
   const a = arr.slice();
@@ -96,6 +101,7 @@ window.choisir = async function(i) {
   const cle = theme.cle;
   verbeNom = theme.nom;
   themeConsigne = (theme && theme.consigne) || '';
+  themeSansAudio = !!(theme && theme.sansAudio);
   themeAvecTexte = (cle === 'lieux-montreal' || cle === 'symptomes' || (theme && theme.texte));
   zone.innerHTML = `<div class="chargement">Chargement…</div>`;
   const cles = (theme && theme.cles) ? theme.cles : [cle];
@@ -156,10 +162,10 @@ function montrer() {
     ${themeConsigne ? `<div class="sous" style="max-width:460px">${themeConsigne}</div>` : ''}
     <img class="img-hasard" src="${c.image}"/>
     ${infoLieu}
-    ${c.audio ? `<div><button class="btn btn-ghost" style="margin-top:0.75rem" onclick="jouerAudio()">🔊 Écouter</button></div>` : ''}
+    ${(c.audio && !themeSansAudio) ? `<div><button class="btn btn-ghost" style="margin-top:0.75rem" onclick="jouerAudio()">🔊 Écouter</button></div>` : ''}
     <button class="btn" onclick="suivant()">Suivant →</button>
     <button class="btn btn-ghost" onclick="ecranChoix()">← Changer de thème</button>`;
-  if (c.audio) jouerAudio();
+  if (c.audio && !themeSansAudio) jouerAudio();
 }
 
 let player = null;
