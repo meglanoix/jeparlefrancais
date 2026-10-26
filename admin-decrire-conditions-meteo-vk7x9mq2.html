@@ -60,7 +60,7 @@ input:focus { outline: none; border-color: var(--bleu); }
 
 <div class="main">
   <div class="card">
-    <div class="card-title">➕ Ajouter une condition météorologique</div>
+    <div class="card-title" id="form-title">➕ Ajouter une condition météorologique</div>
 
     <label>Nom de la condition</label>
     <input type="text" id="mot-input" placeholder="Ex : La pluie"/>
@@ -124,8 +124,8 @@ input:focus { outline: none; border-color: var(--bleu); }
     </div>
 
     <div class="msg" id="form-msg"></div>
-    <button class="btn btn-success" onclick="sauvegarder()">💾 Sauvegarder</button>
-    <button class="btn btn-ghost" onclick="resetForm()">Réinitialiser</button>
+    <button class="btn btn-success" id="save-btn" onclick="sauvegarder()">💾 Sauvegarder</button>
+    <button class="btn btn-ghost" id="cancel-btn" onclick="resetForm()">Réinitialiser</button>
   </div>
 
   <div class="card">
@@ -136,7 +136,7 @@ input:focus { outline: none; border-color: var(--bleu); }
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc } from './firestore-storage.js';
+import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc, updateDoc } from './firestore-storage.js';
 const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -145,10 +145,15 @@ let pendingImage = null;
 let audioBlobs = { 1: null, 2: null, 3: null, 4: null, 5: null };
 let mediaRecorder = null, audioChunks = [], isRecording = false, recordingSlot = null;
 let currentAudio = null;
+let editId = null;              // id de la carte en cours de modification
+let editCarte = null;           // données existantes de cette carte
+let cartesCache = [];           // cartes chargées (pour retrouver celle à modifier)
+let slotExistant = { 1:null, 2:null, 3:null, 4:null, 5:null };  // URL audio déjà enregistrée par slot
 
 async function load() {
   const snap = await getDocs(collection(db, 'decrire-conditions-meteo'));
   const cartes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  cartesCache = cartes;
   const grid = document.getElementById('existing-grid');
   if (cartes.length === 0) { grid.innerHTML = '<div style="color:var(--gris);text-align:center;padding:1rem;font-size:0.85rem">Aucune carte.</div>'; return; }
   grid.innerHTML = cartes.map(c => {
@@ -163,6 +168,7 @@ async function load() {
           <div class="existing-card-audios">
             ${audios.map((a, i) => `<button class="play-audio-pill" onclick="jouerAudio('${a.url}')"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>${a.label}</button>`).join('')}
           </div>
+          <button class="del-btn" style="color:var(--bleu)" onclick="modifier('${c.id}')">✏️ Modifier</button>
           <button class="del-btn" onclick="supprimer('${c.id}')">🗑 Supprimer</button>
         </div>
       </div>`;
@@ -224,8 +230,34 @@ window.toggleRecord = async function(slot) {
 };
 
 window.playAudio = function(slot) {
-  const blob = audioBlobs[slot]; if (!blob) return;
-  new Audio(URL.createObjectURL(blob)).play();
+  const blob = audioBlobs[slot];
+  if (blob) { new Audio(URL.createObjectURL(blob)).play(); return; }
+  if (slotExistant[slot]) { jouerAudio(slotExistant[slot]); }   // audio déjà enregistré (mode modification)
+};
+
+window.modifier = function(id) {
+  const c = cartesCache.find(x => x.id === id); if (!c) return;
+  editId = id; editCarte = c;
+  document.getElementById('mot-input').value = c.mot || '';
+  pendingImage = null;
+  const zone = document.getElementById('img-zone');
+  if (c.image) {
+    zone.innerHTML = '<img src="' + c.image + '" style="max-height:90px;border-radius:6px"/><div style="margin-top:4px">Clique pour remplacer l\'image</div>';
+    zone.classList.add('has-file');
+  } else { zone.textContent = '📷 Cliquez pour choisir une image'; zone.classList.remove('has-file'); }
+  for (let i = 1; i <= 5; i++) {
+    audioBlobs[i] = null;
+    slotExistant[i] = c['audio' + i] || null;
+    document.getElementById('label' + i).value = c['label' + i] || '';
+    document.getElementById('play' + i).disabled = !slotExistant[i];
+    document.getElementById('rec' + i).classList.remove('recording');
+    document.getElementById('rec' + i).textContent = '🎙';
+  }
+  document.getElementById('form-title').textContent = '✏️ Modifier : ' + (c.mot || '');
+  document.getElementById('save-btn').textContent = '💾 Enregistrer les modifications';
+  document.getElementById('cancel-btn').textContent = 'Annuler';
+  document.getElementById('form-msg').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 window.sauvegarder = async function() {
@@ -233,7 +265,9 @@ window.sauvegarder = async function() {
   if (!mot) { showMsg('Entrez le nom de la condition.', 'error'); return; }
   showMsg('Sauvegarde...', 'success');
   try {
-    const data = { mot, image: pendingImage || null };
+    const data = { mot };
+    if (pendingImage) data.image = pendingImage;          // nouvelle image
+    else if (!editId) data.image = null;                   // en ajout : pas d'image
     for (let i = 1; i <= 5; i++) {
       const blob = audioBlobs[i];
       const label = document.getElementById('label' + i).value.trim();
@@ -241,9 +275,16 @@ window.sauvegarder = async function() {
         const url = await new Promise(r => { const reader = new FileReader(); reader.onload = e => r(e.target.result); reader.readAsDataURL(blob); });
         data[`audio${i}`] = url;
         data[`label${i}`] = label || `Expression ${i}`;
+      } else if (editId && slotExistant[i]) {
+        // on garde l'audio existant, on met juste à jour l'étiquette
+        data[`label${i}`] = label || (editCarte && editCarte['label' + i]) || `Expression ${i}`;
       }
     }
-    await addDoc(collection(db, 'decrire-conditions-meteo'), data);
+    if (editId) {
+      await updateDoc(doc(db, 'decrire-conditions-meteo', editId), data);
+    } else {
+      await addDoc(collection(db, 'decrire-conditions-meteo'), data);
+    }
     showMsg('✓ Sauvegardé !', 'success');
     setTimeout(() => { resetForm(); load(); }, 700);
   } catch(e) { showMsg('Erreur : ' + e.message, 'error'); }
@@ -259,6 +300,8 @@ window.resetForm = function() {
   document.getElementById('mot-input').value = '';
   pendingImage = null;
   audioBlobs = { 1: null, 2: null, 3: null, 4: null, 5: null };
+  editId = null; editCarte = null;
+  slotExistant = { 1: null, 2: null, 3: null, 4: null, 5: null };
   const zone = document.getElementById('img-zone');
   zone.textContent = '📷 Cliquez pour choisir une image'; zone.classList.remove('has-file');
   for (let i = 1; i <= 5; i++) {
@@ -267,6 +310,9 @@ window.resetForm = function() {
     document.getElementById('rec' + i).classList.remove('recording');
     document.getElementById('rec' + i).textContent = '🎙';
   }
+  document.getElementById('form-title').textContent = '➕ Ajouter une condition météorologique';
+  document.getElementById('save-btn').textContent = '💾 Sauvegarder';
+  document.getElementById('cancel-btn').textContent = 'Réinitialiser';
   document.getElementById('form-msg').style.display = 'none';
 };
 
