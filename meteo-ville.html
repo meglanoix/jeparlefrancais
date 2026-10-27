@@ -51,7 +51,9 @@ nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-i
 .actuelle .lieu .pays { opacity:0.65; font-size:0.85rem; }
 .actuelle .emoji { font-size:5.5rem; line-height:1; margin:0.3rem 0; }
 .actuelle .mot { font-family:'Playfair Display',serif; font-size:2rem; text-transform:capitalize; }
-.actuelle .temp { font-size:2.6rem; font-weight:700; margin-top:0.4rem; }
+.actuelle .temp-ligne { display:flex; align-items:baseline; justify-content:center; gap:12px; margin-top:0.4rem; }
+.actuelle .temp { font-size:2.6rem; font-weight:700; }
+.actuelle .ressenti-mini { font-size:1rem; opacity:0.75; }
 .actuelle .détails { font-size:1rem; opacity:0.88; margin-top:0.5rem; }
 .actuelle .vent { font-size:1.05rem; margin-top:0.5rem; background:rgba(255,255,255,0.15); display:inline-block; padding:4px 14px; border-radius:20px; }
 .prevision-texte { background:var(--blanc); border:1px solid rgba(26,58,92,0.08); border-left:4px solid var(--bleu-clair); border-radius:14px; padding:1.1rem 1.25rem; margin-bottom:1.75rem; font-size:1.05rem; line-height:1.6; box-shadow:0 2px 12px rgba(26,58,92,0.06); }
@@ -147,7 +149,7 @@ function condDetail(code) {
     61:['🌦️','Pluie intermittente'],63:['🌧️','Pluie'],65:['🌧️','Pluie forte'],
     66:['🌧️','Pluie verglaçante'],67:['🌧️','Pluie verglaçante'],
     71:['🌨️','Faible neige'],73:['🌨️','Neige'],75:['❄️','Neige abondante'],77:['🌨️','Neige fine'],
-    80:['🌦️','Averses éparses'],81:['🌧️','Averses'],82:['⛈️','Averses fortes'],
+    80:['🌦️','Averses dispersées'],81:['🌧️','Averses'],82:['⛈️','Averses fortes'],
     85:['🌨️','Averses de neige'],86:['❄️','Averses de neige'],
     95:['⛈️','Orages'],96:['⛈️','Orages avec grêle'],99:['⛈️','Orages avec grêle']
   };
@@ -291,8 +293,7 @@ function rendreSimple() {
       <div class="lieu">${v.name}${v.admin1 ? ', ' + v.admin1 : ''}</div>
       <div class="emoji">${emoji}</div>
       <div class="mot">${mot}</div>
-      <div class="temp">${Math.round(cur.temperature_2m)}°C</div>
-      <div class="détails">Maximum ${Math.round(d.temperature_2m_max[0])}°C · Minimum ${Math.round(d.temperature_2m_min[0])}°C</div>
+      <div class="temp-ligne"><span class="temp">${Math.round(cur.temperature_2m)}°C</span><span class="ressenti-mini">ressenti ${Math.round(cur.apparent_temperature)}°</span></div>
       ${ventAuj ? '<div class="vent">💨 du vent</div>' : ''}
     </div>
     <div class="titre-prev">Les prévisions pour aujourd'hui et les prochains jours</div>
@@ -329,8 +330,7 @@ function rendreDetaille() {
       <div class="lieu">${v.name}${v.admin1 ? ', ' + v.admin1 : ''} <span class="pays">${v.country || ''}</span></div>
       <div class="emoji">${emoji}</div>
       <div class="mot" style="font-size:1.6rem">${cond}</div>
-      <div class="temp">${Math.round(cur.temperature_2m)}°C</div>
-      <div class="détails">Maximum ${maxAuj}°C · Minimum ${minAuj}°C · Ressenti ${ressenti}°C${pluieAuj != null ? ` · 💧 ${motPrecip(d.weather_code[0])} ${pluieAuj} %` : ''}</div>
+      <div class="temp-ligne"><span class="temp">${Math.round(cur.temperature_2m)}°C</span><span class="ressenti-mini">ressenti ${ressenti}°</span></div>
       ${cur.wind_speed_10m >= VENT_FORT ? `<div class="vent">💨 ${motVent(cur.wind_speed_10m)} (${Math.round(cur.wind_speed_10m)} km/h)</div>` : ''}
     </div>`;
   html += `<div class="titre-prev">Les prévisions pour aujourd'hui et les prochains jours</div><div class="prev-grille">`;
