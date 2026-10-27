@@ -485,7 +485,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
         <div class="hero-card-sub">Les liens de parenté</div>
         <div class="hero-card-arrow">▾</div>
       </div>
-      <div class="hero-card" onclick="toggleHeroCard(this,'medias')" style="background:rgba(52,73,94,0.85);">
+      <div class="hero-card" onclick="toggleHeroCard(this,'medias')" style="background:rgba(55,48,107,0.88);">
         <div class="hero-card-icon">🎬</div>
         <div class="hero-card-title">Les médias</div>
         <div class="hero-card-sub">Films et émissions</div>
@@ -496,6 +496,13 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
         <div class="hero-card-icon">⚜️</div>
         <div class="hero-card-title">Visiter le Québec</div>
         <div class="hero-card-sub">Lieux d'intérêt</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <div class="hero-card" onclick="toggleHeroCard(this,'banqueposte')" style="background:rgba(23,107,135,0.9);">
+        <div class="hero-card-icon">🏦</div>
+        <div class="hero-card-title">La banque et la poste</div>
+        <div class="hero-card-sub">Services</div>
         <div class="hero-card-arrow">▾</div>
       </div>
 
@@ -558,7 +565,8 @@ const heroContents = {
   famille: `<div class="hcd-cat">👨‍👩‍👧‍👦 La famille</div><a href="la-famille.html">La famille rapprochée</a><a href="grands-parents-petits-enfants.html">Les grands-parents et les petits-enfants</a><a href="famille-elargie.html">La famille élargie</a><a href="famille-reconstituee.html">La famille reconstituée</a>`,
   medias: `<div class="hcd-cat">🎬 Les médias</div><a href="types-films.html">Les types de films</a><a href="types-emissions.html">Les types d'émissions</a>`,
   invitation: `<div class="hcd-cat">🎉 L'invitation et la conversation informelle</div><a href="l-invitation.html">L'invitation</a><a href="conversation-informelle.html">La conversation informelle</a>`,
-  enclasse: `<div class="hcd-cat">🏫 En classe</div><a href="informer-justifier-absence-retard.html">Informer ou justifier une absence ou un retard</a>`
+  enclasse: `<div class="hcd-cat">🏫 En classe</div><a href="informer-justifier-absence-retard.html">Informer ou justifier une absence ou un retard</a>`,
+  banqueposte: `<div class="hcd-cat">🏦 La banque et la poste</div><a href="bureau-poste.html">Le bureau de poste</a>`
 };
 let activeCard = null;
 window.toggleHeroCard = function(card, key) {
