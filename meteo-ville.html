@@ -42,6 +42,8 @@ nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-i
 .actuelle .temp { font-family:'Playfair Display',serif; font-size:3.2rem; line-height:1; }
 .actuelle .cond { font-size:1.2rem; margin-top:0.4rem; }
 .actuelle .détails { font-size:0.9rem; opacity:0.8; margin-top:0.6rem; }
+.prevision-texte { background:var(--blanc); border:1px solid rgba(26,58,92,0.08); border-left:4px solid var(--bleu-clair); border-radius:14px; padding:1.1rem 1.25rem; margin-bottom:1.75rem; font-size:1.05rem; line-height:1.6; color:var(--texte); box-shadow:0 2px 12px rgba(26,58,92,0.06); }
+.prevision-texte strong { color:var(--bleu); }
 .titre-prev { font-family:'Playfair Display',serif; color:var(--bleu); font-size:1.2rem; margin:0 0 1rem 2px; }
 .prev-grille { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:1rem; }
 .jour { background:var(--blanc); border:1px solid rgba(26,58,92,0.08); border-radius:16px; padding:1rem 0.6rem; text-align:center; box-shadow:0 2px 12px rgba(26,58,92,0.06); }
@@ -94,12 +96,12 @@ function meteoDuCode(code) {
     2:  ['⛅','Partiellement nuageux'],
     3:  ['☁️','Nuageux'],
     45: ['🌫️','Brouillard'], 48: ['🌫️','Brouillard givrant'],
-    51: ['🌦️','Bruine légère'], 53: ['🌦️','Bruine'], 55: ['🌦️','Bruine forte'],
-    56: ['🌧️','Bruine verglaçante'], 57: ['🌧️','Bruine verglaçante'],
+    51: ['🌦️','Pluie légère'], 53: ['🌦️','Pluie légère'], 55: ['🌦️','Pluie légère'],
+    56: ['🌧️','Pluie verglaçante'], 57: ['🌧️','Pluie verglaçante'],
     61: ['🌦️','Pluie faible'], 63: ['🌧️','Pluie'], 65: ['🌧️','Forte pluie'],
     66: ['🌧️','Pluie verglaçante'], 67: ['🌧️','Pluie verglaçante'],
-    71: ['🌨️','Neige faible'], 73: ['🌨️','Neige'], 75: ['❄️','Forte neige'],
-    77: ['🌨️','Grains de neige'],
+    71: ['🌨️','Neige légère'], 73: ['🌨️','Neige'], 75: ['❄️','Forte neige'],
+    77: ['🌨️','Neige légère'],
     80: ['🌦️','Averses'], 81: ['🌧️','Averses'], 82: ['⛈️','Fortes averses'],
     85: ['🌨️','Averses de neige'], 86: ['❄️','Fortes averses de neige'],
     95: ['⛈️','Orage'], 96: ['⛈️','Orage avec grêle'], 99: ['⛈️','Orage avec grêle']
@@ -144,20 +146,31 @@ window.chercher = async function() {
 
 function afficher(v, data) {
   const cur = data.current;
+  const d = data.daily;
   const [emoji, cond] = meteoDuCode(cur.weather_code);
   const lieu = v.name + (v.admin1 ? ', ' + v.admin1 : '');
   const pays = v.country || '';
+  const maxAuj = Math.round(d.temperature_2m_max[0]);
+  const minAuj = Math.round(d.temperature_2m_min[0]);
+  const ressenti = Math.round(cur.apparent_temperature);
   let html = `
     <div class="actuelle">
       <div class="lieu">${lieu} <span class="pays">${pays}</span></div>
       <div class="emoji">${emoji}</div>
       <div class="temp">${Math.round(cur.temperature_2m)}°C</div>
       <div class="cond">${cond}</div>
-      <div class="détails">Ressenti ${Math.round(cur.apparent_temperature)}°C · Vent ${Math.round(cur.wind_speed_10m)} km/h</div>
-    </div>
-    <div class="titre-prev">Les prévisions des prochains jours</div>
-    <div class="prev-grille">`;
-  const d = data.daily;
+      <div class="détails">Maximum ${maxAuj}°C · Minimum ${minAuj}°C · Ressenti ${ressenti}°C</div>
+    </div>`;
+
+  // Petit texte de prévision (lecture)
+  html += `<div class="prevision-texte"><strong>Aujourd'hui à ${v.name}</strong> : ${cond.toLowerCase()}. La température maximale est de ${maxAuj}°C et la minimale de ${minAuj}°C. La température ressentie est de ${ressenti}°C.`;
+  if (d.time.length > 1) {
+    const [, condDemain] = meteoDuCode(d.weather_code[1]);
+    html += ` <strong>Demain</strong> : ${condDemain.toLowerCase()}, de ${Math.round(d.temperature_2m_min[1])}°C à ${Math.round(d.temperature_2m_max[1])}°C.`;
+  }
+  html += `</div>`;
+
+  html += `<div class="titre-prev">Les prévisions des prochains jours</div><div class="prev-grille">`;
   for (let i = 0; i < d.time.length; i++) {
     const dt = new Date(d.time[i] + 'T12:00');
     const [em, co] = meteoDuCode(d.weather_code[i]);
