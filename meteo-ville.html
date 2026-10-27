@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>La météo et les prévisions | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu:#1a3a5c; --bleu-clair:#2a5298; --rouge:#c0392b; --creme:#f9f5ef; --texte:#2c2c2c; --gris:#6b6b6b; --blanc:#fff; --vert:#1a7a4a; --ombre:0 2px 24px rgba(26,58,92,0.10); }
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; color:var(--texte); background:var(--creme); min-height:100vh; }
+nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 5vw; height:64px; background:rgba(255,255,255,0.95); backdrop-filter:blur(8px); border-bottom:1px solid rgba(26,58,92,0.08); box-shadow:var(--ombre); }
+.nav-logo { font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--bleu); text-decoration:none; }
+.nav-logo span { color:var(--rouge); }
+.nav-back { display:flex; align-items:center; gap:6px; text-decoration:none; color:var(--gris); font-size:0.9rem; }
+.nav-back:hover { color:var(--bleu); }
+.nav-back svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.page-header { background:var(--bleu); padding:100px 5vw 46px; position:relative; overflow:hidden; }
+.page-header::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position:relative; z-index:1; }
+.page-eyebrow { font-size:0.75rem; font-weight:500; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:0.75rem; }
+.page-header h1 { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,4vw,2.8rem); color:var(--blanc); line-height:1.1; margin-bottom:0.5rem; }
+.page-header p { font-size:0.95rem; color:rgba(255,255,255,0.6); font-weight:300; }
+.main { max-width:900px; margin:0 auto; padding:2rem 5vw 5rem; }
+.recherche { display:flex; gap:10px; max-width:520px; margin:0 auto 2rem; }
+.recherche input { flex:1; padding:0.9rem 1.1rem; border:1.5px solid rgba(26,58,92,0.18); border-radius:14px; font-family:inherit; font-size:1.05rem; background:var(--blanc); }
+.recherche input:focus { outline:none; border-color:var(--bleu); }
+.recherche button { padding:0.9rem 1.4rem; border:none; border-radius:14px; background:var(--bleu); color:#fff; font-family:inherit; font-size:1rem; font-weight:700; cursor:pointer; }
+.recherche button:hover { background:var(--bleu-clair); }
+.villes-rapides { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:2rem; }
+.ville-pill { padding:6px 14px; border-radius:20px; border:1.5px solid rgba(26,58,92,0.15); background:var(--blanc); color:var(--gris); font-size:0.85rem; cursor:pointer; font-family:inherit; }
+.ville-pill:hover { border-color:var(--bleu); color:var(--bleu); }
+.etat { text-align:center; color:var(--gris); padding:1.5rem; }
+.etat.err { color:var(--rouge); }
+/* Météo actuelle */
+.actuelle { background:var(--bleu); color:#fff; border-radius:20px; padding:1.75rem; text-align:center; margin-bottom:1.75rem; box-shadow:var(--ombre); }
+.actuelle .lieu { font-size:1rem; opacity:0.8; margin-bottom:0.25rem; }
+.actuelle .lieu .pays { opacity:0.65; font-size:0.85rem; }
+.actuelle .emoji { font-size:4.5rem; line-height:1; margin:0.5rem 0; }
+.actuelle .temp { font-family:'Playfair Display',serif; font-size:3.2rem; line-height:1; }
+.actuelle .cond { font-size:1.2rem; margin-top:0.4rem; }
+.actuelle .détails { font-size:0.9rem; opacity:0.8; margin-top:0.6rem; }
+.titre-prev { font-family:'Playfair Display',serif; color:var(--bleu); font-size:1.2rem; margin:0 0 1rem 2px; }
+.prev-grille { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:1rem; }
+.jour { background:var(--blanc); border:1px solid rgba(26,58,92,0.08); border-radius:16px; padding:1rem 0.6rem; text-align:center; box-shadow:0 2px 12px rgba(26,58,92,0.06); }
+.jour .nom-jour { font-weight:700; color:var(--bleu); font-size:0.9rem; text-transform:capitalize; }
+.jour .date-jour { font-size:0.72rem; color:var(--gris); margin-bottom:0.4rem; }
+.jour .emoji { font-size:2.4rem; line-height:1; margin:0.3rem 0; }
+.jour .cond { font-size:0.78rem; color:var(--gris); min-height:2.4em; display:flex; align-items:center; justify-content:center; }
+.jour .temps { margin-top:0.4rem; font-size:0.95rem; }
+.jour .tmax { color:var(--rouge); font-weight:700; }
+.jour .tmin { color:var(--bleu-clair); }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Accueil
+  </a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">La météo et la circulation</p>
+    <h1>La météo et les prévisions</h1>
+    <p>Écris le nom d'une ville pour voir la météo actuelle et les prévisions</p>
+  </div>
+</div>
+
+<div class="main">
+  <form class="recherche" onsubmit="chercher(); return false;">
+    <input type="text" id="ville" placeholder="Ex : Montréal, Québec, Longueuil…" autocomplete="off"/>
+    <button type="submit">Chercher</button>
+  </form>
+  <div class="villes-rapides" id="villes-rapides"></div>
+
+  <div id="etat" class="etat">Écris une ville, puis clique sur « Chercher ».</div>
+  <div id="resultat"></div>
+</div>
+
+<script>
+// Pas de clé, pas de compte : Open-Meteo (gratuit, utilisable depuis le navigateur).
+const VILLES_RAPIDES = ['Montréal', 'Québec', 'Longueuil', 'Laval', 'Gatineau', 'Sherbrooke', 'Trois-Rivières'];
+
+// Code météo WMO -> { emoji, texte en français }
+function meteoDuCode(code) {
+  const m = {
+    0:  ['☀️','Ensoleillé'],
+    1:  ['🌤️','Généralement ensoleillé'],
+    2:  ['⛅','Partiellement nuageux'],
+    3:  ['☁️','Nuageux'],
+    45: ['🌫️','Brouillard'], 48: ['🌫️','Brouillard givrant'],
+    51: ['🌦️','Bruine légère'], 53: ['🌦️','Bruine'], 55: ['🌦️','Bruine forte'],
+    56: ['🌧️','Bruine verglaçante'], 57: ['🌧️','Bruine verglaçante'],
+    61: ['🌦️','Pluie faible'], 63: ['🌧️','Pluie'], 65: ['🌧️','Forte pluie'],
+    66: ['🌧️','Pluie verglaçante'], 67: ['🌧️','Pluie verglaçante'],
+    71: ['🌨️','Neige faible'], 73: ['🌨️','Neige'], 75: ['❄️','Forte neige'],
+    77: ['🌨️','Grains de neige'],
+    80: ['🌦️','Averses'], 81: ['🌧️','Averses'], 82: ['⛈️','Fortes averses'],
+    85: ['🌨️','Averses de neige'], 86: ['❄️','Fortes averses de neige'],
+    95: ['⛈️','Orage'], 96: ['⛈️','Orage avec grêle'], 99: ['⛈️','Orage avec grêle']
+  };
+  return m[code] || ['🌡️','—'];
+}
+
+const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+
+function majEtat(txt, err) {
+  const el = document.getElementById('etat');
+  el.textContent = txt; el.className = 'etat' + (err ? ' err' : '');
+  el.style.display = txt ? 'block' : 'none';
+}
+
+window.chercherVille = function(nom) { document.getElementById('ville').value = nom; chercher(); };
+
+window.chercher = async function() {
+  const nom = document.getElementById('ville').value.trim();
+  document.getElementById('resultat').innerHTML = '';
+  if (!nom) { majEtat('Écris le nom d\'une ville.', true); return; }
+  majEtat('Recherche en cours…', false);
+  try {
+    // 1) Trouver la ville (géocodage)
+    const geo = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(nom) + '&count=1&language=fr&format=json').then(r => r.json());
+    if (!geo.results || !geo.results.length) { majEtat('Ville introuvable. Vérifie l\'orthographe.', true); return; }
+    const v = geo.results[0];
+    // 2) Météo actuelle + prévisions
+    const url = 'https://api.open-meteo.com/v1/forecast'
+      + '?latitude=' + v.latitude + '&longitude=' + v.longitude
+      + '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m'
+      + '&daily=weather_code,temperature_2m_max,temperature_2m_min'
+      + '&timezone=auto&forecast_days=5';
+    const data = await fetch(url).then(r => r.json());
+    afficher(v, data);
+    majEtat('', false);
+  } catch (e) {
+    majEtat('Erreur de connexion. Réessaie dans un instant.', true);
+  }
+};
+
+function afficher(v, data) {
+  const cur = data.current;
+  const [emoji, cond] = meteoDuCode(cur.weather_code);
+  const lieu = v.name + (v.admin1 ? ', ' + v.admin1 : '');
+  const pays = v.country || '';
+  let html = `
+    <div class="actuelle">
+      <div class="lieu">${lieu} <span class="pays">${pays}</span></div>
+      <div class="emoji">${emoji}</div>
+      <div class="temp">${Math.round(cur.temperature_2m)}°C</div>
+      <div class="cond">${cond}</div>
+      <div class="détails">Ressenti ${Math.round(cur.apparent_temperature)}°C · Vent ${Math.round(cur.wind_speed_10m)} km/h</div>
+    </div>
+    <div class="titre-prev">Les prévisions des prochains jours</div>
+    <div class="prev-grille">`;
+  const d = data.daily;
+  for (let i = 0; i < d.time.length; i++) {
+    const dt = new Date(d.time[i] + 'T12:00');
+    const [em, co] = meteoDuCode(d.weather_code[i]);
+    const nom = (i === 0) ? "Aujourd'hui" : JOURS[dt.getDay()];
+    html += `
+      <div class="jour">
+        <div class="nom-jour">${nom}</div>
+        <div class="date-jour">${dt.getDate()} ${MOIS[dt.getMonth()]}</div>
+        <div class="emoji">${em}</div>
+        <div class="cond">${co}</div>
+        <div class="temps"><span class="tmax">${Math.round(d.temperature_2m_max[i])}°</span> / <span class="tmin">${Math.round(d.temperature_2m_min[i])}°</span></div>
+      </div>`;
+  }
+  html += '</div>';
+  document.getElementById('resultat').innerHTML = html;
+}
+
+// villes rapides
+document.getElementById('villes-rapides').innerHTML = VILLES_RAPIDES
+  .map(nom => `<button class="ville-pill" onclick="chercherVille('${nom}')">${nom}</button>`).join('');
+
+// Au chargement : afficher Montréal par défaut
+document.getElementById('ville').value = 'Montréal';
+chercher();
+</script>
+</body>
+</html>
