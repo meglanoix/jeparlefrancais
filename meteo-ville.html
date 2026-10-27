@@ -29,7 +29,12 @@ nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-i
 .recherche input:focus { outline:none; border-color:var(--bleu); }
 .recherche button { padding:0.9rem 1.4rem; border:none; border-radius:14px; background:var(--bleu); color:#fff; font-family:inherit; font-size:1rem; font-weight:700; cursor:pointer; }
 .recherche button:hover { background:var(--bleu-clair); }
-.villes-rapides { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:2rem; }
+.villes-rapides { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:1rem; }
+.suggestions-box { max-width:560px; margin:0 auto 1.5rem; background:var(--blanc); border:1px solid rgba(26,58,92,0.1); border-radius:14px; padding:0.75rem; box-shadow:var(--ombre); }
+.suggestions-box .titre { font-size:0.85rem; color:var(--gris); margin:0.25rem 0.5rem 0.5rem; }
+.sugg-btn { display:block; width:100%; text-align:left; padding:0.6rem 0.8rem; border:none; background:none; border-radius:10px; font-family:inherit; font-size:1rem; color:var(--texte); cursor:pointer; }
+.sugg-btn:hover { background:var(--creme); color:var(--bleu); }
+.sugg-btn .region { color:var(--gris); font-size:0.85rem; }
 .ville-pill { padding:6px 14px; border-radius:20px; border:1.5px solid rgba(26,58,92,0.15); background:var(--blanc); color:var(--gris); font-size:0.85rem; cursor:pointer; font-family:inherit; }
 .ville-pill:hover { border-color:var(--bleu); color:var(--bleu); }
 .etat { text-align:center; color:var(--gris); padding:1.5rem; }
@@ -81,6 +86,7 @@ nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-i
     <button type="submit">Chercher</button>
   </form>
   <div class="villes-rapides" id="villes-rapides"></div>
+  <div id="suggestions"></div>
 
   <div id="etat" class="etat">Écris une ville, puis clique sur « Chercher ».</div>
   <div id="resultat"></div>
@@ -133,17 +139,41 @@ function majEtat(txt, err) {
 
 window.chercherVille = function(nom) { document.getElementById('ville').value = nom; chercher(); };
 
+let resultats = [];
+// Priorité : Canada d'abord, puis Québec
+function scoreLieu(v) { return (v.country_code === 'CA' ? 2 : 0) + (/qu[ée]bec/i.test(v.admin1 || '') ? 1 : 0); }
+
 window.chercher = async function() {
   const nom = document.getElementById('ville').value.trim();
   document.getElementById('resultat').innerHTML = '';
+  document.getElementById('suggestions').innerHTML = '';
   if (!nom) { majEtat('Écris le nom d\'une ville.', true); return; }
   majEtat('Recherche en cours…', false);
   try {
-    // 1) Trouver la ville (géocodage)
-    const geo = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(nom) + '&count=1&language=fr&format=json').then(r => r.json());
-    if (!geo.results || !geo.results.length) { majEtat('Ville introuvable. Vérifie l\'orthographe.', true); return; }
-    const v = geo.results[0];
-    // 2) Météo actuelle + prévisions
+    const geo = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(nom) + '&count=10&language=fr&format=json').then(r => r.json());
+    resultats = (geo.results || []).slice();
+    if (!resultats.length) { majEtat('Ville introuvable. Vérifie l\'orthographe.', true); return; }
+    resultats.sort((a, b) => scoreLieu(b) - scoreLieu(a)); // Québec/Canada en premier (tri stable)
+    afficherSuggestions();
+    choisirResultat(0);
+  } catch (e) {
+    majEtat('Erreur de connexion. Réessaie dans un instant.', true);
+  }
+};
+
+function afficherSuggestions() {
+  const box = document.getElementById('suggestions');
+  if (resultats.length < 2) { box.innerHTML = ''; return; }
+  const items = resultats.slice(0, 5).map((v, i) =>
+    `<button class="sugg-btn" onclick="choisirResultat(${i})">${v.name}<span class="region"> — ${[v.admin1, v.country].filter(Boolean).join(', ')}</span></button>`
+  ).join('');
+  box.innerHTML = `<div class="suggestions-box"><div class="titre">Pas la bonne ville&nbsp;? Choisis&nbsp;:</div>${items}</div>`;
+}
+
+window.choisirResultat = async function(i) {
+  const v = resultats[i]; if (!v) return;
+  majEtat('Chargement…', false);
+  try {
     const url = 'https://api.open-meteo.com/v1/forecast'
       + '?latitude=' + v.latitude + '&longitude=' + v.longitude
       + '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m'
