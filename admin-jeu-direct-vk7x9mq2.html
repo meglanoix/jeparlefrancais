@@ -109,6 +109,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="ppf">⏪ Passé / ⏱️ Présent / ⏩ Futur</option>
         <option value="lp">🔑 Locataire / 🏡 Propriétaire</option>
         <option value="pi">⏱️ Présent de l'indicatif / 🕰️ Imparfait</option>
+        <option value="mp">🌤️ Météo présente / 📅 Prévision</option>
         <option value="grille">🖼️ Grille d'images (dire le mot, choisir l'image)</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
@@ -230,6 +231,10 @@ const TYPES = {
   pi: { nom: 'Présent / Imparfait', reps: [
     { v: 'present', ico: '⏱️', lib: 'Présent de l\'indicatif' },
     { v: 'imparfait', ico: '🕰️', lib: 'Imparfait' }
+  ]},
+  mp: { nom: 'Météo présente / Prévision', reps: [
+    { v: 'presente', ico: '🌤️', lib: 'Météo présente' },
+    { v: 'prevision', ico: '📅', lib: 'Prévision' }
   ]},
   grille: { nom: 'Grille d\'images (dire le mot)', reps: [], grille: true }
 };
@@ -402,7 +407,7 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf', 'lp', 'pi'];
+  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf', 'lp', 'pi', 'mp'];
   if (estGrille()) {
     if (!pendingImage) { msg.textContent = 'Ajoutez une image.'; msg.className = 'msg err'; return; }
   } else {

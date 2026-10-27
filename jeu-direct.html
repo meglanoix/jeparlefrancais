@@ -53,6 +53,8 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.locataire { background: var(--bleu-clair); }
 .rep.proprietaire { background: var(--orange); }
 .rep.imparfait { background: var(--orange); }
+.rep.presente { background: var(--bleu-clair); }
+.rep.prevision { background: var(--orange); }
 
 /* grille d'images (type grille) */
 .grille-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 680px; }
@@ -109,7 +111,8 @@ const TYPES = {
   cp:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'passecompose',ico:'⏪',lib:'Passé composé'} ],
   ppf: [ {v:'passe',ico:'⏪',lib:'Passé'}, {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ],
   lp:  [ {v:'locataire',ico:'🔑',lib:'Locataire'}, {v:'proprietaire',ico:'🏡',lib:'Propriétaire'} ],
-  pi:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'imparfait',ico:'🕰️',lib:'Imparfait'} ]
+  pi:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'imparfait',ico:'🕰️',lib:'Imparfait'} ],
+  mp:  [ {v:'presente',ico:'🌤️',lib:'Météo présente'}, {v:'prevision',ico:'📅',lib:'Prévision'} ]
 };
 
 let etat = null;          // état courant de la partie
