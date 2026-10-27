@@ -111,6 +111,7 @@ nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-i
 // Open-Meteo : gratuit, sans clé. Une seule page, deux affichages (Simple / Détaillé).
 const VILLES_RAPIDES = ['Montréal','Québec','Longueuil','Laval','Gatineau','Sherbrooke','Trois-Rivières'];
 const VENT_FORT = 30; // km/h
+function motVent(v) { return v >= 50 ? 'Vents violents' : 'Vent fort'; }
 let mode = 'simple';
 let villeChoisie = null;   // résultat de géocodage sélectionné
 let meteoData = null;      // données de prévision
@@ -139,19 +140,26 @@ function motSimple(code) {
 // --- vocabulaire DÉTAILLÉ (adjectifs) ---
 function condDetail(code) {
   const m = {
-    0:['☀️','Ensoleillé'],1:['🌤️','Généralement ensoleillé'],2:['⛅','Partiellement nuageux'],3:['☁️','Nuageux'],
+    0:['☀️','Ensoleillé'],1:['🌤️','Généralement ensoleillé'],2:['⛅','Alternance de soleil et de nuages'],3:['☁️','Nuageux'],
     45:['🌫️','Brouillard'],48:['🌫️','Brouillard givrant'],
-    51:['🌦️','Pluie légère'],53:['🌦️','Pluie légère'],55:['🌦️','Pluie légère'],
-    56:['🌧️','Pluie verglaçante'],57:['🌧️','Pluie verglaçante'],
-    61:['🌦️','Pluie faible'],63:['🌧️','Pluie'],65:['🌧️','Forte pluie'],
+    51:['🌦️','Bruine'],53:['🌦️','Bruine'],55:['🌦️','Bruine'],
+    56:['🌧️','Bruine verglaçante'],57:['🌧️','Bruine verglaçante'],
+    61:['🌦️','Pluie intermittente'],63:['🌧️','Pluie'],65:['🌧️','Pluie forte'],
     66:['🌧️','Pluie verglaçante'],67:['🌧️','Pluie verglaçante'],
-    71:['🌨️','Neige légère'],73:['🌨️','Neige'],75:['❄️','Forte neige'],77:['🌨️','Neige légère'],
-    80:['🌦️','Averses'],81:['🌧️','Averses'],82:['⛈️','Fortes averses'],
-    85:['🌨️','Averses de neige'],86:['❄️','Fortes averses de neige'],
-    95:['⛈️','Orage'],96:['⛈️','Orage avec grêle'],99:['⛈️','Orage avec grêle']
+    71:['🌨️','Faible neige'],73:['🌨️','Neige'],75:['❄️','Neige abondante'],77:['🌨️','Neige fine'],
+    80:['🌦️','Averses éparses'],81:['🌧️','Averses'],82:['⛈️','Averses fortes'],
+    85:['🌨️','Averses de neige'],86:['❄️','Averses de neige'],
+    95:['⛈️','Orages'],96:['⛈️','Orages avec grêle'],99:['⛈️','Orages avec grêle']
   };
   return m[code] || ['🌡️','—'];
 }
+// Type de précipitation d'après le code météo : 'neige', 'pluie' ou null (aucune)
+function typePrecip(code) {
+  if ([71,73,75,77,85,86].indexOf(code) >= 0) return 'neige';
+  if ([51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].indexOf(code) >= 0) return 'pluie';
+  return null;
+}
+function motPrecip(code) { const t = typePrecip(code); return t === 'neige' ? 'Neige' : (t === 'pluie' ? 'Pluie' : 'Précipitation'); }
 function quantitePrecip(d, i) {
   const parts = [];
   const neige = (d.snowfall_sum && d.snowfall_sum[i] != null) ? d.snowfall_sum[i] : 0;
@@ -170,7 +178,14 @@ function majEtat(txt, err) {
 
 // Priorité : Canada d'abord, puis Québec
 function scoreLieu(v) { return (v.country_code === 'CA' ? 2 : 0) + (/qu[ée]bec/i.test(v.admin1 || '') ? 1 : 0); }
+// « St- » / « Ste- » / « St. » -> « Saint- » / « Sainte- » (plus fiable pour les villes du Québec)
+function normaliserVille(q) {
+  return q
+    .replace(/\bste[\.\-\s]+/gi, 'Sainte-')
+    .replace(/\bst[\.\-\s]+/gi, 'Saint-');
+}
 async function geocoder(nom, nb) {
+  nom = normaliserVille(nom);
   const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(nom) + '&count=' + (nb||10) + '&language=fr&format=json').then(x => x.json());
   const res = (r.results || []).slice();
   res.sort((a, b) => scoreLieu(b) - scoreLieu(a)); // tri stable : Québec/Canada en premier
@@ -247,7 +262,7 @@ async function chargerMeteo(v) {
       + '?latitude=' + v.latitude + '&longitude=' + v.longitude
       + '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m'
       + '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,rain_sum,snowfall_sum,precipitation_sum,wind_speed_10m_max'
-      + '&timezone=auto&forecast_days=5';
+      + '&timezone=auto&forecast_days=4';
     meteoData = await fetch(url).then(r => r.json());
     majEtat('', false);
     rendre();
@@ -280,7 +295,7 @@ function rendreSimple() {
       <div class="détails">Maximum ${Math.round(d.temperature_2m_max[0])}°C · Minimum ${Math.round(d.temperature_2m_min[0])}°C</div>
       ${ventAuj ? '<div class="vent">💨 du vent</div>' : ''}
     </div>
-    <div class="titre-prev">Les 5 prochains jours</div>
+    <div class="titre-prev">Les prévisions pour aujourd'hui et les prochains jours</div>
     <div class="prev-grille">`;
   for (let i = 0; i < d.time.length; i++) {
     const dt = new Date(d.time[i] + 'T12:00');
@@ -315,14 +330,10 @@ function rendreDetaille() {
       <div class="emoji">${emoji}</div>
       <div class="mot" style="font-size:1.6rem">${cond}</div>
       <div class="temp">${Math.round(cur.temperature_2m)}°C</div>
-      <div class="détails">Maximum ${maxAuj}°C · Minimum ${minAuj}°C · Ressenti ${ressenti}°C${pluieAuj != null ? ` · 💧 Pluie ${pluieAuj} %` : ''}</div>
+      <div class="détails">Maximum ${maxAuj}°C · Minimum ${minAuj}°C · Ressenti ${ressenti}°C${pluieAuj != null ? ` · 💧 ${motPrecip(d.weather_code[0])} ${pluieAuj} %` : ''}</div>
+      ${cur.wind_speed_10m >= VENT_FORT ? `<div class="vent">💨 ${motVent(cur.wind_speed_10m)} (${Math.round(cur.wind_speed_10m)} km/h)</div>` : ''}
     </div>`;
-  html += `<div class="prevision-texte"><strong>Aujourd'hui à ${v.name}</strong> : ${cond.toLowerCase()}. La température maximale est de ${maxAuj}°C et la minimale de ${minAuj}°C. La température ressentie est de ${ressenti}°C.`;
-  if (pluieAuj != null) html += ` La probabilité de pluie est de ${pluieAuj} %.`;
-  const qAuj = quantitePrecip(d, 0);
-  if (qAuj.length) html += ` Quantité prévue : ${qAuj.join(' et ').replace(/❄️ |🌧️ /g,'')}.`;
-  html += `</div>`;
-  html += `<div class="titre-prev">Les prévisions des prochains jours</div><div class="prev-grille">`;
+  html += `<div class="titre-prev">Les prévisions pour aujourd'hui et les prochains jours</div><div class="prev-grille">`;
   for (let i = 0; i < d.time.length; i++) {
     const dt = new Date(d.time[i] + 'T12:00');
     const [em, co] = condDetail(d.weather_code[i]);
@@ -334,8 +345,9 @@ function rendreDetaille() {
         <div class="emoji">${em}</div>
         <div class="mot">${co}</div>
         <div class="temps"><span class="tmax">${Math.round(d.temperature_2m_max[i])}°</span> / <span class="tmin">${Math.round(d.temperature_2m_min[i])}°</span></div>
-        ${(d.precipitation_probability_max && d.precipitation_probability_max[i] != null) ? `<div class="pluie">💧 ${d.precipitation_probability_max[i]} %</div>` : ''}
+        ${(d.precipitation_probability_max && d.precipitation_probability_max[i] != null) ? `<div class="pluie">💧 ${motPrecip(d.weather_code[i])} ${d.precipitation_probability_max[i]} %</div>` : ''}
         ${quantitePrecip(d, i).map(q => `<div class="quantite">${q}</div>`).join('')}
+        ${(d.wind_speed_10m_max && d.wind_speed_10m_max[i] >= VENT_FORT) ? `<div class="vent">💨 ${motVent(d.wind_speed_10m_max[i])} (${Math.round(d.wind_speed_10m_max[i])} km/h)</div>` : ''}
       </div>`;
   }
   html += '</div>';
