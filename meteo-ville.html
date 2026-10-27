@@ -54,6 +54,8 @@ nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-i
 .jour .temps { margin-top:0.4rem; font-size:0.95rem; }
 .jour .tmax { color:var(--rouge); font-weight:700; }
 .jour .tmin { color:var(--bleu-clair); }
+.jour .jour-pluie { margin-top:0.3rem; font-size:0.8rem; color:var(--bleu-clair); }
+.jour .jour-quantite { font-size:0.78rem; color:var(--gris); margin-top:2px; }
 </style>
 </head>
 <body>
@@ -109,6 +111,17 @@ function meteoDuCode(code) {
   return m[code] || ['🌡️','—'];
 }
 
+// Quantité de précipitation prévue pour le jour i : pluie (mm) et/ou neige (cm)
+function quantitePrecip(d, i) {
+  const parts = [];
+  const neige = (d.snowfall_sum && d.snowfall_sum[i] != null) ? d.snowfall_sum[i] : 0;
+  let pluie = (d.rain_sum && d.rain_sum[i] != null) ? d.rain_sum[i] : 0;
+  if (!pluie && d.precipitation_sum && d.precipitation_sum[i] != null && !neige) pluie = d.precipitation_sum[i];
+  if (neige > 0) parts.push('❄️ ' + (Math.round(neige * 10) / 10) + ' cm');
+  if (pluie > 0) parts.push('🌧️ ' + (Math.round(pluie * 10) / 10) + ' mm');
+  return parts; // tableau, vide si rien de prévu
+}
+
 const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
 
@@ -134,7 +147,7 @@ window.chercher = async function() {
     const url = 'https://api.open-meteo.com/v1/forecast'
       + '?latitude=' + v.latitude + '&longitude=' + v.longitude
       + '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m'
-      + '&daily=weather_code,temperature_2m_max,temperature_2m_min'
+      + '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,rain_sum,snowfall_sum,precipitation_sum'
       + '&timezone=auto&forecast_days=5';
     const data = await fetch(url).then(r => r.json());
     afficher(v, data);
@@ -153,17 +166,21 @@ function afficher(v, data) {
   const maxAuj = Math.round(d.temperature_2m_max[0]);
   const minAuj = Math.round(d.temperature_2m_min[0]);
   const ressenti = Math.round(cur.apparent_temperature);
+  const pluieAuj = (d.precipitation_probability_max && d.precipitation_probability_max[0] != null) ? d.precipitation_probability_max[0] : null;
   let html = `
     <div class="actuelle">
       <div class="lieu">${lieu} <span class="pays">${pays}</span></div>
       <div class="emoji">${emoji}</div>
       <div class="temp">${Math.round(cur.temperature_2m)}°C</div>
       <div class="cond">${cond}</div>
-      <div class="détails">Maximum ${maxAuj}°C · Minimum ${minAuj}°C · Ressenti ${ressenti}°C</div>
+      <div class="détails">Maximum ${maxAuj}°C · Minimum ${minAuj}°C · Ressenti ${ressenti}°C${pluieAuj != null ? ` · 💧 Pluie ${pluieAuj} %` : ''}</div>
     </div>`;
 
   // Petit texte de prévision (lecture)
   html += `<div class="prevision-texte"><strong>Aujourd'hui à ${v.name}</strong> : ${cond.toLowerCase()}. La température maximale est de ${maxAuj}°C et la minimale de ${minAuj}°C. La température ressentie est de ${ressenti}°C.`;
+  if (pluieAuj != null) html += ` La probabilité de pluie est de ${pluieAuj} %.`;
+  const qAuj = quantitePrecip(d, 0);
+  if (qAuj.length) html += ` Quantité prévue : ${qAuj.join(' et ').replace(/❄️ |🌧️ /g,'')}.`;
   if (d.time.length > 1) {
     const [, condDemain] = meteoDuCode(d.weather_code[1]);
     html += ` <strong>Demain</strong> : ${condDemain.toLowerCase()}, de ${Math.round(d.temperature_2m_min[1])}°C à ${Math.round(d.temperature_2m_max[1])}°C.`;
@@ -182,6 +199,8 @@ function afficher(v, data) {
         <div class="emoji">${em}</div>
         <div class="cond">${co}</div>
         <div class="temps"><span class="tmax">${Math.round(d.temperature_2m_max[i])}°</span> / <span class="tmin">${Math.round(d.temperature_2m_min[i])}°</span></div>
+        ${(d.precipitation_probability_max && d.precipitation_probability_max[i] != null) ? `<div class="jour-pluie">💧 ${d.precipitation_probability_max[i]} %</div>` : ''}
+        ${quantitePrecip(d, i).map(q => `<div class="jour-quantite">${q}</div>`).join('')}
       </div>`;
   }
   html += '</div>';
