@@ -6,7 +6,7 @@
 <title>Animateur – Jeu en direct | JeParle Français</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
-:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; --violet: #8e44ad; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
 .bar { background: var(--bleu); color: #fff; padding: 0.85rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
@@ -78,6 +78,10 @@ h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem
 .res-col.imparfait { color: var(--orange); }
 .res-col.presente { color: var(--bleu-clair); }
 .res-col.prevision { color: var(--orange); }
+.res-col.je { color: var(--bleu-clair); }
+.res-col.tu { color: var(--orange); }
+.res-col.il { color: var(--vert); }
+.res-col.elle { color: var(--violet); }
 .res-col.aime { color: var(--vert); }
 .res-col.naime { color: var(--rouge); }
 .res-col.passecompose { color: var(--orange); }
@@ -140,9 +144,10 @@ const TYPES = {
   ppf: [ {v:'passe',ico:'⏪',lib:'Passé'}, {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ],
   lp:  [ {v:'locataire',ico:'🔑',lib:'Locataire'}, {v:'proprietaire',ico:'🏡',lib:'Propriétaire'} ],
   pi:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'imparfait',ico:'🕰️',lib:'Imparfait'} ],
-  mp:  [ {v:'presente',ico:'🌤️',lib:'Météo présente'}, {v:'prevision',ico:'📅',lib:'Prévision'} ]
+  mp:  [ {v:'presente',ico:'🌤️',lib:'Météo présente'}, {v:'prevision',ico:'📅',lib:'Prévision'} ],
+  pron:[ {v:'je',ico:'🙋',lib:'Je'}, {v:'tu',ico:'👉',lib:'Tu'}, {v:'il',ico:'👨',lib:'Il'}, {v:'elle',ico:'👩',lib:'Elle'} ]
 };
-const TYPE_NOMS = { ipo:'Interdit / Permis / Obligatoire', vf:'Vrai / Faux', ph:'Ponctuelle / Habituelle', pf:'Présent / Futur', r12:'Réponse 1 / 2', dd:'Demander / Donner', rp:'Réceptionniste / Patient', cv:'Client / Vendeur', an:"Aime / N'aime pas", cp:'Présent / Passé composé', ppf:'Passé / Présent / Futur', lp:'Locataire / Propriétaire', pi:"Présent / Imparfait", mp:"Météo présente / Prévision", grille:"Grille d'images" };
+const TYPE_NOMS = { ipo:'Interdit / Permis / Obligatoire', vf:'Vrai / Faux', ph:'Ponctuelle / Habituelle', pf:'Présent / Futur', r12:'Réponse 1 / 2', dd:'Demander / Donner', rp:'Réceptionniste / Patient', cv:'Client / Vendeur', an:"Aime / N'aime pas", cp:'Présent / Passé composé', ppf:'Passé / Présent / Futur', lp:'Locataire / Propriétaire', pi:"Présent / Imparfait", mp:"Météo présente / Prévision", pron:"Pronom : je / tu / il / elle", grille:"Grille d'images" };
 function estGrille() { return etat && etat.type === 'grille'; }
 function melanger(arr) { const a = arr.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 

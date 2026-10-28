@@ -6,7 +6,7 @@
 <title>Jeu en direct | JeParle Français</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
-:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; }
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; --violet: #8e44ad; }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); display: flex; flex-direction: column; }
@@ -55,6 +55,10 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.imparfait { background: var(--orange); }
 .rep.presente { background: var(--bleu-clair); }
 .rep.prevision { background: var(--orange); }
+.rep.je { background: var(--bleu-clair); }
+.rep.tu { background: var(--orange); }
+.rep.il { background: var(--vert); }
+.rep.elle { background: var(--violet); }
 
 /* grille d'images (type grille) */
 .grille-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 680px; }
@@ -112,7 +116,8 @@ const TYPES = {
   ppf: [ {v:'passe',ico:'⏪',lib:'Passé'}, {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ],
   lp:  [ {v:'locataire',ico:'🔑',lib:'Locataire'}, {v:'proprietaire',ico:'🏡',lib:'Propriétaire'} ],
   pi:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'imparfait',ico:'🕰️',lib:'Imparfait'} ],
-  mp:  [ {v:'presente',ico:'🌤️',lib:'Météo présente'}, {v:'prevision',ico:'📅',lib:'Prévision'} ]
+  mp:  [ {v:'presente',ico:'🌤️',lib:'Météo présente'}, {v:'prevision',ico:'📅',lib:'Prévision'} ],
+  pron:[ {v:'je',ico:'🙋',lib:'Je'}, {v:'tu',ico:'👉',lib:'Tu'}, {v:'il',ico:'👨',lib:'Il'}, {v:'elle',ico:'👩',lib:'Elle'} ]
 };
 
 let etat = null;          // état courant de la partie

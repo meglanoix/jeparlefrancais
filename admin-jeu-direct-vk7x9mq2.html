@@ -236,6 +236,12 @@ const TYPES = {
     { v: 'presente', ico: '🌤️', lib: 'Météo présente' },
     { v: 'prevision', ico: '📅', lib: 'Prévision' }
   ]},
+  pron: { nom: 'Pronom : je / tu / il / elle', reps: [
+    { v: 'je', ico: '🙋', lib: 'Je' },
+    { v: 'tu', ico: '👉', lib: 'Tu' },
+    { v: 'il', ico: '👨', lib: 'Il' },
+    { v: 'elle', ico: '👩', lib: 'Elle' }
+  ]},
   grille: { nom: 'Grille d\'images (dire le mot)', reps: [], grille: true }
 };
 function libRep(type, v) {
@@ -407,7 +413,7 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf', 'lp', 'pi', 'mp'];
+  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf', 'lp', 'pi', 'mp', 'pron'];
   if (estGrille()) {
     if (!pendingImage) { msg.textContent = 'Ajoutez une image.'; msg.className = 'msg err'; return; }
   } else {
