@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Les chaînes de télé en direct | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; transition: color 0.2s; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.page-header { background: var(--bleu); padding: 100px 5vw 50px; position: relative; overflow: hidden; }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.75rem; }
+.page-header p { font-size: 1rem; color: rgba(255,255,255,0.65); font-weight: 300; max-width: 520px; }
+.main { max-width: 900px; margin: 0 auto; padding: 3rem 5vw 5rem; }
+.chaines { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+.chaine { background: var(--blanc); border-radius: 18px; border: 1px solid rgba(26,58,92,0.08); overflow: hidden; box-shadow: var(--ombre); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
+.chaine:hover { transform: translateY(-4px); box-shadow: 0 10px 32px rgba(26,58,92,0.16); }
+.chaine-band { padding: 2.2rem 1.5rem; text-align: center; color: var(--blanc); }
+.chaine-nom { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; line-height: 1.1; }
+.chaine-body { padding: 1.2rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; }
+.chaine-desc { font-size: 0.95rem; color: var(--gris); line-height: 1.45; flex: 1; }
+.btn-direct { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--rouge); color: var(--blanc); text-decoration: none; padding: 14px 18px; border-radius: 12px; font-size: 1.05rem; font-weight: 700; transition: opacity 0.2s; }
+.btn-direct:hover { opacity: 0.88; }
+.pastille { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ff2d2d; margin-right: 2px; box-shadow: 0 0 0 0 rgba(255,45,45,0.6); animation: pulse 1.8s infinite; }
+@keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(255,45,45,0.5)} 70%{box-shadow:0 0 0 8px rgba(255,45,45,0)} 100%{box-shadow:0 0 0 0 rgba(255,45,45,0)} }
+.note-geo { text-align: center; color: var(--gris); font-size: 0.9rem; margin-top: 2.5rem; }
+.sous-titre { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.1rem; margin: 3rem 0 1rem; }
+.chaine.muette { opacity: 0.72; box-shadow: none; }
+.chaine.muette:hover { transform: none; box-shadow: none; }
+.chaine.muette .btn-direct { background: var(--gris); }
+.badge-payant { display: inline-block; background: rgba(26,58,92,0.08); color: var(--bleu); font-size: 0.78rem; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+@media (max-width: 560px) { .chaines { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour à l'accueil
+  </a>
+</nav>
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">Les médias · La télévision</p>
+    <h1>Les chaînes de télé en direct</h1>
+    <p>Cliquez sur une chaîne pour la regarder en direct, gratuitement. La télé s'ouvre dans une nouvelle page.</p>
+  </div>
+</div>
+<div class="main">
+  <div class="chaines">
+
+    <div class="chaine">
+      <div class="chaine-band" style="background:#c4151c">
+        <div class="chaine-nom">Radio-Canada</div>
+      </div>
+      <div class="chaine-body">
+        <div class="chaine-desc">La télé publique du Québec. Nouvelles, séries et émissions.</div>
+        <a class="btn-direct" href="https://ici.radio-canada.ca/tele" target="_blank" rel="noopener"><span class="pastille"></span> Regarder en direct</a>
+      </div>
+    </div>
+
+    <div class="chaine">
+      <div class="chaine-band" style="background:#0063c6">
+        <div class="chaine-nom">TVA</div>
+      </div>
+      <div class="chaine-body">
+        <div class="chaine-desc">La chaîne privée la plus regardée. Téléromans, variétés et nouvelles.</div>
+        <a class="btn-direct" href="https://www.tvaplus.ca/en-direct" target="_blank" rel="noopener"><span class="pastille"></span> Regarder en direct</a>
+      </div>
+    </div>
+
+    <div class="chaine">
+      <div class="chaine-band" style="background:#1a237e">
+        <div class="chaine-nom">Télé-Québec</div>
+      </div>
+      <div class="chaine-body">
+        <div class="chaine-desc">La télé publique culturelle et éducative. Documentaires et jeunesse.</div>
+        <a class="btn-direct" href="https://www.telequebec.tv" target="_blank" rel="noopener"><span class="pastille"></span> Regarder en direct</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sous-titre">Sur abonnement</div>
+  <div class="chaines">
+    <div class="chaine muette">
+      <div class="chaine-band" style="background:#6b6b6b">
+        <div class="chaine-nom">Noovo</div>
+      </div>
+      <div class="chaine-body">
+        <div class="chaine-desc">La chaîne privée de Bell. Le direct en ligne est maintenant sur Crave. <span class="badge-payant">Abonnement requis</span></div>
+        <a class="btn-direct" href="https://www.crave.ca" target="_blank" rel="noopener">Aller sur Crave</a>
+      </div>
+    </div>
+  </div>
+
+  <p class="note-geo">📍 Ces directs sont disponibles seulement au Canada.</p>
+</div>
+</body>
+</html>
