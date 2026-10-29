@@ -131,6 +131,13 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
     <div class="card">
       <h2 id="q-titre">Questions</h2>
       <span class="type-badge" id="q-typebadge"></span>
+      <div id="import-zone" style="display:none;margin-top:1rem;padding:0.9rem 1rem;background:var(--creme);border-radius:10px">
+        <div style="font-size:0.9rem;color:var(--bleu);font-weight:500;margin-bottom:0.5rem">📥 Remplir la grille à partir d'une page de vocabulaire</div>
+        <div class="row">
+          <button class="btn" onclick="importerImages()">Importer les images d'une collection</button>
+          <span class="msg" id="import-msg"></span>
+        </div>
+      </div>
       <label style="margin-top:1rem" id="texte-label">Texte de la question (ex. : Stationner ici)</label>
       <input type="text" id="texte" placeholder="Stationner ici"/>
       <label id="image-label">Image</label>
@@ -367,6 +374,7 @@ window.retourQuiz = function() {
 function estGrille() { return (TYPES[quizCourant.type] || {}).grille === true; }
 function renderRepChoix() {
   const grille = estGrille();
+  document.getElementById('import-zone').style.display = grille ? '' : 'none';
   document.getElementById('rep-zone').style.display = grille ? 'none' : '';
   document.getElementById('texte-label').textContent = grille ? 'Mot (ex. : lavable) — optionnel, non montré à l\'élève' : 'Texte de la question (ex. : Stationner ici)';
   document.getElementById('texte').placeholder = grille ? 'lavable' : 'Stationner ici';
@@ -385,6 +393,31 @@ function choisirRep(v) {
   repChoisie = v;
   document.querySelectorAll('#rep-choix .rep-btn').forEach(b => b.classList.toggle('sel', b.dataset.v === v));
 }
+
+window.importerImages = async function() {
+  const nom = (prompt("Nom de la collection à importer (ex. : types-emissions) :", "types-emissions") || "").trim();
+  if (!nom) return;
+  const msg = document.getElementById('import-msg');
+  msg.textContent = 'Importation...'; msg.className = 'msg';
+  try {
+    const snap = await getDocs(collection(db, nom));
+    const docs = snap.docs.map(d => d.data()).filter(d => d.image)
+      .sort((a, b) => ((typeof a.ordre === 'number' ? a.ordre : 9999) - (typeof b.ordre === 'number' ? b.ordre : 9999)));
+    if (!docs.length) { msg.textContent = 'Collection vide ou introuvable.'; msg.className = 'msg err'; return; }
+    const base = items.length;
+    let n = 0;
+    for (const d of docs) {
+      await addDoc(collection(db, COL_Q), {
+        quizId: quizCourant.id, texte: d.mot || '', image: d.image, reponse: null,
+        ordre: base + n, date: new Date().toLocaleDateString('fr-CA')
+      });
+      n++;
+    }
+    await loadCards();
+    msg.textContent = '✓ ' + n + ' image(s) importée(s) !'; msg.className = 'msg ok';
+    setTimeout(() => msg.textContent = '', 3500);
+  } catch (e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
+};
 
 window.handleImage = function(e) {
   const file = e.target.files[0];
