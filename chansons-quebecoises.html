@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chansons québécoises à écouter | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.page-header { background: var(--bleu); padding: 100px 5vw 50px; position: relative; overflow: hidden; }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.75rem; }
+.page-header p { font-size: 1rem; color: rgba(255,255,255,0.65); font-weight: 300; max-width: 540px; }
+.main { max-width: 1000px; margin: 0 auto; padding: 3rem 5vw 5rem; }
+.artiste { background: var(--blanc); border-radius: 16px; border: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); padding: 1.4rem 1.6rem; margin-bottom: 1.25rem; }
+.artiste h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.35rem; margin-bottom: 0.9rem; }
+.chansons { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.chanson { display: inline-flex; align-items: center; gap: 6px; background: var(--creme); color: var(--bleu); text-decoration: none; padding: 9px 16px; border-radius: 22px; font-size: 0.95rem; font-weight: 500; border: 1.5px solid rgba(26,58,92,0.10); transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.chanson:hover { background: var(--rouge); color: var(--blanc); border-color: var(--rouge); }
+.note { text-align: center; color: var(--gris); font-size: 0.9rem; margin-top: 2rem; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour à l'accueil
+  </a>
+</nav>
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">Les médias · La musique québécoise</p>
+    <h1>Chansons québécoises à écouter</h1>
+    <p>Clique sur une chanson pour l'écouter sur YouTube. La chanson s'ouvre dans une nouvelle page.</p>
+  </div>
+</div>
+<div class="main">
+    <div class="artiste">
+      <h2>La Bolduc</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=La+Bolduc+%C3%87a+va+venir+d%C3%A9couragez-vous+pas" target="_blank" rel="noopener">▶ Ça va venir découragez-vous pas</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=La+Bolduc+La+cuisini%C3%A8re" target="_blank" rel="noopener">▶ La cuisinière</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=La+Bolduc+J%27ai+un+bouton+sur+la+langue" target="_blank" rel="noopener">▶ J&#x27;ai un bouton sur la langue</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Félix Leclerc</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=F%C3%A9lix+Leclerc+Le+p%27tit+bonheur" target="_blank" rel="noopener">▶ Le p&#x27;tit bonheur</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Gilles Vigneault</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Gilles+Vigneault+Mon+pays" target="_blank" rel="noopener">▶ Mon pays</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Gilles+Vigneault+Gens+du+pays" target="_blank" rel="noopener">▶ Gens du pays</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Ginette Reno</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Ginette+Reno+Un+peu+plus+haut%2C+un+peu+plus+loin" target="_blank" rel="noopener">▶ Un peu plus haut, un peu plus loin</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Ginette+Reno+Je+ne+suis+qu%27une+chanson" target="_blank" rel="noopener">▶ Je ne suis qu&#x27;une chanson</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Jean-Pierre Ferland</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Jean-Pierre+Ferland+Une+chance+qu%27on+s%27a" target="_blank" rel="noopener">▶ Une chance qu&#x27;on s&#x27;a</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Robert Charlebois</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Robert+Charlebois+Entre+deux+joints" target="_blank" rel="noopener">▶ Entre deux joints</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Robert+Charlebois+Je+reviendrai+%C3%A0+Montr%C3%A9al" target="_blank" rel="noopener">▶ Je reviendrai à Montréal</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Harmonium</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Harmonium+Pour+un+instant" target="_blank" rel="noopener">▶ Pour un instant</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Harmonium+Un+musicien+parmi+tant+d%27autres" target="_blank" rel="noopener">▶ Un musicien parmi tant d&#x27;autres</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Céline Dion</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=C%C3%A9line+Dion+Pour+que+tu+m%27aimes+encore" target="_blank" rel="noopener">▶ Pour que tu m&#x27;aimes encore</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=C%C3%A9line+Dion+My+Heart+Will+Go+On" target="_blank" rel="noopener">▶ My Heart Will Go On</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=C%C3%A9line+Dion+Encore+un+soir" target="_blank" rel="noopener">▶ Encore un soir</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Beau Dommage</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Beau+Dommage+La+complainte+du+phoque+en+Alaska" target="_blank" rel="noopener">▶ La complainte du phoque en Alaska</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Beau+Dommage+Le+pic-bois" target="_blank" rel="noopener">▶ Le pic-bois</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Beau+Dommage+Le+blues+d%27la+m%C3%A9tropole" target="_blank" rel="noopener">▶ Le blues d&#x27;la métropole</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Beau+Dommage+Tous+les+palmiers" target="_blank" rel="noopener">▶ Tous les palmiers</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Les Cowboys Fringants</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Cowboys+Fringants+Les+%C3%A9toiles+filantes" target="_blank" rel="noopener">▶ Les étoiles filantes</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Cowboys+Fringants+Tant+qu%27il+y+aura+de+l%27amour" target="_blank" rel="noopener">▶ Tant qu&#x27;il y aura de l&#x27;amour</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Cowboys+Fringants+Ti-cul" target="_blank" rel="noopener">▶ Ti-cul</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Cowboys+Fringants+En+berne" target="_blank" rel="noopener">▶ En berne</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Les Trois Accords</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Trois+Accords+Saskatchewan" target="_blank" rel="noopener">▶ Saskatchewan</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Trois+Accords+Hawa%C3%AFenne" target="_blank" rel="noopener">▶ Hawaïenne</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Trois+Accords+Corinne" target="_blank" rel="noopener">▶ Corinne</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Jean Leloup</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Jean+Leloup+1990" target="_blank" rel="noopener">▶ 1990</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Jean+Leloup+I+Lost+My+Baby" target="_blank" rel="noopener">▶ I Lost My Baby</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Jean+Leloup+Balade+%C3%A0+Toronto" target="_blank" rel="noopener">▶ Balade à Toronto</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Les Colocs</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Colocs+Passe-mo%C3%A9+la+puck" target="_blank" rel="noopener">▶ Passe-moé la puck</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Colocs+La+rue+principale" target="_blank" rel="noopener">▶ La rue principale</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Colocs+Tassez-vous+de+d%27l%C3%A0" target="_blank" rel="noopener">▶ Tassez-vous de d&#x27;là</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Colocs+Julie" target="_blank" rel="noopener">▶ Julie</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Les+Colocs+Juste+une+p%27tite+nuit" target="_blank" rel="noopener">▶ Juste une p&#x27;tite nuit</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Daniel Bélanger</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Daniel+B%C3%A9langer+Les+deux+printemps" target="_blank" rel="noopener">▶ Les deux printemps</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Daniel+B%C3%A9langer+Sortez-moi+de+moi" target="_blank" rel="noopener">▶ Sortez-moi de moi</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Daniel+B%C3%A9langer+R%C3%AAvez+mieux" target="_blank" rel="noopener">▶ Rêvez mieux</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Kaïn</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Ka%C3%AFn+Embarque+ma+belle" target="_blank" rel="noopener">▶ Embarque ma belle</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Ka%C3%AFn+Mexico" target="_blank" rel="noopener">▶ Mexico</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Ka%C3%AFn+Comme+dans+le+temps" target="_blank" rel="noopener">▶ Comme dans le temps</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Émile Bilodeau</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=%C3%89mile+Bilodeau+J%27en+ai+plein+mon+cass" target="_blank" rel="noopener">▶ J&#x27;en ai plein mon cass</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=%C3%89mile+Bilodeau+%C3%87a+va" target="_blank" rel="noopener">▶ Ça va</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=%C3%89mile+Bilodeau+Crise+existentielle" target="_blank" rel="noopener">▶ Crise existentielle</a>
+      </div>
+    </div>
+    <div class="artiste">
+      <h2>Jay Scott</h2>
+      <div class="chansons">
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Jay+Scott+Copilote+%28avec+FouKi%29" target="_blank" rel="noopener">▶ Copilote (avec FouKi)</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Jay+Scott+Woodstock" target="_blank" rel="noopener">▶ Woodstock</a>
+        <a class="chanson" href="https://www.youtube.com/results?search_query=Jay+Scott+Broken" target="_blank" rel="noopener">▶ Broken</a>
+      </div>
+    </div>
+  <p class="note">🎵 Chaque lien ouvre une recherche YouTube — la chanson officielle est en haut des résultats.</p>
+</div>
+</body>
+</html>
