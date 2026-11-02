@@ -6,7 +6,7 @@
 <title>Jeu en direct | JeParle Français</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
-:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; --violet: #8e44ad; }
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --orange: #e67e22; --violet: #8e44ad; --turquoise: #16a085; --sepia: #8d6e63; }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); display: flex; flex-direction: column; }
@@ -34,6 +34,8 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .audio-play:active { transform: scale(0.97); }
 .q-texte { font-size: 1.35rem; font-weight: 500; color: var(--bleu); margin-bottom: 1.5rem; max-width: 500px; }
 .reps { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; }
+.reps-annees { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.reps-annees .rep { padding: 1.1rem; }
 .rep { padding: 1.25rem; border-radius: 16px; border: none; font-family: inherit; font-size: 1.25rem; font-weight: 700; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .rep:active { transform: scale(0.98); }
 .rep .ico { font-size: 1.6rem; }
@@ -59,6 +61,13 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.tu { background: var(--orange); }
 .rep.il { background: var(--vert); }
 .rep.elle { background: var(--violet); }
+.rep.an1930 { background: var(--sepia); }
+.rep.an1950 { background: var(--rouge); }
+.rep.an1975 { background: var(--orange); }
+.rep.an1993 { background: var(--vert); }
+.rep.an2002 { background: var(--turquoise); }
+.rep.an2016 { background: var(--bleu-clair); }
+.rep.an2025 { background: var(--violet); }
 
 /* grille d'images (type grille) */
 .grille-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 680px; }
@@ -117,7 +126,8 @@ const TYPES = {
   lp:  [ {v:'locataire',ico:'🔑',lib:'Locataire'}, {v:'proprietaire',ico:'🏡',lib:'Propriétaire'} ],
   pi:  [ {v:'present',ico:'⏱️',lib:'Présent de l\'indicatif'}, {v:'imparfait',ico:'🕰️',lib:'Imparfait'} ],
   mp:  [ {v:'presente',ico:'🌤️',lib:'Météo présente'}, {v:'prevision',ico:'📅',lib:'Prévision'} ],
-  pron:[ {v:'je',ico:'🙋',lib:'Je'}, {v:'tu',ico:'👉',lib:'Tu'}, {v:'il',ico:'👨',lib:'Il'}, {v:'elle',ico:'👩',lib:'Elle'} ]
+  pron:[ {v:'je',ico:'🙋',lib:'Je'}, {v:'tu',ico:'👉',lib:'Tu'}, {v:'il',ico:'👨',lib:'Il'}, {v:'elle',ico:'👩',lib:'Elle'} ],
+  ligne:[ {v:'an1930',ico:'',lib:'1930'}, {v:'an1950',ico:'',lib:'1950'}, {v:'an1975',ico:'',lib:'1975'}, {v:'an1993',ico:'',lib:'1993'}, {v:'an2002',ico:'',lib:'2002'}, {v:'an2016',ico:'',lib:'2016'}, {v:'an2025',ico:'',lib:'2025'} ]
 };
 
 let etat = null;          // état courant de la partie
@@ -226,8 +236,10 @@ async function montrerQuestion() {
   const imgHtml = q.image ? `<img class="q-img" src="${q.image}" decoding="async"/>` : '';
   const audioHtml = q.audio ? `<button class="audio-play" onclick="jouerAudioQ()">🔊 Écouter</button>` : '';
   const vide = !q.image && !q.audio && !q.texte;
-  const texteHtml = vide ? `<div class="q-texte" style="color:var(--gris)">👂 Écoute la phrase…</div>` : `<div class="q-texte">${q.texte || ''}</div>`;
-  zone.innerHTML = `${imgHtml}${audioHtml}${texteHtml}<div class="reps">${boutons}</div>`;
+  const consigneVide = (etat.type === 'ligne') ? '🎵 Écoute la chanson…' : '👂 Écoute la phrase…';
+  const texteHtml = vide ? `<div class="q-texte" style="color:var(--gris)">${consigneVide}</div>` : `<div class="q-texte">${q.texte || ''}</div>`;
+  const repsClass = (etat.type === 'ligne') ? 'reps reps-annees' : 'reps';
+  zone.innerHTML = `${imgHtml}${audioHtml}${texteHtml}<div class="${repsClass}">${boutons}</div>`;
 }
 
 // --- type "grille" : tableau d'images, l'enseignant dit le mot, l'élève touche la bonne image ---

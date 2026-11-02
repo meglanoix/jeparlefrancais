@@ -111,6 +111,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="pi">⏱️ Présent de l'indicatif / 🕰️ Imparfait</option>
         <option value="mp">🌤️ Météo présente / 📅 Prévision</option>
         <option value="pron">🙋 Je / 👉 Tu / 👨 Il / 👩 Elle</option>
+        <option value="ligne">📅 Ligne du temps (choisir l'année)</option>
         <option value="grille">🖼️ Grille d'images (dire le mot, choisir l'image)</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
@@ -249,6 +250,15 @@ const TYPES = {
     { v: 'tu', ico: '👉', lib: 'Tu' },
     { v: 'il', ico: '👨', lib: 'Il' },
     { v: 'elle', ico: '👩', lib: 'Elle' }
+  ]},
+  ligne: { nom: 'Ligne du temps (chansons)', reps: [
+    { v: 'an1930', ico: '', lib: '1930' },
+    { v: 'an1950', ico: '', lib: '1950' },
+    { v: 'an1975', ico: '', lib: '1975' },
+    { v: 'an1993', ico: '', lib: '1993' },
+    { v: 'an2002', ico: '', lib: '2002' },
+    { v: 'an2016', ico: '', lib: '2016' },
+    { v: 'an2025', ico: '', lib: '2025' }
   ]},
   grille: { nom: 'Grille d\'images (dire le mot)', reps: [], grille: true }
 };
@@ -447,7 +457,7 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf', 'lp', 'pi', 'mp', 'pron'];
+  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf', 'lp', 'pi', 'mp', 'pron', 'ligne'];
   if (estGrille()) {
     if (!pendingImage) { msg.textContent = 'Ajoutez une image.'; msg.className = 'msg err'; return; }
   } else {
