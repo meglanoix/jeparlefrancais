@@ -80,13 +80,13 @@ nav.scrolled { box-shadow: var(--ombre); }
 .btn-secondary:hover { border-color: var(--blanc); background: rgba(255,255,255,0.07); }
 
 /* Hero cards */
-.hero-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 1.5rem; cursor: pointer; transition: all 0.2s; position: relative; user-select: none; }
-.hero-card:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.4); }
-.hero-card.active { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
-.hero-card-icon { font-size: 2rem; margin-bottom: 0.6rem; }
-.hero-card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--blanc); font-weight: 700; line-height: 1.3; margin-bottom: 0.3rem; }
-.hero-card-sub { font-size: 0.78rem; color: rgba(255,255,255,0.55); font-weight: 300; }
-.hero-card-arrow { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.6rem; transition: transform 0.2s; }
+.hero-card { border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 1.5rem 1rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, filter 0.2s; position: relative; user-select: none; min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
+.hero-card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(0,0,0,0.24); filter: brightness(1.08); }
+.hero-card.active { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.26); border-color: rgba(255,255,255,0.5); }
+.hero-card-icon { font-size: 1.85rem; width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.7rem; }
+.hero-card-title { font-family: 'Playfair Display', serif; font-size: 1.02rem; color: var(--blanc); font-weight: 700; line-height: 1.25; }
+.hero-card-sub { font-size: 0.74rem; color: rgba(255,255,255,0.82); font-weight: 400; line-height: 1.3; margin-top: 0.35rem; }
+.hero-card-arrow { position: absolute; top: 12px; right: 14px; font-size: 0.7rem; color: rgba(255,255,255,0.45); margin: 0; transition: transform 0.2s; }
 .hero-card.active .hero-card-arrow { transform: rotate(180deg); }
 /* Dropdown flottant */
 #hero-dropdown { display: none; position: fixed; background: var(--blanc); border-radius: 14px; box-shadow: 0 16px 48px rgba(26,58,92,0.3); padding: 1rem; z-index: 9999; min-width: 260px; max-width: 320px; max-height: 70vh; overflow-y: auto; }
@@ -98,6 +98,20 @@ nav.scrolled { box-shadow: var(--ombre); }
 #hero-dropdown .hcd-divider { height: 1px; background: rgba(26,58,92,0.08); margin: 6px 0; }
 .menu-tag { display:inline-block; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.04em; background:rgba(26,58,92,0.08); color:var(--bleu); border-radius:6px; padding:1px 6px; margin-right:6px; vertical-align:middle; font-weight:700; }
 .menu-sous { padding:6px 0 2px 0.75rem; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--gris); font-weight:600; }
+.menu-acc { border-bottom: 1px solid rgba(26,58,92,0.07); }
+.menu-acc > summary { cursor: pointer; padding: 12px 2px; font-size: 1rem; color: var(--bleu); font-weight: 500; list-style: none; display: flex; align-items: center; gap: 10px; }
+.menu-acc > summary::-webkit-details-marker { display: none; }
+.menu-acc > summary::after { content: '▾'; margin-left: auto; font-size: 0.75rem; color: var(--gris); transition: transform 0.2s; }
+.menu-acc[open] > summary::after { transform: rotate(180deg); }
+.menu-acc[open] > summary { color: var(--rouge); }
+.menu-acc-ico { font-size: 1.15rem; width: 1.5rem; text-align: center; }
+.menu-acc-body { padding: 0 0 10px 0.6rem; }
+.menu-acc-body a { display: block; padding: 8px 10px; border-radius: 7px; font-size: 0.9rem; color: var(--texte); text-decoration: none; border-bottom: none; }
+.menu-acc-body a:hover { background: var(--creme); color: var(--bleu); }
+.menu-acc-body .hcd-cat { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gris); font-weight: 600; padding: 9px 10px 2px; }
+.menu-acc-body .hcd-jeu { color: var(--rouge) !important; font-weight: 500; }
+.menu-acc-body .hcd-divider { height: 1px; background: rgba(26,58,92,0.08); margin: 5px 8px; }
+.menu-acc-body .menu-tag { display:inline-block; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.04em; background:rgba(26,58,92,0.08); color:var(--bleu); border-radius:6px; padding:1px 6px; margin-right:6px; font-weight:700; }
 @media (max-width: 700px) {
   .hero-inner { grid-template-columns: 1fr !important; }
   .hero-cards-grid { grid-template-columns: 1fr 1fr !important; }
@@ -207,6 +221,12 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 .modal-cancel:hover { color: var(--bleu); }
 .lock-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--creme); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
 .lock-icon svg { width: 22px; height: 22px; fill: none; stroke: var(--bleu); stroke-width: 1.8; stroke-linecap: round; }
+.signature { background: var(--creme); text-align: center; padding: 3.5rem 5vw 4rem; }
+.signature-photo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin: 0 auto 1.25rem; display: block; border: 4px solid var(--blanc); box-shadow: 0 6px 20px rgba(26,58,92,0.18); background: #e6e6e6; }
+.signature-ph { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 1.25rem; display: flex; align-items: center; justify-content: center; border: 4px solid var(--blanc); box-shadow: 0 6px 20px rgba(26,58,92,0.18); background: #e6e6e6; color: #9a9a9a; font-size: 0.72rem; text-align: center; line-height: 1.3; padding: 0 10px; }
+.signature blockquote { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 3vw, 2rem); color: var(--bleu); font-style: italic; margin: 0 0 0.9rem; }
+.signature-nom { font-weight: 700; color: var(--bleu); font-size: 1.05rem; }
+.signature-role { color: var(--gris); font-size: 0.9rem; margin-top: 0.2rem; }
 </style>
 </head>
 <body>
@@ -220,318 +240,167 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 </nav>
 <div class="mobile-menu" id="mobile-menu">
   <a href="#accueil" onclick="closeMenu()">Accueil</a>
-
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">Les verbes</div>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">📝 Verbes du 1er groupe</div>
-  <a href="verbes-er-debutant.html" onclick="closeMenu()" style="padding-left:1rem">⭐ Débutant</a>
-  <a href="verbes-er-intermediaire.html" onclick="closeMenu()" style="padding-left:1rem">⭐⭐ Intermédiaire</a>
-  <a href="verbes-er-avance.html" onclick="closeMenu()" style="padding-left:1rem">⭐⭐⭐ Avancé</a>
-  <a href="verbes-pronominaux.html" onclick="closeMenu()" style="padding-left:1rem">🔄 Verbes pronominaux</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">📗 Verbes du 2e groupe</div>
-  <a href="verbes-2e-groupe.html" onclick="closeMenu()" style="padding-left:1rem">Les verbes du 2e groupe</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">📘 Verbes du 3e groupe</div>
-  <a href="verbes-3e-groupe.html" onclick="closeMenu()" style="padding-left:1rem">Les verbes du 3e groupe</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🔀 Verbes irréguliers</div>
-  <a href="verbe-faire.html" onclick="closeMenu()" style="padding-left:1rem">Le verbe faire</a>
-  <a href="verbe-prendre.html" onclick="closeMenu()" style="padding-left:1rem">Le verbe prendre</a>
-  <a href="verbe-aller.html" onclick="closeMenu()" style="padding-left:1rem">Le verbe aller</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">Les activités et la routine</div>
-  <a href="activites-habituelles.html" onclick="closeMenu()" style="padding-left:1rem">Les activités habituelles au présent</a>
-  <a href="routine.html" onclick="closeMenu()" style="padding-left:1rem">La routine</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">Les activités de loisirs</div>
-  <a href="vocabulaire-sports.html" onclick="closeMenu()" style="padding-left:1rem">Les activités de loisirs</a>
-  <a href="materiel-equipement.html" onclick="closeMenu()" style="padding-left:1rem">Le matériel et l'équipement</a>
-  <a href="regles-activites.html" onclick="closeMenu()" style="padding-left:1rem">Règles et règlements des activités</a>
-  <a href="consignes-loisirs.html" onclick="closeMenu()" style="padding-left:1rem">Les consignes des loisirs</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">Les aliments</div>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🍎 Les aliments</div>
-  <a href="aliments-fruits.html" onclick="closeMenu()" style="padding-left:1rem">Les fruits</a>
-  <a href="aliments-legumes.html" onclick="closeMenu()" style="padding-left:1rem">Les légumes</a>
-  <a href="aliments-viandes.html" onclick="closeMenu()" style="padding-left:1rem">Les viandes, volailles et fruits de mer</a>
-  <a href="aliments-autres.html" onclick="closeMenu()" style="padding-left:1rem">Les autres aliments</a>
-  <a href="sauces-assaisonnements.html" onclick="closeMenu()" style="padding-left:1rem">Les sauces et assaisonnements</a>
-  <a href="exprimer-quantite.html" onclick="closeMenu()" style="padding-left:1rem">Exprimer une quantité</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🍔 Le restaurant</div>
-  <a href="restauration-rapide.html" onclick="closeMenu()" style="padding-left:1rem">La restauration rapide</a>
-  <a href="le-couvert.html" onclick="closeMenu()" style="padding-left:1rem">Le couvert</a>
-  <a href="mets-plats-restaurant.html" onclick="closeMenu()" style="padding-left:1rem">Les mets et plats au restaurant</a>
-  <a href="demander-service-restaurant.html" onclick="closeMenu()" style="padding-left:1rem">Demander un service au restaurant</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">Le logement</div>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🏠 Le logement</div>
-  <a href="les-meubles.html" onclick="closeMenu()" style="padding-left:1rem">Les meubles et objets de la maison</a>
-  <a href="les-pieces.html" onclick="closeMenu()" style="padding-left:1rem">Les pièces de la maison</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🛒 Acheter un bien de consommation durable</div>
-  <a href="departements-magasin.html" onclick="closeMenu()" style="padding-left:1rem">Les départements d'un magasin grande surface</a>
-  <a href="acheter-objet-maison.html" onclick="closeMenu()" style="padding-left:1rem">Acheter un objet pour la maison</a>
-  <a href="poser-questions-bien-durable.html" onclick="closeMenu()" style="padding-left:1rem">Poser des questions sur un bien durable</a>
-  <a href="adjectifs-able.html" onclick="closeMenu()" style="padding-left:1rem">Les adjectifs en -able</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🔧 Les problèmes domestiques</div>
-  <a href="problemes-domestiques.html" onclick="closeMenu()" style="padding-left:1rem">Les problèmes domestiques</a>
-  <a href="solutions-rapides.html" onclick="closeMenu()" style="padding-left:1rem">Les solutions rapides</a>
-  <a href="les-professionnels.html" onclick="closeMenu()" style="padding-left:1rem">Les professionnels</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🏗 Les réparations et les rénovations</div>
-  <a href="renovations-reparations.html" onclick="closeMenu()" style="padding-left:1rem">Les rénovations et les réparations</a>
-  <a href="professionnels-renovation.html" onclick="closeMenu()" style="padding-left:1rem">Les professionnels</a>
-  <a href="outils.html" onclick="closeMenu()" style="padding-left:1rem">Les outils</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">L'emploi</div>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">💼 Les professions</div>
-  <a href="les-professions.html" onclick="closeMenu()" style="padding-left:1rem">Les professions</a>
-  <a href="les-qualites-professionnelles.html" onclick="closeMenu()" style="padding-left:1rem">Les qualités professionnelles</a>
-  <a href="les-taches-directives.html" onclick="closeMenu()" style="padding-left:1rem">Les tâches et les directives au travail</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">Raconter au passé</div>
-  <div class="menu-sous">Le passé composé</div>
-  <a href="verbes-etre-passe.html" onclick="closeMenu()" style="padding-left:1rem">Les verbes avec l'auxiliaire être</a>
-  <a href="participes-passes-3e-groupe.html" onclick="closeMenu()" style="padding-left:1rem">Les participes passés des verbes du 3e groupe</a>
-  <a href="raconter-fin-semaine.html" onclick="closeMenu()" style="padding-left:1rem">Raconter sa fin de semaine</a>
-  <a href="raconter-matin-apresmidi.html" onclick="closeMenu()" style="padding-left:1rem"><span class="menu-tag">Activité</span>Raconter sa matinée ou l'après-midi de la veille</a>
-  <a href="moments-importants.html" onclick="closeMenu()" style="padding-left:1rem">Les moments importants de sa vie</a>
-  <a href="ligne-du-temps.html" onclick="closeMenu()" style="padding-left:1rem"><span class="menu-tag">Activité</span>Ma ligne du temps</a>
-  <div class="menu-sous">L'imparfait</div>
-  <a href="decrire-changement-habitude.html" onclick="closeMenu()" style="padding-left:1rem">Comparer avant et maintenant</a>
-  <a href="raconter-jeunesse.html" onclick="closeMenu()" style="padding-left:1rem">Raconter sa jeunesse</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">La santé</div>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🏥 La santé</div>
-  <a href="corps-humain.html" onclick="closeMenu()" style="padding-left:1rem">Les parties du corps</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🤒 Les symptômes et les maladies</div>
-  <a href="les-symptomes.html" onclick="closeMenu()" style="padding-left:1rem">Les symptômes</a>
-  <a href="maladies-courantes.html" onclick="closeMenu()" style="padding-left:1rem">Les maladies courantes</a>
-  <a href="symptomes-maladies-graves.html" onclick="closeMenu()" style="padding-left:1rem">Les symptômes et maladies graves</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">💊 La pharmacie</div>
-  <a href="types-medicaments.html" onclick="closeMenu()" style="padding-left:1rem">Les types de médicaments</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🩺 Chez le docteur</div>
-  <a href="questions-docteur.html" onclick="closeMenu()" style="padding-left:1rem">Les questions du docteur</a>
-  <a href="consignes-docteur.html" onclick="closeMenu()" style="padding-left:1rem">Les consignes du docteur</a>
-  <a href="actes-medicaux.html" onclick="closeMenu()" style="padding-left:1rem">Les actes médicaux</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🏨 L'hôpital</div>
-  <a href="l-hopital.html" onclick="closeMenu()" style="padding-left:1rem">L'hôpital</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">La météo et la circulation</div>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🌤 La météo</div>
-  <a href="conditions-meteorologiques.html" onclick="closeMenu()" style="padding-left:1rem">Les conditions météorologiques</a>
-  <a href="decrire-conditions-meteo.html" onclick="closeMenu()" style="padding-left:1rem">Décrire une condition météorologique</a>
-  <a href="meteo-hasardeuse.html" onclick="closeMenu()" style="padding-left:1rem">La météo hasardeuse</a>
-  <a href="meteo-ville.html" onclick="closeMenu()" style="padding-left:1rem;color:var(--rouge)">La météo et les prévisions</a>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🚗 La circulation</div>
-  <a href="la-circulation.html" onclick="closeMenu()" style="padding-left:1rem">La circulation</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">L'invitation et la conversation</div>
-  <a href="l-invitation.html" onclick="closeMenu()" style="padding-left:1rem">L'invitation</a>
-  <a href="conversation-informelle.html" onclick="closeMenu()" style="padding-left:1rem">La conversation informelle</a>
-
-  <div style="height:1px;background:rgba(26,58,92,0.08);margin:0.5rem 0"></div>
-  <div style="padding:6px 0 2px;font-size:0.85rem;font-weight:500;color:var(--bleu)">Activités</div>
-  <div style="padding:6px 0 2px;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gris);font-weight:500">🎮 Jeux interactifs</div>
-  <a href="jeu-association.html" onclick="closeMenu()" style="padding-left:1rem">Associez activité et équipement</a>
-  <a href="jeu-aliments.html" onclick="closeMenu()" style="padding-left:1rem">Identifiez l'aliment</a>
-  <a href="jeu-quel-metier.html" onclick="closeMenu()" style="padding-left:1rem">Quelle profession effectue ces tâches ?</a>
-  <a href="jeu-vetements-matiere.html" onclick="closeMenu()" style="padding-left:1rem">Les vêtements et les matériaux</a>
-  <a href="jeu-caracteristiques-vetements.html" onclick="closeMenu()" style="padding-left:1rem">Les caractéristiques des vêtements</a>
-  <a href="jeu-adjectifs-vetements.html" onclick="closeMenu()" style="padding-left:1rem">Les adjectifs des vêtements</a>
-  <a href="jeu-description-physique.html" onclick="closeMenu()" style="padding-left:1rem">Écouter et trouver la bonne personne</a>
-  <a href="jeu-exprimer-gouts.html" onclick="closeMenu()" style="padding-left:1rem">Aime ou n'aime pas ? (goûts vestimentaires)</a>
-  <a href="jeu-famille-reconstituee.html" onclick="closeMenu()" style="padding-left:1rem">Activité sur la famille</a>
+  <div id="menu-acc-list"></div>
   <a href="#contact" onclick="closeMenu()">Contact</a>
 </div>
-
-<section style="background:var(--blanc);padding:2.5rem 5vw 1rem;">
-  <div style="max-width:800px;margin:0 auto;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
-    <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--bleu);flex:1;min-width:180px">Dans la classe de Martin</h2>
-    <div class="hero-card" onclick="toggleHeroCard(this,'fipa')" style="background:rgba(192,57,43,0.92);width:260px;max-width:100%;cursor:pointer;">
-      <div class="hero-card-icon">🎓</div>
-      <div class="hero-card-title">FIPA275-3 · Gr. 268802 · Été 2026</div>
-      <div class="hero-card-sub">Activités de la classe</div>
-      <div class="hero-card-arrow">▾</div>
-    </div>
-  </div>
-</section>
 
 <section class="hero" id="accueil">
   <div class="hero-bg"></div>
 
-  <!-- GAUCHE : texte -->
-  <div class="hero-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:4vw;align-items:center;min-height:100vh;width:100%;max-width:100%">
-    <div>
-      <h1>Apprendre le français,<br><em>ici, ensemble.</em></h1>
-      <p class="hero-sub">jeparlefrancais.ca a été créé pour accompagner les nouveaux arrivants dans leur apprentissage du vocabulaire québécois, avec des images, de l'audio et des exercices interactifs.</p>
+  <div class="hero-inner" style="display:block;max-width:1120px;margin:0 auto;padding:96px 0 56px;width:100%;position:relative;z-index:1">
+
+    <!-- Présentation du site -->
+    <div class="hero-intro" style="text-align:center;max-width:760px;margin:0 auto 2.75rem">
+      <h1>Bienvenue sur <em>jeparlefrancais.ca</em></h1>
+      <p class="hero-sub">Apprendre le français parlé au Québec, à votre rythme. Pour chaque thème du quotidien : des images, de l'audio et des jeux pour écouter, répéter et pratiquer.</p>
     </div>
 
-    <!-- DROITE : 4 cases -->
-    <div class="hero-cards-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative;z-index:1">
-
-      <!-- Les verbes -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'verbes')" style="background:rgba(26,58,92,0.85);">
-        <div class="hero-card-icon">📝</div>
-        <div class="hero-card-title">Les verbes</div>
-        <div class="hero-card-sub">Verbes du 1er groupe + irréguliers</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- La routine et les activités -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'routine')" style="background:rgba(26,122,74,0.85);">
-        <div class="hero-card-icon">🗓</div>
-        <div class="hero-card-title">La routine et les activités</div>
-        <div class="hero-card-sub">Vie quotidienne</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- Les directions -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'directions')" style="background:rgba(89,74,136,0.85);">
-        <div class="hero-card-icon">🗺</div>
-        <div class="hero-card-title">Les directions</div>
-        <div class="hero-card-sub">Bâtiment et ville</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- Les vêtements -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'vetements')" style="background:rgba(199,62,120,0.85);">
-        <div class="hero-card-icon">👕</div>
-        <div class="hero-card-title">La description physique et les vêtements</div>
-        <div class="hero-card-sub">Description physique et vêtements</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- Les activités de loisirs -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'loisirs')" style="background:rgba(192,57,43,0.85);">
-        <div class="hero-card-icon">⚽</div>
-        <div class="hero-card-title">Les activités de loisirs</div>
-        <div class="hero-card-sub">Sports, matériel, règles</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- Les aliments et le restaurant -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'aliments')" style="background:rgba(180,110,20,0.85);">
-        <div class="hero-card-icon">🍎</div>
-        <div class="hero-card-title">Les aliments et le restaurant</div>
-        <div class="hero-card-sub">Nourriture et restauration</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- Le logement -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'logement')" style="background:rgba(74,93,113,0.85);">
-        <div class="hero-card-icon">🏠</div>
-        <div class="hero-card-title">Le logement</div>
-        <div class="hero-card-sub">Meubles, pièces et plus</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- L'emploi -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'emploi')" style="background:rgba(106,27,154,0.85);">
-        <div class="hero-card-icon">💼</div>
-        <div class="hero-card-title">L'emploi</div>
-        <div class="hero-card-sub">Les professions et plus</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- Raconter au passé -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'passe')" style="background:rgba(114,47,55,0.85);">
-        <div class="hero-card-icon">⏪</div>
-        <div class="hero-card-title">Raconter au passé</div>
-        <div class="hero-card-sub">Participes passés et plus</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- La santé -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'sante')" style="background:rgba(0,128,128,0.85);">
-        <div class="hero-card-icon">🏥</div>
-        <div class="hero-card-title">La santé</div>
-        <div class="hero-card-sub">Le corps humain et plus</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- La météo et la circulation -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'meteo')" style="background:rgba(52,152,219,0.85);">
-        <div class="hero-card-icon">🌤</div>
-        <div class="hero-card-title">La météo et la circulation</div>
-        <div class="hero-card-sub">Conditions météo et plus</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
-
-      <!-- L'invitation et la conversation -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'invitation')" style="background:rgba(39,174,96,0.85);">
-        <div class="hero-card-icon">🎉</div>
-        <div class="hero-card-title">L'invitation et la conversation</div>
-        <div class="hero-card-sub">Invitations et échanges informels</div>
-        <div class="hero-card-arrow">▾</div>
-      </div>
+    <!-- Les tuiles -->
+    <div class="hero-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;position:relative;z-index:1">
 
       <!-- En classe -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'enclasse')" style="background:rgba(52,73,94,0.85);">
+<div class="hero-card" onclick="toggleHeroCard(this,'enclasse')" style="background:rgba(52,73,94,0.85);">
         <div class="hero-card-icon">🏫</div>
         <div class="hero-card-title">En classe</div>
-        <div class="hero-card-sub">Absences, retards et plus</div>
+        <div class="hero-card-sub">Se présenter, les objets et les règles de la classe, absences et retards</div>
         <div class="hero-card-arrow">▾</div>
       </div>
 
       <!-- La famille -->
-      <div class="hero-card" onclick="toggleHeroCard(this,'famille')" style="background:rgba(140,70,110,0.85);">
+<div class="hero-card" onclick="toggleHeroCard(this,'famille')" style="background:rgba(140,70,110,0.85);">
         <div class="hero-card-icon">👨‍👩‍👧‍👦</div>
         <div class="hero-card-title">La famille</div>
         <div class="hero-card-sub">Les liens de parenté</div>
         <div class="hero-card-arrow">▾</div>
       </div>
-      <div class="hero-card" onclick="toggleHeroCard(this,'medias')" style="background:rgba(55,48,107,0.88);">
-        <div class="hero-card-icon">🎬</div>
-        <div class="hero-card-title">Les médias</div>
-        <div class="hero-card-sub">Films et émissions</div>
+
+      <!-- Les verbes -->
+<div class="hero-card" onclick="toggleHeroCard(this,'verbes')" style="background:rgba(26,58,92,0.85);">
+        <div class="hero-card-icon">📝</div>
+        <div class="hero-card-title">Les verbes</div>
         <div class="hero-card-arrow">▾</div>
       </div>
 
-      <div class="hero-card" onclick="toggleHeroCard(this,'quebec')" style="background:rgba(26,122,74,0.85);">
-        <div class="hero-card-icon">⚜️</div>
-        <div class="hero-card-title">Visiter le Québec</div>
-        <div class="hero-card-sub">Lieux d'intérêt</div>
+      <!-- La routine et les activités -->
+<div class="hero-card" onclick="toggleHeroCard(this,'routine')" style="background:rgba(26,122,74,0.85);">
+        <div class="hero-card-icon">🗓</div>
+        <div class="hero-card-title">La routine et les activités</div>
+        <div class="hero-card-sub">Les activités au présent et la routine</div>
         <div class="hero-card-arrow">▾</div>
       </div>
 
-      <div class="hero-card" onclick="toggleHeroCard(this,'banqueposte')" style="background:rgba(23,107,135,0.9);">
+      <!-- Les directions -->
+<div class="hero-card" onclick="toggleHeroCard(this,'directions')" style="background:rgba(89,74,136,0.85);">
+        <div class="hero-card-icon">🗺</div>
+        <div class="hero-card-title">Les directions</div>
+        <div class="hero-card-sub">S'orienter, la ville et les commerces</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- La description physique et les vêtements -->
+<div class="hero-card" onclick="toggleHeroCard(this,'vetements')" style="background:rgba(199,62,120,0.85);">
+        <div class="hero-card-icon">👕</div>
+        <div class="hero-card-title">La description physique et les vêtements</div>
+        <div class="hero-card-sub">Décrire une personne et les vêtements</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- Les aliments et le restaurant -->
+<div class="hero-card" onclick="toggleHeroCard(this,'aliments')" style="background:rgba(180,110,20,0.85);">
+        <div class="hero-card-icon">🍎</div>
+        <div class="hero-card-title">Les aliments et le restaurant</div>
+        <div class="hero-card-sub">Les aliments et le restaurant</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- Le logement -->
+<div class="hero-card" onclick="toggleHeroCard(this,'logement')" style="background:rgba(74,93,113,0.85);">
+        <div class="hero-card-icon">🏠</div>
+        <div class="hero-card-title">Le logement</div>
+        <div class="hero-card-sub">Meubles, pièces, habitations et problèmes domestiques</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- La banque et la poste -->
+<div class="hero-card" onclick="toggleHeroCard(this,'banqueposte')" style="background:rgba(23,107,135,0.9);">
         <div class="hero-card-icon">🏦</div>
         <div class="hero-card-title">La banque et la poste</div>
-        <div class="hero-card-sub">Services</div>
         <div class="hero-card-arrow">▾</div>
       </div>
 
-    </div>
+      <!-- La météo et la circulation -->
+<div class="hero-card" onclick="toggleHeroCard(this,'meteo')" style="background:rgba(52,152,219,0.85);">
+        <div class="hero-card-icon">🌤</div>
+        <div class="hero-card-title">La météo et la circulation</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- La santé -->
+<div class="hero-card" onclick="toggleHeroCard(this,'sante')" style="background:rgba(0,128,128,0.85);">
+        <div class="hero-card-icon">🏥</div>
+        <div class="hero-card-title">La santé</div>
+        <div class="hero-card-sub">Le corps, les symptômes, le médecin et l'hôpital</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- L'invitation et la conversation -->
+<div class="hero-card" onclick="toggleHeroCard(this,'invitation')" style="background:rgba(39,174,96,0.85);">
+        <div class="hero-card-icon">🎉</div>
+        <div class="hero-card-title">L'invitation et la conversation</div>
+        <div class="hero-card-sub">Inviter et discuter</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- L'emploi -->
+<div class="hero-card" onclick="toggleHeroCard(this,'emploi')" style="background:rgba(106,27,154,0.85);">
+        <div class="hero-card-icon">💼</div>
+        <div class="hero-card-title">L'emploi</div>
+        <div class="hero-card-sub">Professions et monde du travail</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- Les activités de loisirs -->
+<div class="hero-card" onclick="toggleHeroCard(this,'loisirs')" style="background:rgba(192,57,43,0.85);">
+        <div class="hero-card-icon">⚽</div>
+        <div class="hero-card-title">Les activités de loisirs</div>
+        <div class="hero-card-sub">Sports, matériel et règles</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- Les médias -->
+<div class="hero-card" onclick="toggleHeroCard(this,'medias')" style="background:rgba(55,48,107,0.88);">
+        <div class="hero-card-icon">🎬</div>
+        <div class="hero-card-title">Les médias</div>
+        <div class="hero-card-sub">Films, télé et chansons québécoises</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- Visiter le Québec -->
+<div class="hero-card" onclick="toggleHeroCard(this,'quebec')" style="background:rgba(26,122,74,0.85);">
+        <div class="hero-card-icon">⚜️</div>
+        <div class="hero-card-title">Visiter le Québec</div>
+        <div class="hero-card-sub">Régions, lieux et spécialités</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+      <!-- Raconter au passé -->
+<div class="hero-card" onclick="toggleHeroCard(this,'passe')" style="background:rgba(114,47,55,0.85);">
+        <div class="hero-card-icon">⏪</div>
+        <div class="hero-card-title">Raconter au passé</div>
+        <div class="hero-card-sub">Le passé composé et l'imparfait</div>
+        <div class="hero-card-arrow">▾</div>
+      </div>
+
+        </div>
+
   </div>
 </section>
 
-<!-- Dropdown flottant global -->
-<div id="hero-dropdown"></div>
-
-<section id="contact">
-  <div class="contact-inner">
-    <div class="fade-in">
-      <p class="section-label">Contact</p>
-      <h2 class="section-title">Une question ?</h2>
-      <div class="contact-info">
-        <p>N'hésitez pas à écrire pour toute question concernant les cours, les ressources ou la plateforme.</p>
-        <a href="mailto:martin@jeparlefrancais.ca" class="contact-link">
-          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          martin@jeparlefrancais.ca
-        </a>
-      </div>
-    </div>
-    <div class="contact-box fade-in" style="display:none">
-      <h3>Bon à savoir</h3>
-      <p style="font-size:0.9rem;color:var(--gris);line-height:1.8;font-weight:300">Les étudiants accèdent aux audios gratuitement, sans compte ni application. Il suffit de scanner le QR code avec l'appareil photo de leur téléphone.</p>
-      <p style="font-size:0.9rem;color:var(--gris);line-height:1.8;font-weight:300;margin-top:1rem">Les ressources sont mises à jour régulièrement selon la progression des cours.</p>
-    </div>
-  </div>
+<section class="signature" id="contact">
+  <img class="signature-photo" src="martin.jpg" alt="Martin" onerror="this.insertAdjacentHTML('afterend','<div class="signature-ph">Votre photo<br>(martin.jpg)</div>');this.remove();"/>
+  <blockquote>« Bons apprentissages! »</blockquote>
+  <div class="signature-nom">Martin</div>
+  <div class="signature-role">Votre enseignant de francisation</div>
 </section>
 
 <footer>
@@ -550,7 +419,6 @@ window.closeMenu = function() { document.getElementById('mobile-menu').classList
 // Hero cards dropdown
 const heroContents = {
   quebec: `<div class="hcd-cat">⚜️ Visiter le Québec</div><a href="lieux-montreal.html">Les lieux d'intérêt à Montréal</a><a href="regions-quebec.html">Visiter les régions du Québec</a><a href="specialites-quebec.html">Les spécialités du Québec</a>`,
-  fipa: `<div class="hcd-cat">🎓 Activités de la classe</div><a href="jeu-direct.html">🎮 Jeu en direct</a><a href="jeu-materiel-classe.html">Le matériel de la classe</a><a href="consignes-classe.html">Les consignes en classe</a><a href="lieux-batiment.html">Les lieux dans le bâtiment</a><a href="demander-directions.html">Demander des directions dans la MIRS</a><a href="jeu-mime.html">🎭 Jeu de mime</a><a href="verbe-hasard.html">🎲 Images au hasard</a>`,
   verbes: `<div class="hcd-cat">📝 Verbes du 1er groupe</div><a href="verbes-er-debutant.html">⭐ Débutant</a><a href="verbes-er-intermediaire.html">⭐⭐ Intermédiaire</a><a href="verbes-er-avance.html">⭐⭐⭐ Avancé</a><a href="verbes-pronominaux.html">🔄 Verbes pronominaux</a><a href="jeu-verbes-er.html" class="hcd-jeu">🎯 Testez vos connaissances !</a><div class="hcd-divider"></div><div class="hcd-cat">📗 Verbes du 2e groupe</div><a href="verbes-2e-groupe.html">Les verbes du 2e groupe</a><div class="hcd-divider"></div><div class="hcd-cat">📘 Verbes du 3e groupe</div><a href="verbes-3e-groupe.html">Les verbes du 3e groupe</a><div class="hcd-divider"></div><div class="hcd-cat">🔀 Verbes irréguliers</div><a href="verbe-faire.html">Le verbe faire</a><a href="verbe-prendre.html">Le verbe prendre</a><a href="verbe-aller.html">Le verbe aller</a>`,
   routine: `<a href="activites-habituelles.html">Les activités habituelles au présent</a><a href="jeu-mes-activites.html">Mes activités <span style="font-size:0.7rem;color:var(--rouge)">• jeu</span></a><a href="routine.html">La routine</a><a href="raconter-routine.html">Raconter sa routine <span style="font-size:0.7rem;color:var(--rouge)">• activité</span></a>`,
   directions: `<a href="prepositions-localisation.html">Les prépositions de localisation</a><a href="demander-donner-directions.html">Demander et donner des directions</a><a href="decrire-trajet.html">Décrire son trajet <span style="font-size:0.7rem;color:var(--rouge)">• activité</span></a><div class="hcd-divider"></div><div class="hcd-cat">🏙 La ville</div><a href="la-ville.html">Les commerces et les services publics</a><a href="vocabulaire-ville.html">Le vocabulaire de la ville</a><div class="hcd-divider"></div><div class="hcd-cat">🚌 Les transports en commun</div><a href="transports-indications.html">Demander des informations et donner des directions</a>`,
@@ -568,6 +436,26 @@ const heroContents = {
   enclasse: `<div class="hcd-cat">🏫 En classe</div><a href="faire-connaissance.html">Faire connaissance</a><a href="informer-justifier-absence-retard.html">Informer ou justifier une absence ou un retard</a>`,
   banqueposte: `<div class="hcd-cat">🏦 La banque et la poste</div><a href="bureau-poste.html">Le bureau de poste</a>`
 };
+// --- Menu principal en accordéon, généré depuis heroContents (même source que les tuiles) ---
+const ORDRE_MENU = [
+  ['enclasse','🏫',"En classe"],['famille','👨‍👩‍👧‍👦',"La famille"],['verbes','📝',"Les verbes"],
+  ['routine','🗓',"La routine et les activités"],['directions','🗺',"Les directions"],
+  ['vetements','👕',"Description physique et vêtements"],['aliments','🍎',"Les aliments et le restaurant"],
+  ['logement','🏠',"Le logement"],['banqueposte','🏦',"La banque et la poste"],
+  ['meteo','🌤',"La météo et la circulation"],['sante','🏥',"La santé"],
+  ['invitation','🎉',"L'invitation et la conversation"],['emploi','💼',"L'emploi"],
+  ['loisirs','⚽',"Les activités de loisirs"],['medias','🎬',"Les médias"],
+  ['quebec','⚜️',"Visiter le Québec"],['passe','⏪',"Raconter au passé"]
+];
+(function buildMenuAccordion(){
+  const list = document.getElementById('menu-acc-list');
+  if (!list) return;
+  list.innerHTML = ORDRE_MENU.map(function(e){
+    const corps = (heroContents[e[0]] || '').replace(/^<div class="hcd-cat">[\s\S]*?<\/div>/, '');
+    return '<details class="menu-acc"><summary><span class="menu-acc-ico">' + e[1] + '</span>' + e[2] + '</summary><div class="menu-acc-body">' + corps + '</div></details>';
+  }).join('');
+  list.addEventListener('click', function(ev){ if (ev.target.closest('a')) closeMenu(); });
+})();
 let activeCard = null;
 window.toggleHeroCard = function(card, key) {
   const dd = document.getElementById('hero-dropdown');
