@@ -83,7 +83,8 @@ nav.scrolled { box-shadow: var(--ombre); }
 .hero-card { border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 1.5rem 1rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, filter 0.2s; position: relative; user-select: none; min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.14); }
 .hero-card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(0,0,0,0.24); filter: brightness(1.08); }
 .hero-card.active { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.26); border-color: rgba(255,255,255,0.5); }
-.hero-card-icon { font-size: 1.85rem; width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.7rem; }
+.hero-card-icon { font-size: 1.85rem; width: 66px; height: 66px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.7rem; position: relative; overflow: hidden; }
+.hero-card-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .hero-card-title { font-family: 'Playfair Display', serif; font-size: 1.02rem; color: var(--blanc); font-weight: 700; line-height: 1.25; }
 .hero-card-sub { font-size: 0.74rem; color: rgba(255,255,255,0.82); font-weight: 400; line-height: 1.3; margin-top: 0.35rem; }
 .hero-card-arrow { position: absolute; top: 12px; right: 14px; font-size: 0.7rem; color: rgba(255,255,255,0.45); margin: 0; transition: transform 0.2s; }
@@ -263,7 +264,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- En classe -->
 <div class="hero-card" onclick="toggleHeroCard(this,'enclasse')" style="background:rgba(52,73,94,0.85);">
-        <div class="hero-card-icon">🏫</div>
+        <div class="hero-card-icon"><img src="tuile-enclasse.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🏫</div>
         <div class="hero-card-title">En classe</div>
         <div class="hero-card-sub">Se présenter, les objets et les règles de la classe, absences et retards</div>
         <div class="hero-card-arrow">▾</div>
@@ -271,7 +272,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- La famille -->
 <div class="hero-card" onclick="toggleHeroCard(this,'famille')" style="background:rgba(140,70,110,0.85);">
-        <div class="hero-card-icon">👨‍👩‍👧‍👦</div>
+        <div class="hero-card-icon"><img src="tuile-famille.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>👨‍👩‍👧‍👦</div>
         <div class="hero-card-title">La famille</div>
         <div class="hero-card-sub">Les liens de parenté</div>
         <div class="hero-card-arrow">▾</div>
@@ -279,14 +280,14 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- Les verbes -->
 <div class="hero-card" onclick="toggleHeroCard(this,'verbes')" style="background:rgba(26,58,92,0.85);">
-        <div class="hero-card-icon">📝</div>
+        <div class="hero-card-icon"><img src="tuile-verbes.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>📝</div>
         <div class="hero-card-title">Les verbes</div>
         <div class="hero-card-arrow">▾</div>
       </div>
 
       <!-- La routine et les activités -->
 <div class="hero-card" onclick="toggleHeroCard(this,'routine')" style="background:rgba(26,122,74,0.85);">
-        <div class="hero-card-icon">🗓</div>
+        <div class="hero-card-icon"><img src="tuile-routine.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🗓</div>
         <div class="hero-card-title">La routine et les activités</div>
         <div class="hero-card-sub">Les activités au présent et la routine</div>
         <div class="hero-card-arrow">▾</div>
@@ -294,7 +295,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- Les directions -->
 <div class="hero-card" onclick="toggleHeroCard(this,'directions')" style="background:rgba(89,74,136,0.85);">
-        <div class="hero-card-icon">🗺</div>
+        <div class="hero-card-icon"><img src="tuile-directions.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🗺</div>
         <div class="hero-card-title">Les directions</div>
         <div class="hero-card-sub">S'orienter, la ville et les commerces</div>
         <div class="hero-card-arrow">▾</div>
@@ -302,7 +303,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- La description physique et les vêtements -->
 <div class="hero-card" onclick="toggleHeroCard(this,'vetements')" style="background:rgba(199,62,120,0.85);">
-        <div class="hero-card-icon">👕</div>
+        <div class="hero-card-icon"><img src="tuile-vetements.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>👕</div>
         <div class="hero-card-title">La description physique et les vêtements</div>
         <div class="hero-card-sub">Décrire une personne et les vêtements</div>
         <div class="hero-card-arrow">▾</div>
@@ -310,7 +311,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- Les aliments et le restaurant -->
 <div class="hero-card" onclick="toggleHeroCard(this,'aliments')" style="background:rgba(180,110,20,0.85);">
-        <div class="hero-card-icon">🍎</div>
+        <div class="hero-card-icon"><img src="tuile-aliments.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🍎</div>
         <div class="hero-card-title">Les aliments et le restaurant</div>
         <div class="hero-card-sub">Les aliments et le restaurant</div>
         <div class="hero-card-arrow">▾</div>
@@ -318,7 +319,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- Le logement -->
 <div class="hero-card" onclick="toggleHeroCard(this,'logement')" style="background:rgba(74,93,113,0.85);">
-        <div class="hero-card-icon">🏠</div>
+        <div class="hero-card-icon"><img src="tuile-logement.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🏠</div>
         <div class="hero-card-title">Le logement</div>
         <div class="hero-card-sub">Meubles, pièces, habitations et problèmes domestiques</div>
         <div class="hero-card-arrow">▾</div>
@@ -326,21 +327,21 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- La banque et la poste -->
 <div class="hero-card" onclick="toggleHeroCard(this,'banqueposte')" style="background:rgba(23,107,135,0.9);">
-        <div class="hero-card-icon">🏦</div>
+        <div class="hero-card-icon"><img src="tuile-banqueposte.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🏦</div>
         <div class="hero-card-title">La banque et la poste</div>
         <div class="hero-card-arrow">▾</div>
       </div>
 
       <!-- La météo et la circulation -->
 <div class="hero-card" onclick="toggleHeroCard(this,'meteo')" style="background:rgba(52,152,219,0.85);">
-        <div class="hero-card-icon">🌤</div>
+        <div class="hero-card-icon"><img src="tuile-meteo.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🌤</div>
         <div class="hero-card-title">La météo et la circulation</div>
         <div class="hero-card-arrow">▾</div>
       </div>
 
       <!-- La santé -->
 <div class="hero-card" onclick="toggleHeroCard(this,'sante')" style="background:rgba(0,128,128,0.85);">
-        <div class="hero-card-icon">🏥</div>
+        <div class="hero-card-icon"><img src="tuile-sante.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🏥</div>
         <div class="hero-card-title">La santé</div>
         <div class="hero-card-sub">Le corps, les symptômes, le médecin et l'hôpital</div>
         <div class="hero-card-arrow">▾</div>
@@ -348,7 +349,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- L'invitation et la conversation -->
 <div class="hero-card" onclick="toggleHeroCard(this,'invitation')" style="background:rgba(39,174,96,0.85);">
-        <div class="hero-card-icon">🎉</div>
+        <div class="hero-card-icon"><img src="tuile-invitation.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🎉</div>
         <div class="hero-card-title">L'invitation et la conversation</div>
         <div class="hero-card-sub">Inviter et discuter</div>
         <div class="hero-card-arrow">▾</div>
@@ -356,7 +357,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- L'emploi -->
 <div class="hero-card" onclick="toggleHeroCard(this,'emploi')" style="background:rgba(106,27,154,0.85);">
-        <div class="hero-card-icon">💼</div>
+        <div class="hero-card-icon"><img src="tuile-emploi.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>💼</div>
         <div class="hero-card-title">L'emploi</div>
         <div class="hero-card-sub">Professions et monde du travail</div>
         <div class="hero-card-arrow">▾</div>
@@ -364,7 +365,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- Les activités de loisirs -->
 <div class="hero-card" onclick="toggleHeroCard(this,'loisirs')" style="background:rgba(192,57,43,0.85);">
-        <div class="hero-card-icon">⚽</div>
+        <div class="hero-card-icon"><img src="tuile-loisirs.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>⚽</div>
         <div class="hero-card-title">Les activités de loisirs</div>
         <div class="hero-card-sub">Sports, matériel et règles</div>
         <div class="hero-card-arrow">▾</div>
@@ -372,7 +373,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- Les médias -->
 <div class="hero-card" onclick="toggleHeroCard(this,'medias')" style="background:rgba(55,48,107,0.88);">
-        <div class="hero-card-icon">🎬</div>
+        <div class="hero-card-icon"><img src="tuile-medias.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>🎬</div>
         <div class="hero-card-title">Les médias</div>
         <div class="hero-card-sub">Films, télé et chansons québécoises</div>
         <div class="hero-card-arrow">▾</div>
@@ -380,7 +381,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- Visiter le Québec -->
 <div class="hero-card" onclick="toggleHeroCard(this,'quebec')" style="background:rgba(26,122,74,0.85);">
-        <div class="hero-card-icon">⚜️</div>
+        <div class="hero-card-icon"><img src="tuile-quebec.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>⚜️</div>
         <div class="hero-card-title">Visiter le Québec</div>
         <div class="hero-card-sub">Régions, lieux et spécialités</div>
         <div class="hero-card-arrow">▾</div>
@@ -388,7 +389,7 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 
       <!-- Raconter au passé -->
 <div class="hero-card" onclick="toggleHeroCard(this,'passe')" style="background:rgba(114,47,55,0.85);">
-        <div class="hero-card-icon">⏪</div>
+        <div class="hero-card-icon"><img src="tuile-passe.png" alt="" loading="lazy" onerror="if(this.src.endsWith('.png')){this.src=this.src.slice(0,-4)+'.jpg'}else{this.remove()}"/>⏪</div>
         <div class="hero-card-title">Raconter au passé</div>
         <div class="hero-card-sub">Le passé composé et l'imparfait</div>
         <div class="hero-card-arrow">▾</div>
