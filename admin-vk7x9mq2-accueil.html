@@ -60,6 +60,7 @@ nav {
 .admin-card-title { font-size: 0.95rem; font-weight: 500; color: var(--bleu); margin-bottom: 2px; }
 .admin-card-sub { font-size: 0.78rem; color: var(--gris); }
 .admin-card-arrow { font-size: 0.9rem; color: var(--rouge); flex-shrink: 0; }
+.badge-msg { display: none; background: var(--rouge); color: #fff; border-radius: 20px; font-size: 0.72rem; font-weight: 700; padding: 1px 9px; margin-left: 6px; vertical-align: middle; }
 
 .niveau-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0.5rem; }
 .niveau-card {
@@ -95,6 +96,15 @@ nav {
 </div>
 
 <div class="main">
+
+  <p class="section-label">📨 Contact</p>
+  <div class="admin-grid">
+    <a class="admin-card" href="admin-messages-vk7x9mq2.html">
+      <div class="admin-card-icon">📨</div>
+      <div class="admin-card-body"><div class="admin-card-title">Messages reçus <span class="badge-msg" id="badge-msg"></span></div><div class="admin-card-sub">Les messages envoyés par le formulaire de contact</div></div>
+      <div class="admin-card-arrow">→</div>
+    </a>
+  </div>
 
   <p class="section-label">⚽ Activités de loisirs</p>
   <div class="admin-grid">
@@ -807,5 +817,21 @@ nav {
   </div>
 
 </div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
+try {
+  const db = getFirestore(initializeApp(firebaseConfig));
+  const snap = await getDocs(collection(db, 'messages-contact'));
+  const n = snap.docs.filter(d => !d.data().lu).length;
+  if (n > 0) {
+    const b = document.getElementById('badge-msg');
+    b.textContent = n + ' nouveau' + (n > 1 ? 'x' : '');
+    b.style.display = 'inline-block';
+    document.title = '(' + n + ') ' + document.title;
+  }
+} catch (e) { /* silencieux */ }
+</script>
 </body>
 </html>

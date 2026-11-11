@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Me contacter | JeParle Français</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu: #1a3a5c; --bleu-clair: #2a5298; --rouge: #c0392b; --creme: #f9f5ef; --texte: #2c2c2c; --gris: #6b6b6b; --blanc: #ffffff; --vert: #1a7a4a; --ombre: 0 2px 24px rgba(26,58,92,0.10); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(--creme); min-height: 100vh; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(26,58,92,0.08); box-shadow: var(--ombre); }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--bleu); text-decoration: none; }
+.nav-logo span { color: var(--rouge); }
+.nav-back { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--gris); font-size: 0.9rem; }
+.nav-back:hover { color: var(--bleu); }
+.nav-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.page-header { background: var(--bleu); padding: 100px 5vw 50px; position: relative; overflow: hidden; }
+.page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(42,82,152,0.5) 0%, transparent 70%); }
+.page-header-inner { position: relative; z-index: 1; }
+.page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.75rem; }
+.page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
+.page-header p { font-size: 1rem; color: rgba(255,255,255,0.65); font-weight: 300; }
+.main { max-width: 580px; margin: 0 auto; padding: 3rem 5vw 5rem; }
+.form-carte { background: var(--blanc); border-radius: 18px; box-shadow: var(--ombre); padding: 2rem; }
+label { display: block; font-weight: 500; color: var(--bleu); margin-bottom: 0.4rem; font-size: 0.95rem; }
+.champ { margin-bottom: 1.4rem; }
+input, textarea { width: 100%; padding: 12px 14px; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 10px; font-size: 1rem; font-family: inherit; color: var(--texte); background: var(--creme); transition: border-color 0.15s; }
+input:focus, textarea:focus { outline: none; border-color: var(--bleu); }
+textarea { min-height: 150px; resize: vertical; }
+.aide { font-size: 0.82rem; color: var(--gris); margin-top: 0.3rem; }
+.btn-envoyer { width: 100%; background: var(--rouge); color: var(--blanc); border: none; padding: 14px; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.2s; }
+.btn-envoyer:hover { opacity: 0.88; }
+.btn-envoyer:disabled { opacity: 0.6; cursor: default; }
+.message-ok, .message-err { display: none; padding: 1rem; border-radius: 10px; margin-bottom: 1.25rem; font-size: 0.95rem; }
+.message-ok { background: #e8f5ee; color: var(--vert); border: 1px solid rgba(26,122,74,0.3); }
+.message-err { background: #fdecea; color: var(--rouge); border: 1px solid rgba(192,57,43,0.3); }
+.succes-final { display: none; text-align: center; padding: 1rem 0; }
+.succes-final .ico { font-size: 3rem; }
+.succes-final h2 { font-family: 'Playfair Display', serif; color: var(--vert); margin: 0.5rem 0; }
+.succes-final p { color: var(--gris); }
+.alt-courriel { text-align: center; margin-top: 1.5rem; color: var(--gris); font-size: 0.9rem; }
+.alt-courriel a { color: var(--bleu); }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">JeParle<span>Français</span>.ca</a>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Accueil
+  </a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <p class="page-eyebrow">Contact</p>
+    <h1>Me contacter</h1>
+    <p>Une question, un commentaire? Écrivez-moi, je vous répondrai.</p>
+  </div>
+</div>
+
+<div class="main">
+  <div class="form-carte" id="carte">
+    <div class="message-err" id="msg-err">Une erreur est survenue. Réessayez, ou écrivez directement à martin@jeparlefrancais.ca</div>
+    <form id="form-contact">
+      <div class="champ">
+        <label for="name">Votre nom</label>
+        <input type="text" id="name" name="name" required/>
+      </div>
+      <div class="champ">
+        <label for="email">Votre courriel</label>
+        <input type="email" id="email" name="email" required/>
+        <div class="aide">Pour que je puisse vous répondre.</div>
+      </div>
+      <div class="champ">
+        <label for="message">Votre message</label>
+        <textarea id="message" name="message" required></textarea>
+      </div>
+      <button type="submit" class="btn-envoyer" id="btn">Envoyer le message</button>
+    </form>
+  </div>
+
+  <div class="succes-final" id="succes">
+    <div class="ico">✅</div>
+    <h2>Merci!</h2>
+    <p>Votre message a été envoyé. Je vous répondrai dès que possible.</p>
+  </div>
+
+  <p class="alt-courriel">Ou écrivez directement à <a href="mailto:martin@jeparlefrancais.ca">martin@jeparlefrancais.ca</a></p>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const form = document.getElementById('form-contact');
+form.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn');
+  const err = document.getElementById('msg-err');
+  err.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Envoi en cours…';
+  try {
+    await addDoc(collection(db, 'messages-contact'), {
+      nom: form.name.value.trim(),
+      courriel: form.email.value.trim(),
+      message: form.message.value.trim(),
+      date: new Date().toISOString(),
+      dateFr: new Date().toLocaleString('fr-CA', { dateStyle: 'long', timeStyle: 'short' }),
+      lu: false
+    });
+    document.getElementById('carte').style.display = 'none';
+    document.getElementById('succes').style.display = 'block';
+  } catch (ex) {
+    err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Envoyer le message';
+  }
+});
+</script>
+</body>
+</html>
