@@ -25,7 +25,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 
 .arbre-zone { position: relative; width: 100%; max-width: 720px; margin: 0 auto; }
 #liens { position: absolute; inset: 0; width: 100%; pointer-events: none; z-index: 0; }
-#liens line { stroke: rgba(26,58,92,0.28); stroke-width: 3; }
+#liens line { stroke: rgba(26,58,92,0.55); stroke-width: 3; stroke-linecap: round; }
 .person { position: absolute; z-index: 1; background: var(--blanc); border: 2.5px solid rgba(26,58,92,0.10); border-radius: 14px; padding: 8px 8px 10px; cursor: pointer; text-align: center; transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s; }
 .person .photo { width: 100%; aspect-ratio: 1/1; border-radius: 9px; background: var(--creme); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 7px; }
 .person .photo img { width: 100%; height: 100%; object-fit: cover; }
@@ -119,9 +119,9 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const LAYOUT = {
-  p5:{col:44,row:0}, p6:{col:55,row:0}, p13:{col:78,row:0}, p14:{col:89,row:0},
-  p10:{col:7,row:1}, p11:{col:18,row:1}, p7:{col:29,row:1}, p8:{col:40,row:1}, p2:{col:66,row:1}, p1:{col:84,row:1},
-  p12:{col:7,row:2}, p9:{col:23,row:2}, p3:{col:66,row:2}, p4:{col:84,row:2}
+  p5:{col:42,row:0}, p6:{col:53,row:0}, p13:{col:72,row:0}, p14:{col:83,row:0},
+  p10:{col:8,row:1}, p11:{col:19,row:1}, p7:{col:30,row:1}, p8:{col:41,row:1}, p2:{col:66,row:1}, p1:{col:77,row:1},
+  p12:{col:13.5,row:2}, p9:{col:24.5,row:2}, p3:{col:63,row:2}, p4:{col:80,row:2}
 };
 const ALIAS = {};
 function reel(id) { return ALIAS[id] || id; }
@@ -214,7 +214,10 @@ function positionner() {
     const y = ROW_Y[LAYOUT[slot].row];
     card.style.left = (cx - CARD_W / 2) + 'px';
     card.style.top = y + 'px';
-    centres[slot] = { x: cx, top: y, cy: y + CARD_H / 2 };
+    const ch = card.offsetHeight || CARD_H;
+    const _ph = card.querySelector('.photo');
+    const pcy = _ph ? (y + _ph.offsetTop + _ph.offsetHeight / 2) : (y + ch * 0.4);
+    centres[slot] = { x: cx, top: y, bottom: y + ch, cy: pcy };
   });
   const svg = document.getElementById('liens');
   svg.setAttribute('viewBox', '0 0 ' + W + ' ' + ZONE_H);
@@ -225,20 +228,29 @@ function positionner() {
   COUPLES.forEach(([a,b,type]) => {
     if (!centres[a] || !centres[b]) return;
     const divorce = type === 'divorce';
-    L(centres[a].x, centres[a].cy, centres[b].x, centres[b].cy, divorce);
+    const _lx = Math.min(centres[a].x, centres[b].x) + CARD_W / 2;
+    const _rx = Math.max(centres[a].x, centres[b].x) - CARD_W / 2;
+    L(_lx, centres[a].cy, _rx, centres[a].cy, divorce);
     const mx=(centres[a].x+centres[b].x)/2, my=centres[a].cy;
-    coupleMid[a+'+'+b] = { x: mx, y: my };
+    coupleMid[a+'+'+b] = { x: mx, y: my, bottom: Math.max(centres[a].bottom, centres[b].bottom) };
     const emoji = type === 'marie' ? '💍' : (type === 'divorce' ? '💔' : '❤️');
-    symbols += `<circle cx="${mx}" cy="${my}" r="15" fill="#f9f5ef" stroke="rgba(26,58,92,0.25)" stroke-width="2"/>`;
+    symbols += `<circle cx="${mx}" cy="${my}" r="15" fill="#f9f5ef" stroke="rgba(26,58,92,0.45)" stroke-width="2"/>`;
     symbols += `<text x="${mx}" y="${my+6}" text-anchor="middle" font-size="16">${emoji}</text>`;
   });
   FILIATIONS.forEach(f => {
+    const enf = centres[f.enfant];
+    if (!enf) return;
+    if (f.parents.length === 1) {
+      const par = centres[f.parents[0]];
+      if (!par) return;
+      L(par.x, par.bottom, par.x, enf.top);
+      return;
+    }
     const [pa,pb]=f.parents;
     const mid = coupleMid[pa+'+'+pb] || coupleMid[pb+'+'+pa];
-    const enf = centres[f.enfant];
-    if (!mid || !enf) return;
-    const midY=(mid.y+enf.top)/2;
-    L(mid.x, mid.y+18, mid.x, midY); L(mid.x, midY, enf.x, midY); L(enf.x, midY, enf.x, enf.top);
+    if (!mid) return;
+    const midY=(mid.bottom+enf.top)/2;
+    L(mid.x, mid.y, mid.x, midY); L(mid.x, midY, enf.x, midY); L(enf.x, midY, enf.x, enf.top);
   });
   svg.innerHTML = lines + symbols;
 }
@@ -307,6 +319,8 @@ charger();
   const MIN = 0.4, MAX = 3;
   function apply() { zone.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')'; }
   function reset() {
+    // recalculer les positions à la vraie largeur avant d'ajuster l'échelle
+    positionner();
     // ajuster pour que l'arbre remplisse joliment le viewport (marge légère)
     const zw = zone.offsetWidth || 720, zh = zone.offsetHeight || 600;
     const vw = vp.clientWidth, vh = vp.clientHeight;
