@@ -343,13 +343,39 @@ function renderQuiz() {
     div.className = 'quiz-item';
     const typeNom = (TYPES[q.type] || {}).nom || q.type;
     div.innerHTML = `<span class="qi-nom">${q.nom}</span><span class="qi-type">${typeNom}</span>
-      <button class="mini" onclick="event.stopPropagation();renommerQuiz('${q.id}')">✎</button>
-      <button class="mini del" onclick="event.stopPropagation();supprimerQuiz('${q.id}')">🗑</button>`;
+      <button class="mini" title="Dupliquer ce quiz et ses questions" onclick="event.stopPropagation();dupliquerQuiz('${q.id}')">⧉ Copier</button>
+      <button class="mini" title="Renommer" onclick="event.stopPropagation();renommerQuiz('${q.id}')">✎</button>
+      <button class="mini del" title="Supprimer" onclick="event.stopPropagation();supprimerQuiz('${q.id}')">🗑</button>`;
     div.onclick = () => ouvrirQuiz(q.id);
     l.appendChild(div);
   });
 }
 
+window.dupliquerQuiz = async function(id) {
+  const q = quizzes.find(x => x.id === id); if (!q) return;
+  const nom = prompt('Nom de la copie :', q.nom + ' (copie)');
+  if (!nom || !nom.trim()) return;
+  const item = document.querySelector('.quiz-item'); // feedback simple
+  try {
+    // 1) créer le nouveau quiz
+    const ref = await addDoc(collection(db, COL_QUIZ), {
+      nom: nom.trim(), type: q.type, ordre: quizzes.length,
+      date: new Date().toLocaleDateString('fr-CA')
+    });
+    // 2) copier toutes les questions de l'original (textes, images, audios, réponses)
+    const snap = await getDocs(query(collection(db, COL_Q), where('quizId', '==', id)));
+    const sources = snap.docs.map(d => d.data()).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
+    let n = 0;
+    for (const s of sources) {
+      const copie = { ...s, quizId: ref.id };
+      delete copie.id;
+      await addDoc(collection(db, COL_Q), copie);
+      n++;
+    }
+    await loadQuiz();
+    alert('✓ Quiz copié : « ' + nom.trim() + ' » (' + n + ' question' + (n>1?'s':'') + ').');
+  } catch (e) { alert('Erreur lors de la copie : ' + e.message); }
+};
 window.renommerQuiz = async function(id) {
   const q = quizzes.find(x => x.id === id); if (!q) return;
   const nouveau = prompt('Nouveau nom du quiz :', q.nom);
