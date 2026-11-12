@@ -102,12 +102,12 @@ const db = getFirestore(app);
 
 // Disposition fixe de l'arbre (6 personnes). col = % de largeur, row = rangée.
 const LAYOUT = {
-  p5:  { col: 26, row: 0 },   // Claude
-  p6:  { col: 50, row: 0 },   // Marie  (milieu = 38, au-dessus d'Alice)
-  p2:  { col: 38, row: 1 },   // Alice
-  p1:  { col: 62, row: 1 },   // Jean
-  p3:  { col: 38, row: 2 },   // Mathieu (pile sous Alice)
-  p4:  { col: 62, row: 2 },   // Sandra (pile sous Jean)
+  p5:  { col: 14, row: 0 },   // Claude
+  p6:  { col: 52, row: 0 },   // Marie  (milieu = 33, au-dessus d'Alice)
+  p2:  { col: 33, row: 1 },   // Alice
+  p1:  { col: 71, row: 1 },   // Jean
+  p3:  { col: 33, row: 2 },   // Mathieu (sous Alice)
+  p4:  { col: 71, row: 2 },   // Sandra (sous Jean)
 };
 const ALIAS = {};
 function reel(id) { return ALIAS[id] || id; }
