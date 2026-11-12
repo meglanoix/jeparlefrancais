@@ -186,7 +186,8 @@ function positionner() {
     const y = ROW_Y[LAYOUT[slot].row];
     card.style.left = (cx - CARD_W / 2) + 'px';
     card.style.top = y + 'px';
-    centres[slot] = { x: cx, top: y, bottom: y + CARD_H, cy: y + CARD_H / 2 };
+    const ch = card.offsetHeight || CARD_H;
+    centres[slot] = { x: cx, top: y, bottom: y + ch, cy: y + ch };
   });
   const svg = document.getElementById('liens');
   svg.setAttribute('viewBox', '0 0 ' + W + ' ' + ZONE_H);
