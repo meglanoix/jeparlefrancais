@@ -204,7 +204,7 @@ function positionner() {
     const _rx = Math.max(centres[a].x, centres[b].x) - CARD_W / 2;
     lines += `<line class="lien-couple" x1="${_lx}" y1="${centres[a].cy}" x2="${_rx}" y2="${centres[b].cy}"/>`;
     const mx = (centres[a].x + centres[b].x) / 2, my = centres[a].cy;
-    coupleMid[a + '+' + b] = { x: mx, y: my };
+    coupleMid[a + '+' + b] = { x: mx, y: my, bottom: Math.max(centres[a].bottom, centres[b].bottom) };
     const emoji = type === 'marie' ? '💍' : '❤️';
     symbols += `<circle cx="${mx}" cy="${my}" r="15" fill="#f9f5ef" stroke="rgba(26,58,92,0.45)" stroke-width="2"/>`;
     symbols += `<text x="${mx}" y="${my + 6}" text-anchor="middle" font-size="16">${emoji}</text>`;
@@ -215,8 +215,8 @@ function positionner() {
     const mid = coupleMid[pa + '+' + pb] || coupleMid[pb + '+' + pa];
     const enf = centres[f.enfant];
     if (!mid || !enf) return;
-    const midY = (mid.y + enf.top) / 2;
-    L(mid.x, mid.y + 18, mid.x, midY);   // sous le symbole
+    const midY = (mid.bottom + enf.top) / 2;   // barre sous les cartes, dans l'écart
+    L(mid.x, mid.y, mid.x, midY);
     L(mid.x, midY, enf.x, midY);
     L(enf.x, midY, enf.x, enf.top);
   });
