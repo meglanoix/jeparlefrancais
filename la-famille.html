@@ -28,7 +28,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .arbre { max-width: 620px; margin: 0 auto; }
 .arbre-rang { display: flex; justify-content: center; gap: clamp(30px, 12vw, 120px); }
 .couple-wrap { position: relative; display: flex; justify-content: center; gap: clamp(16px, 5vw, 44px); }
-.couple-wrap::before { content: ''; position: absolute; top: 50%; left: 25%; right: 25%; height: 3px; background: rgba(26,58,92,0.5); z-index: 0; }
+.couple-wrap::before { content: ''; position: absolute; top: 50%; bottom: 0; left: 50%; width: 3px; transform: translateX(-50%); background: rgba(26,58,92,0.5); z-index: 0; }
 .couple-wrap::after { content: '💍'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 30px; height: 30px; border-radius: 50%; background: var(--creme); border: 2px solid rgba(26,58,92,0.4); display: flex; align-items: center; justify-content: center; font-size: 15px; z-index: 1; }
 .connecteurs { position: relative; height: 46px; }
 .connecteurs::before { content: ''; position: absolute; top: 0; left: 50%; width: 3px; height: 23px; background: rgba(26,58,92,0.5); transform: translateX(-50%); }
