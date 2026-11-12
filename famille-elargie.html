@@ -109,7 +109,7 @@ const LAYOUT = {
   p8:  { col: 32, row: 1 },   // Philippe
   p2:  { col: 61, row: 1 },   // Alice
   p1:  { col: 78, row: 1 },   // Jean
-  p9:  { col: 23, row: 2 },   // Josée et Véronique (une case)
+  p9:  { col: 15, row: 2 },   // Josée et Véronique (sous Marc)
   p3:  { col: 60, row: 2 },   // Mathieu
   p4:  { col: 80, row: 2 },   // Sandra
 };
@@ -123,7 +123,7 @@ const COUPLES = [ ['p5','p6','marie'], ['p7','p8','couple'], ['p2','p1','marie']
 const FILIATIONS = [
   { enfant: 'p7', parents: ['p5','p6'] },   // Marc, fils de Claude+Marie (à gauche)
   { enfant: 'p2', parents: ['p5','p6'] },   // Alice, fille de Claude+Marie (à droite)
-  { enfant: 'p9', parents: ['p7','p8'] },   // jumelles, filles de Marc+Philippe
+  { enfant: 'p9', parents: ['p7'] },   // jumelles, filles de Marc seul
   { enfant: 'p3', parents: ['p2','p1'] },   // Mathieu, fils d'Alice+Jean
   { enfant: 'p4', parents: ['p2','p1'] },   // Sandra, fille d'Alice+Jean
 ];
@@ -197,7 +197,10 @@ function positionner() {
     const y = ROW_Y[LAYOUT[slot].row];
     card.style.left = (cx - CARD_W / 2) + 'px';
     card.style.top = y + 'px';
-    centres[slot] = { x: cx, top: y, bottom: y + CARD_H, cy: y + CARD_H / 2 };
+    const ch = card.offsetHeight || CARD_H;
+    const _ph = card.querySelector('.photo');
+    const pcy = _ph ? (y + _ph.offsetTop + _ph.offsetHeight / 2) : (y + ch * 0.4);
+    centres[slot] = { x: cx, top: y, bottom: y + ch, cy: pcy };
   });
   const svg = document.getElementById('liens');
   svg.setAttribute('viewBox', '0 0 ' + W + ' ' + ZONE_H);
@@ -208,7 +211,9 @@ function positionner() {
   const coupleMid = {};
   COUPLES.forEach(([a, b, type]) => {
     if (!centres[a] || !centres[b]) return;
-    lines += `<line class="lien-couple" x1="${centres[a].x}" y1="${centres[a].cy}" x2="${centres[b].x}" y2="${centres[b].cy}"/>`;
+    const _lx = Math.min(centres[a].x, centres[b].x) + CARD_W / 2;
+    const _rx = Math.max(centres[a].x, centres[b].x) - CARD_W / 2;
+    lines += `<line class="lien-couple" x1="${_lx}" y1="${centres[a].cy}" x2="${_rx}" y2="${centres[b].cy}"/>`;
     const mx = (centres[a].x + centres[b].x) / 2, my = centres[a].cy;
     coupleMid[a + '+' + b] = { x: mx, y: my };
     const emoji = type === 'marie' ? '💍' : '❤️';
@@ -217,10 +222,17 @@ function positionner() {
   });
   // filiations : du milieu du couple parent vers le haut de l'enfant
   FILIATIONS.forEach(f => {
+    const enf = centres[f.enfant];
+    if (!enf) return;
+    if (f.parents.length === 1) {   // enfant d'un seul parent : trait droit sous ce parent
+      const par = centres[f.parents[0]];
+      if (!par) return;
+      L(par.x, par.bottom, par.x, enf.top);
+      return;
+    }
     const [pa, pb] = f.parents;
     const mid = coupleMid[pa + '+' + pb] || coupleMid[pb + '+' + pa];
-    const enf = centres[f.enfant];
-    if (!mid || !enf) return;
+    if (!mid) return;
     const midY = (mid.y + enf.top) / 2;
     L(mid.x, mid.y + 18, mid.x, midY);   // sous le symbole
     L(mid.x, midY, enf.x, midY);
