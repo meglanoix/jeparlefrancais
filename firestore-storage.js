@@ -6,7 +6,7 @@
 // il suffit d'importer depuis ce fichier au lieu de firebase-firestore.js.
 
 export * from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { addDoc as _addDoc, updateDoc as _updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { addDoc as _addDoc, updateDoc as _updateDoc, setDoc as _setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
@@ -61,4 +61,12 @@ export async function updateDoc(docRef, data) {
   const path = (docRef && docRef.path) || '';
   const dossier = path.split('/')[0] || 'divers';
   return _updateDoc(docRef, await convertir(dossier, data));
+}
+
+// setDoc(docRef, data, options?) — docRef.path = "collection/docId"
+export async function setDoc(docRef, data, options) {
+  const path = (docRef && docRef.path) || '';
+  const dossier = path.split('/')[0] || 'divers';
+  const converti = await convertir(dossier, data);
+  return options === undefined ? _setDoc(docRef, converti) : _setDoc(docRef, converti, options);
 }
