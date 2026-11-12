@@ -27,12 +27,13 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .consigne { text-align: center; font-size: 1.05rem; color: var(--bleu); font-weight: 500; min-height: 1.6em; margin-bottom: 1.75rem; transition: color 0.2s; }
 .arbre { max-width: 620px; margin: 0 auto; }
 .arbre-rang { display: flex; justify-content: center; gap: clamp(30px, 12vw, 120px); }
-.couple-wrap { position: relative; display: flex; justify-content: center; gap: clamp(30px, 12vw, 120px); }
-.couple-wrap::before { content: ''; position: absolute; top: 50%; left: 25%; right: 25%; height: 3px; background: rgba(26,58,92,0.25); z-index: 0; }
+.couple-wrap { position: relative; display: flex; justify-content: center; gap: clamp(16px, 5vw, 44px); }
+.couple-wrap::before { content: ''; position: absolute; top: 50%; left: 25%; right: 25%; height: 3px; background: rgba(26,58,92,0.5); z-index: 0; }
+.couple-wrap::after { content: '💍'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 30px; height: 30px; border-radius: 50%; background: var(--creme); border: 2px solid rgba(26,58,92,0.4); display: flex; align-items: center; justify-content: center; font-size: 15px; z-index: 1; }
 .connecteurs { position: relative; height: 46px; }
-.connecteurs::before { content: ''; position: absolute; top: 0; left: 50%; width: 3px; height: 23px; background: rgba(26,58,92,0.25); transform: translateX(-50%); }
-.connecteurs::after { content: ''; position: absolute; top: 23px; left: 25%; right: 25%; height: 3px; background: rgba(26,58,92,0.25); }
-.connecteurs .branche { position: absolute; top: 23px; width: 3px; height: 23px; background: rgba(26,58,92,0.25); }
+.connecteurs::before { content: ''; position: absolute; top: 0; left: 50%; width: 3px; height: 23px; background: rgba(26,58,92,0.5); transform: translateX(-50%); }
+.connecteurs::after { content: ''; position: absolute; top: 23px; left: 25%; right: 25%; height: 3px; background: rgba(26,58,92,0.5); }
+.connecteurs .branche { position: absolute; top: 23px; width: 3px; height: 23px; background: rgba(26,58,92,0.5); }
 .connecteurs .branche.gauche { left: 25%; }
 .connecteurs .branche.droite { right: 25%; transform: translateX(3px); }
 .person { position: relative; z-index: 1; background: var(--blanc); border: 2.5px solid rgba(26,58,92,0.10); border-radius: 16px; padding: 10px 10px 14px; cursor: pointer; text-align: center; width: clamp(120px, 34vw, 150px); transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s; }
@@ -46,6 +47,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 @keyframes lueur { 0%,100% { box-shadow: 0 0 0 3px rgba(26,122,74,0.18); } 50% { box-shadow: 0 0 0 6px rgba(26,122,74,0.28); } }
 .person.inactive { opacity: 0.45; cursor: default; pointer-events: none; }
 .person.playing { border-color: var(--rouge); box-shadow: 0 0 0 3px rgba(192,57,43,0.25); }
+.legende { max-width: 620px; margin: 1.5rem auto 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; font-size: 0.85rem; color: var(--gris); }
+.legende span { display: inline-flex; align-items: center; gap: 7px; }
+.legende .sw { display: inline-block; width: 26px; height: 0; border-top: 4px solid; border-radius: 2px; }
+.legende .sw.couple { border-top-color: var(--rouge); }
+.legende .sw.filiation { border-top-color: rgba(26,58,92,0.5); }
 </style>
 </head>
 <body>
@@ -60,7 +66,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
   <div class="page-header-inner">
     <p class="page-eyebrow">La famille</p>
     <h1>La famille rapprochée</h1>
-    <p>Cliquez sur une personne, puis sur une autre pour entendre leur lien de parenté.</p>
+    <p>Écoutez comment les membres de la famille sont liés entre eux.</p>
     <div id="jeu-btn-wrap" style="margin-top:1.25rem;display:none">
       <a href="jeu-famille.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">🎮 Jeu : Qui est-ce ?</a>
     </div>
@@ -70,6 +76,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
   <div id="loading" style="text-align:center;color:var(--gris);padding:2rem">Chargement...</div>
   <div class="consigne" id="consigne" style="display:none">Cliquez sur une personne</div>
   <div class="arbre" id="arbre"></div>
+  <div class="legende" id="legende" style="display:none">
+    <span>💍 mariés</span>
+  </div>
 </div>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -92,6 +101,7 @@ async function charger() {
     if (personnes.length === 0) { document.getElementById('loading').textContent = "Aucune famille configurée. Ajoutez les personnes dans l'admin."; return; }
     document.getElementById('loading').style.display = 'none';
     document.getElementById('consigne').style.display = 'block';
+    { const _lg = document.getElementById('legende'); if (_lg) _lg.style.display = 'flex'; }
     if (docs.some(d => d.type === 'relation' && d.audioQuestion)) document.getElementById('jeu-btn-wrap').style.display = 'block';
     renderArbre();
   } catch (e) { document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.'; }

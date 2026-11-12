@@ -28,7 +28,12 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 
 .arbre-zone { position: relative; width: 100%; max-width: 720px; margin: 0 auto; }
 #liens { position: absolute; inset: 0; width: 100%; pointer-events: none; z-index: 0; }
-#liens line { stroke: rgba(26,58,92,0.28); stroke-width: 3; }
+#liens line { stroke: rgba(26,58,92,0.55); stroke-width: 3; stroke-linecap: round; }
+.legende { max-width: 720px; margin: 1rem auto 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; font-size: 0.85rem; color: var(--gris); }
+.legende span { display: inline-flex; align-items: center; gap: 7px; }
+.legende .sw { display: inline-block; width: 26px; height: 0; border-top: 4px solid; border-radius: 2px; }
+.legende .sw.couple { border-top-color: var(--rouge); }
+.legende .sw.filiation { border-top-color: rgba(26,58,92,0.55); }
 .person { position: absolute; z-index: 1; background: var(--blanc); border: 2.5px solid rgba(26,58,92,0.10); border-radius: 14px; padding: 8px 8px 10px; cursor: pointer; text-align: center; transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s; }
 .person .photo { width: 100%; aspect-ratio: 1/1; border-radius: 9px; background: var(--creme); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 7px; }
 .person .photo img { width: 100%; height: 100%; object-fit: cover; }
@@ -63,7 +68,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
   <div class="page-header-inner">
     <p class="page-eyebrow">La famille · La famille élargie</p>
     <h1>La famille élargie</h1>
-    <p>Cliquez sur une personne, puis sur une autre pour entendre leur lien de parenté.</p>
+    <p>Écoutez comment les membres de la famille sont liés entre eux.</p>
     <div id="jeu-btn-wrap" style="margin-top:1.25rem;display:none">
       <a href="jeu-famille-elargie.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--rouge);color:var(--blanc);text-decoration:none;padding:10px 22px;border-radius:25px;font-size:0.88rem;font-weight:500;transition:opacity 0.2s" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">🎮 Jeu : Qui est-ce ?</a>
     </div>
@@ -75,6 +80,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
   <div class="consigne" id="consigne" style="display:none">Cliquez sur une personne</div>
   <div class="arbre-zone" id="arbre-zone" style="display:none">
     <svg id="liens" preserveAspectRatio="none"></svg>
+  </div>
+  <div class="legende" id="legende" style="display:none">
+    <span>💍 mariés · ❤️ en couple</span>
   </div>
 </div>
 
@@ -95,15 +103,15 @@ const db = getFirestore(app);
 // Disposition fixe de l'arbre élargi. col = % de largeur, row = rangée.
 // p9 = les jumelles, une seule case « Josée et Véronique ».
 const LAYOUT = {
-  p5:  { col: 50, row: 0 },   // Claude
-  p6:  { col: 72, row: 0 },   // Marie
-  p7:  { col: 12, row: 1 },   // Marc
-  p8:  { col: 30, row: 1 },   // Philippe
-  p2:  { col: 62, row: 1 },   // Alice
-  p1:  { col: 84, row: 1 },   // Jean
-  p9:  { col: 18, row: 2 },   // Josée et Véronique (une case)
-  p3:  { col: 56, row: 2 },   // Mathieu
-  p4:  { col: 78, row: 2 },   // Sandra
+  p5:  { col: 41, row: 0 },   // Claude
+  p6:  { col: 58, row: 0 },   // Marie
+  p7:  { col: 15, row: 1 },   // Marc
+  p8:  { col: 32, row: 1 },   // Philippe
+  p2:  { col: 61, row: 1 },   // Alice
+  p1:  { col: 78, row: 1 },   // Jean
+  p9:  { col: 23, row: 2 },   // Josée et Véronique (une case)
+  p3:  { col: 60, row: 2 },   // Mathieu
+  p4:  { col: 80, row: 2 },   // Sandra
 };
 const ALIAS = {};
 const SLOT_NOM = {};
@@ -140,6 +148,7 @@ async function charger() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('consigne').style.display = 'block';
     document.getElementById('arbre-zone').style.display = 'block';
+    { const _lg = document.getElementById('legende'); if (_lg) _lg.style.display = 'flex'; }
     if (docs.some(d => d.type === 'relation' && d.audioQuestion)) document.getElementById('jeu-btn-wrap').style.display = 'block';
     render();
     window.addEventListener('resize', positionner);
@@ -194,16 +203,16 @@ function positionner() {
   svg.setAttribute('viewBox', '0 0 ' + W + ' ' + ZONE_H);
   svg.style.height = ZONE_H + 'px';
   let lines = '', symbols = '';
-  const L = (x1, y1, x2, y2) => { lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; };
+  const L = (x1, y1, x2, y2) => { lines += `<line class="lien-filiation" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; };
   // couples : trait + symbole au milieu
   const coupleMid = {};
   COUPLES.forEach(([a, b, type]) => {
     if (!centres[a] || !centres[b]) return;
-    L(centres[a].x, centres[a].cy, centres[b].x, centres[b].cy);
+    lines += `<line class="lien-couple" x1="${centres[a].x}" y1="${centres[a].cy}" x2="${centres[b].x}" y2="${centres[b].cy}"/>`;
     const mx = (centres[a].x + centres[b].x) / 2, my = centres[a].cy;
     coupleMid[a + '+' + b] = { x: mx, y: my };
     const emoji = type === 'marie' ? '💍' : '❤️';
-    symbols += `<circle cx="${mx}" cy="${my}" r="15" fill="#f9f5ef" stroke="rgba(26,58,92,0.25)" stroke-width="2"/>`;
+    symbols += `<circle cx="${mx}" cy="${my}" r="15" fill="#f9f5ef" stroke="rgba(26,58,92,0.45)" stroke-width="2"/>`;
     symbols += `<text x="${mx}" y="${my + 6}" text-anchor="middle" font-size="16">${emoji}</text>`;
   });
   // filiations : du milieu du couple parent vers le haut de l'enfant
@@ -276,14 +285,27 @@ charger();
   let scale = 1, tx = 0, ty = 0;
   const MIN = 0.4, MAX = 3;
   function apply() { zone.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')'; }
+  function contentBox() {
+    const cards = zone.querySelectorAll('.person');
+    if (!cards.length) return null;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    cards.forEach(c => {
+      const x = c.offsetLeft, y = c.offsetTop, w = c.offsetWidth, h = c.offsetHeight;
+      if (x < minX) minX = x; if (y < minY) minY = y;
+      if (x + w > maxX) maxX = x + w; if (y + h > maxY) maxY = y + h;
+    });
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+  }
   function reset() {
-    // ajuster pour que l'arbre remplisse joliment le viewport (marge légère)
-    const zw = zone.offsetWidth || 720, zh = zone.offsetHeight || 600;
+    positionner();
     const vw = vp.clientWidth, vh = vp.clientHeight;
-    const fit = Math.min((vw / zw), (vh / zh)) * 0.97;
-    scale = Math.max(MIN, Math.min(MAX, fit));
-    tx = (vw - zw * scale) / 2;
-    ty = Math.max(8, (vh - zh * scale) / 2);
+    const bb = contentBox();
+    if (!bb || bb.w <= 0 || bb.h <= 0) { scale = 1; tx = 0; ty = 0; apply(); return; }
+    const pad = 26;
+    const fit = Math.min((vw - 2 * pad) / bb.w, (vh - 2 * pad) / bb.h);
+    scale = Math.max(MIN, Math.min(1.6, fit));
+    tx = (vw - bb.w * scale) / 2 - bb.x * scale;
+    ty = (vh - bb.h * scale) / 2 - bb.y * scale;
     apply();
   }
   window.__resetArbre = reset;
