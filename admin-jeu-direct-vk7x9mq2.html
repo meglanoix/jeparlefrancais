@@ -98,6 +98,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
       <select id="quiz-type">
         <option value="ipo">❌ Interdit / ✅ Permis / ❗ Obligatoire</option>
         <option value="vf">✅ Vrai / ❌ Faux</option>
+        <option value="fi">🎩 Formel / 💬 Informel</option>
         <option value="ph">1️⃣ Ponctuelle / 🔁 Habituelle</option>
         <option value="pf">⏱️ Présent / ⏩ Futur</option>
         <option value="r12">1️⃣ Réponse 1 / 2️⃣ Réponse 2</option>
@@ -195,6 +196,10 @@ const TYPES = {
   vf: { nom: 'Vrai / Faux', reps: [
     { v: 'vrai', ico: '✅', lib: 'Vrai' },
     { v: 'faux', ico: '❌', lib: 'Faux' }
+  ]},
+  fi: { nom: 'Formel / Informel', reps: [
+    { v: 'formel', ico: '🎩', lib: 'Formel' },
+    { v: 'informel', ico: '💬', lib: 'Informel' }
   ]},
   ph: { nom: 'Ponctuelle / Habituelle', reps: [
     { v: 'ponctuelle', ico: '1️⃣', lib: 'Ponctuelle' },
