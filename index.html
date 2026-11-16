@@ -232,6 +232,9 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 .signature-contact { color: var(--gris); font-size: 0.9rem; margin-top: 1.1rem; }
 .signature-courriel { display: inline-flex; align-items: center; gap: 8px; margin-top: 0.5rem; color: var(--bleu); text-decoration: none; font-weight: 500; font-size: 0.95rem; padding: 9px 18px; border: 1.5px solid rgba(26,58,92,0.15); border-radius: 24px; transition: all 0.2s; }
 .signature-courriel:hover { background: var(--bleu); color: var(--blanc); border-color: var(--bleu); }
+.classe-tuile { transition: transform 0.2s, box-shadow 0.2s; }
+.classe-tuile:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(26,58,92,0.28); }
+.signature-wrap { display: flex; flex-wrap: wrap; gap: 2.5rem; align-items: center; justify-content: center; max-width: 860px; margin: 0 auto; }
 </style>
 </head>
 <body>
@@ -404,12 +407,22 @@ footer p { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
 <div id="hero-dropdown"></div>
 
 <section class="signature" id="contact">
-  <img class="signature-photo" src="martin.jpg?v=1" alt="Martin"/>
-  <blockquote>« Bons apprentissages! »</blockquote>
-  <div class="signature-nom">Martin-Éric</div>
-  <div class="signature-role">Votre enseignant de francisation</div>
-  <div class="signature-contact">Une question? Un commentaire? Écrivez-moi!</div>
-  <a class="signature-courriel" href="contact.html">✉️ Me contacter</a>
+  <div class="signature-wrap">
+    <div class="classe-tuile" onclick="toggleHeroCard(this,'classeFia')" style="background:var(--bleu);color:#fff;border-radius:16px;padding:1.6rem 1.9rem;cursor:pointer;min-width:240px;text-align:center;box-shadow:0 8px 24px rgba(26,58,92,0.22);position:relative">
+      <div style="font-size:1.9rem;line-height:1">🎓</div>
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.08rem;margin-top:0.5rem">Dans la classe de Martin</div>
+      <div style="font-size:0.82rem;color:rgba(255,255,255,0.82);margin-top:0.25rem">FIA 330-1 · Groupe 270719</div>
+      <div style="font-size:0.82rem;color:rgba(255,255,255,0.95);margin-top:0.7rem;font-weight:500">🎮 Jeu en direct&nbsp;&nbsp;▾</div>
+    </div>
+    <div style="text-align:center">
+      <img class="signature-photo" src="martin.jpg?v=1" alt="Martin"/>
+      <blockquote>« Bons apprentissages! »</blockquote>
+      <div class="signature-nom">Martin-Éric</div>
+      <div class="signature-role">Votre enseignant de francisation</div>
+      <div class="signature-contact">Une question? Un commentaire? Écrivez-moi!</div>
+      <a class="signature-courriel" href="contact.html">✉️ Me contacter</a>
+    </div>
+  </div>
 </section>
 
 <footer>
@@ -427,6 +440,7 @@ window.closeMenu = function() { document.getElementById('mobile-menu').classList
 
 // Hero cards dropdown
 const heroContents = {
+  classeFia: `<div class="hcd-cat">🎓 FIA 330-1 · Groupe 270719</div><a href="jeu-direct.html">🎮 Jeu en direct</a>`,
   quebec: `<div class="hcd-cat">⚜️ Visiter le Québec</div><a href="lieux-montreal.html">Les lieux d'intérêt à Montréal</a><a href="regions-quebec.html">Visiter les régions du Québec</a><a href="specialites-quebec.html">Les spécialités du Québec</a>`,
   verbes: `<a href="verbes-1er-groupe.html">Les verbes du 1er groupe</a><a href="verbes-2e-groupe.html">Les verbes du 2e groupe</a><a href="verbes-3e-groupe.html">Les verbes du 3e groupe</a><a href="verbe-faire.html">Le verbe faire</a><a href="verbe-aller.html">Le verbe aller</a><a href="verbe-prendre.html">Le verbe prendre</a>`,
   routine: `<a href="activites-habituelles.html">Les activités habituelles au présent</a><a href="jeu-mes-activites.html">Mes activités <span style="font-size:0.7rem;color:var(--rouge)">• jeu</span></a><a href="routine.html">La routine</a><a href="raconter-routine.html">Raconter sa routine <span style="font-size:0.7rem;color:var(--rouge)">• activité</span></a>`,
@@ -442,7 +456,7 @@ const heroContents = {
   famille: `<div class="hcd-cat">👨‍👩‍👧‍👦 La famille</div><a href="la-famille.html">La famille rapprochée</a><a href="grands-parents-petits-enfants.html">Les grands-parents et les petits-enfants</a><a href="famille-elargie.html">La famille élargie</a><a href="famille-reconstituee.html">La famille reconstituée</a>`,
   medias: `<div class="hcd-cat">🎬 Les médias</div><a href="types-films.html">Les types de films</a><a href="types-emissions.html">Les types d'émissions</a><a href="chaines-tele-direct.html">📺 Les chaînes de télé en direct</a><a href="chansons-quebecoises.html">🎵 Les chansons québécoises</a>`,
   invitation: `<div class="hcd-cat">🎉 L'invitation et la conversation informelle</div><a href="l-invitation.html">L'invitation</a><a href="conversation-informelle.html">La conversation informelle</a>`,
-  enclasse: `<div class="hcd-cat">👋 Les salutations</div><a href="salutations.html">Les salutations</a><div class="hcd-cat">🏫 En classe</div><a href="faire-connaissance.html">Faire connaissance</a><a href="les-objets-de-la-classe.html">Les objets de la classe</a><a href="les-consignes-de-la-classe.html">Les consignes de la classe</a><a href="informer-justifier-absence-retard.html">Informer ou justifier une absence ou un retard</a>`,
+  enclasse: `<div class="hcd-cat">👤 Se présenter</div><a href="salutations.html">Les salutations</a><a href="faire-connaissance.html">Faire connaissance</a><div class="hcd-cat">🏫 Dans la classe</div><a href="les-objets-de-la-classe.html">Les objets de la classe</a><a href="les-consignes-de-la-classe.html">Les consignes de la classe</a><a href="informer-justifier-absence-retard.html">Informer ou justifier une absence ou un retard</a>`,
   banqueposte: `<div class="hcd-cat">🏦 La banque et la poste</div><a href="bureau-poste.html">Le bureau de poste</a>`
 };
 // --- Menu principal en accordéon, généré depuis heroContents (même source que les tuiles) ---
@@ -495,7 +509,7 @@ window.toggleHeroCard = function(card, key) {
   }
 };
 document.addEventListener('click', function(e) {
-  if (!e.target.closest('.hero-card') && !e.target.closest('#hero-dropdown')) {
+  if (!e.target.closest('.hero-card') && !e.target.closest('.classe-tuile') && !e.target.closest('#hero-dropdown')) {
     const dd = document.getElementById('hero-dropdown');
     dd.classList.remove('visible');
     if (activeCard) { activeCard.classList.remove('active'); activeCard = null; }
