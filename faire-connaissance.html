@@ -24,7 +24,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--blanc); line-height: 1.1; margin-bottom: 0.5rem; }
 .page-header p { font-size: 0.95rem; color: rgba(255,255,255,0.6); font-weight: 300; }
 .tabs-wrap { background: var(--blanc); border-bottom: 1px solid rgba(26,58,92,0.08); position: sticky; top: 64px; z-index: 50; }
-.tab-row { display: flex; align-items: center; gap: 8px; padding: 8px 5vw; max-width: 1100px; margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
+.tab-row { display: flex; align-items: center; gap: 8px; padding: 8px 5vw; max-width: 1100px; margin: 0 auto; flex-wrap: wrap; }
 .tab-row::-webkit-scrollbar { display: none; }
 .tab { padding: 7px 16px; border-radius: 20px; border: 1.5px solid rgba(26,58,92,0.12); background: transparent; color: var(--gris); font-size: 0.82rem; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; white-space: nowrap; flex-shrink: 0; }
 .tab:hover { border-color: var(--bleu); color: var(--bleu); }
@@ -75,8 +75,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 
 <div class="tabs-wrap">
   <div class="tab-row">
-    <button class="tab active" id="tab-fc-presenter" onclick="afficherSection('fc-presenter')">👋 Se présenter</button>
-    <button class="tab" id="tab-fc-salutations" onclick="afficherSection('fc-salutations')">🙋 Les salutations</button>
+    <button class="tab active" id="tab-fc-salutations" onclick="afficherSection('fc-salutations')">🙋 Les salutations</button>
+    <button class="tab" id="tab-fc-presenter" onclick="afficherSection('fc-presenter')">👋 Se présenter</button>
     <button class="tab" id="tab-fc-origine" onclick="afficherSection('fc-origine')">🌍 Pays d'origine et nationalité</button>
     <button class="tab" id="tab-fc-langue" onclick="afficherSection('fc-langue')">🗣️ La langue</button>
     <button class="tab" id="tab-fc-etatcivil" onclick="afficherSection('fc-etatcivil')">💍 L'état civil</button>
@@ -89,11 +89,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 <div class="main">
   <div id="loading" class="loading-msg">Chargement...</div>
 
-  <div class="panel active" id="panel-fc-presenter">
+  <div class="panel" id="panel-fc-presenter">
     <div class="card-grid" id="grid-fc-presenter"></div>
   </div>
 
-  <div class="panel" id="panel-fc-salutations">
+  <div class="panel active" id="panel-fc-salutations">
     <p class="salut-hint">Touchez un point sur l'image pour entendre la phrase.</p>
     <div id="salut-images"></div>
   </div>
