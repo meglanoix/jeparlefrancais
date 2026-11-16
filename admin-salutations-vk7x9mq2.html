@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Les salutations | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu:#1a3a5c; --bleu-clair:#2a5298; --rouge:#c0392b; --creme:#f9f5ef; --texte:#2c2c2c; --gris:#6b6b6b; --blanc:#fff; --vert:#1a7a4a; --ombre:0 2px 24px rgba(26,58,92,0.1); }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;color:var(--texte);background:var(--creme);}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;height:60px;background:var(--bleu);color:#fff;}
+nav .logo{font-family:'Playfair Display',serif;font-size:1.1rem;}
+nav a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.85rem;}
+.wrap{max-width:960px;margin:0 auto;padding:2rem 5vw 5rem;}
+.eyebrow{font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--gris);margin-bottom:.4rem;}
+h1{font-family:'Playfair Display',serif;color:var(--bleu);font-size:1.9rem;margin-bottom:.4rem;}
+.sub{color:var(--gris);font-size:.92rem;margin-bottom:1.5rem;}
+.note{background:#fff7e6;border:1px solid #f0d9a0;border-radius:12px;padding:.9rem 1rem;font-size:.85rem;color:#7a5c1e;margin-bottom:1.5rem;line-height:1.5;}
+.img-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem;}
+.img-tab{padding:8px 18px;border-radius:22px;border:1.5px solid rgba(26,58,92,0.15);background:#fff;color:var(--gris);font-family:inherit;font-size:.9rem;cursor:pointer;}
+.img-tab.active{background:var(--bleu);color:#fff;border-color:var(--bleu);font-weight:500;}
+.img-tab .pastille{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--vert);margin-left:6px;}
+.upload-zone{border:2px dashed rgba(26,58,92,0.25);border-radius:16px;padding:3rem 1rem;text-align:center;color:var(--gris);cursor:pointer;background:#fff;}
+.upload-zone:hover{border-color:var(--bleu);color:var(--bleu);}
+.editor{position:relative;max-width:900px;margin:0 auto;border-radius:14px;overflow:hidden;box-shadow:var(--ombre);line-height:0;cursor:crosshair;user-select:none;}
+.editor img{width:100%;display:block;}
+.marker{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;border:3px solid #fff;background:var(--bleu-clair);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.35);line-height:1;}
+.marker.ok{background:var(--vert);}
+.marker.sel{outline:3px solid var(--rouge);outline-offset:1px;}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:1rem 0 1.5rem;}
+.pts-titre{font-weight:700;color:var(--bleu-clair);margin:1.5rem 0 .6rem;font-size:.85rem;letter-spacing:1px;text-transform:uppercase;}
+.ligne{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid rgba(26,58,92,0.1);border-radius:12px;padding:.7rem .9rem;margin-bottom:.6rem;flex-wrap:wrap;}
+.ligne.sel{border-color:var(--rouge);box-shadow:0 0 0 2px rgba(192,57,43,0.15);}
+.ligne .num{width:28px;height:28px;border-radius:50%;background:var(--bleu-clair);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;}
+.ligne.ok .num{background:var(--vert);}
+.ligne .etat{font-size:.78rem;color:var(--gris);flex:1;min-width:110px;}
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:10px;padding:.5rem .85rem;font-family:inherit;font-size:.83rem;font-weight:500;cursor:pointer;}
+.btn:hover{opacity:.88;}
+.btn-rec{background:var(--rouge);color:#fff;}
+.btn-stop{background:#444;color:#fff;}
+.btn-play{background:var(--bleu);color:#fff;}
+.btn-up{background:var(--creme);color:var(--bleu);border:1px solid rgba(26,58,92,0.2);}
+.btn-del{background:#fff;color:var(--rouge);border:1px solid rgba(192,57,43,0.3);}
+.btn-sec{background:#fff;color:var(--bleu);border:1px solid rgba(26,58,92,0.2);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.rec-dot{width:9px;height:9px;border-radius:50%;background:#fff;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.vide-msg{text-align:center;color:var(--gris);padding:1.5rem;font-size:.9rem;}
+#login{max-width:360px;margin:5rem auto;background:#fff;padding:2rem;border-radius:16px;box-shadow:var(--ombre);}
+#login input{width:100%;padding:.7rem;border:1px solid #ccc;border-radius:10px;margin-bottom:.8rem;font-family:inherit;}
+#login button{width:100%;padding:.7rem;background:var(--bleu);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<nav><span class="logo">Admin · Les salutations</span><a href="faire-connaissance.html">Voir la page →</a></nav>
+
+<div id="login">
+  <h1 style="font-size:1.3rem;margin-bottom:1rem">Connexion</h1>
+  <input id="email" type="email" placeholder="Courriel"/>
+  <input id="pass" type="password" placeholder="Mot de passe"/>
+  <button id="login-btn">Se connecter</button>
+  <p id="login-err" style="color:var(--rouge);font-size:.82rem;margin-top:.6rem"></p>
+</div>
+
+<div class="wrap hidden" id="app">
+  <p class="eyebrow">En classe · Faire connaissance</p>
+  <h1>Les salutations</h1>
+  <p class="sub">4 images. Clique sur une image pour placer un point, puis enregistre son audio.</p>
+  <div class="note">1. Choisis une image (1 à 4) et <strong>téléverse-la</strong>.<br>2. <strong>Clique sur l'image</strong> à l'endroit d'une bulle : un point numéroté apparaît.<br>3. En dessous, clique <strong>🎙️ Enregistrer</strong> pour ce point, parle, puis <strong>Arrêter</strong>.</div>
+
+  <div class="img-tabs" id="img-tabs"></div>
+  <div id="zone"></div>
+</div>
+
+<script type="module" src="admin-auth.js"></script>
+<script type="module">
+import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, addDoc } from './firestore-storage.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const COL = 'fc-salutations';
+
+let currentImg = 0;
+let images = {};              // img -> {id, url}
+let points = {0:[],1:[],2:[],3:[]}; // img -> [{id,x,y,audio,ordre}]
+let selId = null;
+
+// ---- Auth ----
+document.getElementById('login-btn').onclick = () => {
+  signInWithEmailAndPassword(auth, email.value.trim(), pass.value)
+    .catch(() => document.getElementById('login-err').textContent = 'Connexion impossible. Vérifie courriel / mot de passe.');
+};
+onAuthStateChanged(auth, user => {
+  if (user) { document.getElementById('login').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); chargerTout(); }
+  else { document.getElementById('login').classList.remove('hidden'); document.getElementById('app').classList.add('hidden'); }
+});
+
+async function chargerTout() {
+  images = {}; points = {0:[],1:[],2:[],3:[]};
+  try {
+    const snap = await getDocs(collection(db, COL));
+    snap.docs.forEach(d => {
+      const v = d.data();
+      if (v.type === 'image') images[v.img] = { id: d.id, url: v.image };
+      else if (v.type === 'point') (points[v.img] = points[v.img] || []).push({ id: d.id, x: v.x, y: v.y, audio: v.audio || '', ordre: v.ordre || 0 });
+    });
+  } catch(e) {}
+  Object.values(points).forEach(arr => arr.sort((a,b)=>a.ordre-b.ordre));
+  renderTabs(); renderZone();
+}
+
+function renderTabs() {
+  document.getElementById('img-tabs').innerHTML = [0,1,2,3].map(i =>
+    `<button class="img-tab ${i===currentImg?'active':''}" onclick="changerImg(${i})">Image ${i+1}${images[i]?'<span class="pastille"></span>':''}</button>`
+  ).join('');
+}
+window.changerImg = function(i){ currentImg = i; selId = null; renderTabs(); renderZone(); };
+
+function renderZone() {
+  const z = document.getElementById('zone');
+  const i = currentImg;
+  if (!images[i]) {
+    z.innerHTML = `
+      <label class="upload-zone">
+        📷 Cliquer pour téléverser l'image ${i+1}
+        <input type="file" accept="image/*" style="display:none" onchange="televerserImage(event)"/>
+      </label>`;
+    return;
+  }
+  const pts = points[i] || [];
+  z.innerHTML = `
+    <div class="editor" id="editor" onclick="ajouterPoint(event)">
+      <img src="${images[i].url}" alt=""/>
+      ${pts.map((p,idx)=>`<button class="marker ${p.audio?'ok':''} ${p.id===selId?'sel':''}" style="left:${p.x}%;top:${p.y}%" onclick="event.stopPropagation();selectionner('${p.id}')">${idx+1}</button>`).join('')}
+    </div>
+    <div class="bar">
+      <label class="btn btn-sec">🔄 Remplacer l'image<input type="file" accept="image/*" style="display:none" onchange="televerserImage(event)"/></label>
+      <button class="btn btn-del" onclick="supprimerImage()">🗑 Supprimer l'image (et ses points)</button>
+    </div>
+    <div class="pts-titre">Points sur l'image ${i+1} — ${pts.length}</div>
+    ${pts.length===0 ? '<div class="vide-msg">Clique sur l\'image ci-dessus pour ajouter un point.</div>' : ''}
+    <div id="pts-liste">
+      ${pts.map((p,idx)=>`
+        <div class="ligne ${p.audio?'ok':''} ${p.id===selId?'sel':''}" id="ligne-${p.id}">
+          <span class="num">${idx+1}</span>
+          <span class="etat" id="etat-${p.id}">${p.audio?'✓ audio enregistré':'aucun audio — clique Enregistrer'}</span>
+          <button class="btn btn-rec" id="rec-${p.id}" onclick="toggleRec('${p.id}')">🎙️ Enregistrer</button>
+          <button class="btn btn-play" onclick="ecouter('${p.id}')" ${p.audio?'':'disabled'}>▶</button>
+          <label class="btn btn-up">📁<input type="file" accept="audio/*" style="display:none" onchange="televerserAudio('${p.id}',event)"/></label>
+          <button class="btn btn-del" onclick="supprimerPoint('${p.id}')">🗑</button>
+        </div>`).join('')}
+    </div>`;
+}
+
+function blobToDataUri(blob){ return new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(blob); }); }
+const getPt = id => (points[currentImg]||[]).find(p=>p.id===id);
+
+window.televerserImage = async function(ev){
+  const f = ev.target.files[0]; if(!f) return;
+  const dataUri = await blobToDataUri(f);
+  const i = currentImg;
+  const zone = document.getElementById('zone');
+  zone.insertAdjacentHTML('afterbegin','<div class="vide-msg" id="chg">Téléversement de l\'image…</div>');
+  try {
+    await setDoc(doc(db, COL, 'img'+i), { type:'image', img:i, image:dataUri, ordre:i }, { merge:true });
+    await chargerTout();
+  } catch(e){ alert('Erreur : '+e.message); }
+};
+
+window.ajouterPoint = async function(ev){
+  const ed = document.getElementById('editor'); if(!ed) return;
+  const r = ed.getBoundingClientRect();
+  const x = +(( (ev.clientX - r.left) / r.width) * 100).toFixed(2);
+  const y = +(( (ev.clientY - r.top) / r.height) * 100).toFixed(2);
+  const i = currentImg;
+  try {
+    const ref = await addDoc(collection(db, COL), { type:'point', img:i, x, y, audio:'', ordre:Date.now() });
+    points[i].push({ id: ref.id, x, y, audio:'', ordre:Date.now() });
+    selId = ref.id;
+    renderZone();
+  } catch(e){ alert('Erreur : '+e.message); }
+};
+
+window.selectionner = function(id){ selId = id; renderZone(); const l=document.getElementById('ligne-'+id); if(l) l.scrollIntoView({block:'center',behavior:'smooth'}); };
+
+// ---- Enregistrement ----
+let rec=null, chunks=[], recId=null;
+window.toggleRec = async function(id){
+  const btn = document.getElementById('rec-'+id);
+  if (recId===id && rec && rec.state==='recording'){ rec.stop(); return; }
+  if (recId) return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    rec = new MediaRecorder(stream); chunks=[]; recId=id;
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = async () => {
+      stream.getTracks().forEach(t=>t.stop());
+      const blob = new Blob(chunks,{type:'audio/webm'});
+      await sauverAudio(id, await blobToDataUri(blob));
+      recId=null; rec=null;
+    };
+    rec.start();
+    btn.innerHTML='<span class="rec-dot"></span> Arrêter'; btn.classList.remove('btn-rec'); btn.classList.add('btn-stop');
+    const e=document.getElementById('etat-'+id); if(e) e.textContent='enregistrement…';
+  } catch(e){ alert('Micro non disponible : '+e.message); }
+};
+window.televerserAudio = async function(id, ev){
+  const f = ev.target.files[0]; if(!f) return;
+  await sauverAudio(id, await blobToDataUri(f));
+};
+async function sauverAudio(id, dataUri){
+  const p = getPt(id);
+  const et = document.getElementById('etat-'+id); if(et) et.textContent='enregistrement en cours…';
+  try {
+    await updateDoc(doc(db, COL, id), { audio: dataUri });
+    if (p) p.audio = dataUri;   // aperçu local immédiat
+    renderZone();
+  } catch(e){ if(et) et.textContent='erreur : '+e.message; }
+}
+let apercu=null;
+window.ecouter = function(id){
+  const p = getPt(id); if(!p || !p.audio) return;
+  if (apercu){ apercu.pause(); apercu=null; }
+  apercu = new Audio(p.audio); apercu.play();
+};
+window.supprimerPoint = async function(id){
+  if (!confirm('Supprimer ce point ?')) return;
+  try { await deleteDoc(doc(db, COL, id)); } catch(e){}
+  points[currentImg] = points[currentImg].filter(p=>p.id!==id);
+  if (selId===id) selId=null;
+  renderZone();
+};
+window.supprimerImage = async function(){
+  if (!confirm('Supprimer l\'image '+(currentImg+1)+' et tous ses points ?')) return;
+  const i = currentImg;
+  try {
+    if (images[i]) await deleteDoc(doc(db, COL, images[i].id));
+    for (const p of (points[i]||[])) await deleteDoc(doc(db, COL, p.id));
+  } catch(e){}
+  await chargerTout();
+};
+</script>
+</body>
+</html>

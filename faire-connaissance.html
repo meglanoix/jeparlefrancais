@@ -47,6 +47,13 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 .audio-btn svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
 .empty-grid { text-align: center; padding: 3rem; color: var(--gris); grid-column: 1/-1; font-size: 0.9rem; }
 .loading-msg { text-align: center; padding: 3rem; color: var(--gris); }
+.salut-hint { text-align: center; color: var(--gris); font-size: 0.9rem; margin-bottom: 1.25rem; }
+.salut-wrap { position: relative; max-width: 1000px; margin: 0 auto 2rem; border-radius: 16px; overflow: hidden; box-shadow: var(--ombre); line-height: 0; }
+.salut-wrap img { width: 100%; display: block; }
+.salut-point { position: absolute; transform: translate(-50%, -50%); width: 46px; height: 46px; border-radius: 50%; border: 3px solid #fff; background: var(--bleu); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.35); transition: transform 0.15s, background 0.15s; padding: 0; }
+.salut-point:hover { transform: translate(-50%, -50%) scale(1.12); }
+.salut-point.playing { background: var(--vert); }
+.salut-point svg { width: 18px; height: 18px; fill: #fff; margin-left: 2px; }
 </style>
 </head>
 <body>
@@ -69,6 +76,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 <div class="tabs-wrap">
   <div class="tab-row">
     <button class="tab active" id="tab-fc-presenter" onclick="afficherSection('fc-presenter')">👋 Se présenter</button>
+    <button class="tab" id="tab-fc-salutations" onclick="afficherSection('fc-salutations')">🙋 Les salutations</button>
+    <button class="tab" id="tab-fc-origine" onclick="afficherSection('fc-origine')">🌍 Pays d'origine et nationalité</button>
+    <button class="tab" id="tab-fc-langue" onclick="afficherSection('fc-langue')">🗣️ La langue</button>
+    <button class="tab" id="tab-fc-etatcivil" onclick="afficherSection('fc-etatcivil')">💍 L'état civil</button>
+    <a class="tab" href="les-professions.html" style="text-decoration:none;display:inline-flex;align-items:center">💼 La profession</a>
     <button class="tab" id="tab-fc-informel" onclick="afficherSection('fc-informel')">💬 Poser des questions (informel)</button>
     <button class="tab" id="tab-fc-formel" onclick="afficherSection('fc-formel')">🎩 Poser des questions (formel)</button>
   </div>
@@ -79,6 +91,23 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 
   <div class="panel active" id="panel-fc-presenter">
     <div class="card-grid" id="grid-fc-presenter"></div>
+  </div>
+
+  <div class="panel" id="panel-fc-salutations">
+    <p class="salut-hint">Touchez un point sur l'image pour entendre la phrase.</p>
+    <div id="salut-images"></div>
+  </div>
+
+  <div class="panel" id="panel-fc-origine">
+    <div class="card-grid" id="grid-fc-origine"></div>
+  </div>
+
+  <div class="panel" id="panel-fc-langue">
+    <div class="card-grid" id="grid-fc-langue"></div>
+  </div>
+
+  <div class="panel" id="panel-fc-etatcivil">
+    <div class="card-grid" id="grid-fc-etatcivil"></div>
   </div>
 
   <div class="panel" id="panel-fc-informel">
@@ -105,7 +134,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 let currentAudio = null, currentBtn = null;
 
-const sections = ['fc-presenter','fc-informel','fc-formel'];
+const sections = ['fc-presenter','fc-salutations','fc-origine','fc-langue','fc-etatcivil','fc-informel','fc-formel'];
 
 window.afficherSection = function(section) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -151,11 +180,55 @@ window.jouerAudio = function(url, btnId) {
   audio.onended = () => { if (btn) btn.classList.remove('playing'); currentAudio = null; currentBtn = null; };
 };
 
+let salutAudio = null, salutEl = null;
+window.jouerBulle = function(url, el) {
+  if (salutAudio) { salutAudio.pause(); salutAudio = null; }
+  if (salutEl) { salutEl.classList.remove('playing'); salutEl = null; }
+  el.classList.add('playing'); salutEl = el;
+  const a = new Audio(url); a.setAttribute('playsinline', ''); salutAudio = a;
+  a.play().catch(() => el.classList.remove('playing'));
+  a.onended = () => { el.classList.remove('playing'); salutAudio = null; salutEl = null; };
+};
+function renderSalutations(docs) {
+  const cont = document.getElementById('salut-images');
+  if (!cont) return;
+  cont.innerHTML = '';
+  const images = {}, points = {};
+  docs.forEach(d => {
+    if (d.type === 'image' && d.image) images[d.img] = d.image;
+    else if (d.type === 'point' && d.audio) { (points[d.img] = points[d.img] || []).push(d); }
+  });
+  let n = 0;
+  [0, 1, 2, 3].forEach(i => {
+    if (!images[i]) return;
+    n++;
+    const wrap = document.createElement('div');
+    wrap.className = 'salut-wrap';
+    const img = document.createElement('img');
+    img.src = images[i]; img.alt = 'Image de salutations';
+    wrap.appendChild(img);
+    (points[i] || []).sort((a, b) => (a.ordre || 0) - (b.ordre || 0)).forEach(p => {
+      const el = document.createElement('button');
+      el.className = 'salut-point';
+      el.style.left = p.x + '%'; el.style.top = p.y + '%';
+      el.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+      el.onclick = () => jouerBulle(p.audio, el);
+      wrap.appendChild(el);
+    });
+    cont.appendChild(wrap);
+  });
+  if (n === 0) cont.innerHTML = '<div class="empty-grid">Aucune image pour l\'instant.</div>';
+}
+
 async function load() {
   try {
     const snaps = await Promise.all(sections.map(s => getDocs(collection(db, s))));
     document.getElementById('loading').style.display = 'none';
-    sections.forEach((s, i) => renderCards(snaps[i].docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdreCartes), 'grid-' + s));
+    sections.forEach((s, i) => {
+      const docs = snaps[i].docs.map(d => ({ id: d.id, ...d.data() })).sort(parOrdreCartes);
+      if (s === 'fc-salutations') renderSalutations(docs);
+      else renderCards(docs, 'grid-' + s);
+    });
   } catch(e) {
     document.getElementById('loading').textContent = 'Erreur de connexion. Veuillez réessayer.';
   }
