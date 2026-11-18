@@ -172,7 +172,7 @@ function setMonNum() {
 // permet de corriger si un élève s'est trompé d'équipe
 window.changerEquipe = async function() {
   if (!monInitiales || !monInitiales.length) return;
-  if (!confirm('Changer les élèves de cette tablette ?')) return;
+  if (!confirm('Changer les élèves de cet appareil ?')) return;
   try { if (monDocId) await deleteDoc(doc(db, COL_JOUEURS, monDocId)); } catch(e){}
   monInitiales = null; monDocId = null; maPartie = null;
   monScore = 0; mesVotes = {}; derniereQuestionVotee = -1;
@@ -258,7 +258,7 @@ async function montrerChoixEleves() {
   const snap = await getDocs(query(collection(db, COL_JOUEURS), where('partieId', '==', etat.partieId)));
   const pris = new Set(); snap.docs.forEach(dd => (dd.data().initiales || []).forEach(x => pris.add(x)));
   const boutons = roster.map(e => `<button class="eleve-btn ${pris.has(e)?'pris':''}" data-e="${encodeURIComponent(e)}" onclick="toggleEleve(this)">${e}</button>`).join('');
-  zone.innerHTML = `<h2>Qui joue sur cette tablette ?</h2><div class="sous">Touche l'initiale de chaque élève, puis Rejoindre.</div><div class="eleves-grille">${boutons}</div><button class="audio-play" id="btn-rejoindre" style="margin-top:1rem;opacity:.5" disabled onclick="rejoindre()">✋ Rejoindre le quiz</button>`;
+  zone.innerHTML = `<h2>Qui joue sur cet appareil ?</h2><div class="sous">Touche l'initiale de chaque élève, puis Rejoindre.</div><div class="eleves-grille">${boutons}</div><button class="audio-play" id="btn-rejoindre" style="margin-top:1rem;opacity:.5" disabled onclick="rejoindre()">✋ Rejoindre le quiz</button>`;
   // mise à jour en direct des initiales déjà prises par d'autres tablettes
   stopJoueursListener();
   unsubJoueurs = onSnapshot(query(collection(db, COL_JOUEURS), where('partieId', '==', etat.partieId)), (snp) => {
