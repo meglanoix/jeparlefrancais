@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin – Mes élèves (Jeu en direct) | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu:#1a3a5c; --bleu-clair:#2a5298; --rouge:#c0392b; --creme:#f9f5ef; --texte:#2c2c2c; --gris:#6b6b6b; --blanc:#fff; --vert:#1a7a4a; --ombre:0 2px 24px rgba(26,58,92,0.1); }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;color:var(--texte);background:var(--creme);}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;height:60px;background:var(--bleu);color:#fff;}
+nav .logo{font-family:'Playfair Display',serif;font-size:1.1rem;}
+nav a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.85rem;}
+.wrap{max-width:720px;margin:0 auto;padding:2rem 5vw 5rem;}
+.eyebrow{font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--gris);margin-bottom:.4rem;}
+h1{font-family:'Playfair Display',serif;color:var(--bleu);font-size:1.9rem;margin-bottom:.4rem;}
+.sub{color:var(--gris);font-size:.92rem;margin-bottom:1.5rem;line-height:1.5;}
+.ajout{display:flex;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.ajout input{flex:1;min-width:160px;padding:.8rem 1rem;border:1.5px solid rgba(26,58,92,0.2);border-radius:12px;font-family:inherit;font-size:1.05rem;}
+.ajout button{background:var(--vert);color:#fff;border:none;border-radius:12px;padding:.8rem 1.4rem;font-family:inherit;font-size:1rem;font-weight:600;cursor:pointer;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1rem;}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--blanc);border:2px solid rgba(26,58,92,0.15);border-radius:12px;padding:.55rem .9rem;font-size:1.1rem;font-weight:700;color:var(--bleu);box-shadow:0 1px 5px rgba(26,58,92,0.06);}
+.chip .x{cursor:pointer;color:var(--rouge);font-weight:700;font-size:1.1rem;line-height:1;background:none;border:none;padding:0 2px;}
+.vide{color:var(--gris);font-size:.95rem;padding:1rem 0;}
+.compte{color:var(--gris);font-size:.85rem;margin-top:.5rem;}
+.etat-sauv{font-size:.8rem;color:var(--vert);margin-left:8px;}
+.note{background:#fff7e6;border:1px solid #f0d9a0;border-radius:12px;padding:.9rem 1rem;font-size:.85rem;color:#7a5c1e;margin-bottom:1.5rem;line-height:1.5;}
+#login{max-width:360px;margin:5rem auto;background:#fff;padding:2rem;border-radius:16px;box-shadow:var(--ombre);}
+#login input{width:100%;padding:.7rem;border:1px solid #ccc;border-radius:10px;margin-bottom:.8rem;font-family:inherit;}
+#login button{width:100%;padding:.7rem;background:var(--bleu);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<nav><span class="logo">Admin · Mes élèves</span><a href="jeu-direct-animateur-vk7x9mq2.html">Page animateur →</a></nav>
+
+<div id="login">
+  <h1 style="font-size:1.3rem;margin-bottom:1rem">Connexion</h1>
+  <input id="email" type="email" placeholder="Courriel"/>
+  <input id="pass" type="password" placeholder="Mot de passe"/>
+  <button id="login-btn">Se connecter</button>
+  <p id="login-err" style="color:var(--rouge);font-size:.82rem;margin-top:.6rem"></p>
+</div>
+
+<div class="wrap hidden" id="app">
+  <p class="eyebrow">Jeu en direct</p>
+  <h1>Mes élèves</h1>
+  <p class="sub">Ces boutons d'initiales apparaîtront dans le Jeu en direct. Sur une tablette, les élèves touchent leur initiale (une ou plusieurs par tablette) puis « Rejoindre ». Tu vois ensuite les résultats par initiales.<span class="etat-sauv hidden" id="etat-sauv">✓ enregistré</span></p>
+  <div class="note">Utilise des <strong>initiales courtes et uniques</strong> (ex. : AB, M-E, Lu…). Garde la même liste toute la session ; modifie-la seulement quand ta classe change.</div>
+
+  <div class="ajout">
+    <input id="initiale" type="text" placeholder="Initiales d'un élève (ex. AB)" maxlength="12" autocomplete="off"/>
+    <button id="ajouter-btn">+ Ajouter</button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="compte" id="compte"></div>
+</div>
+
+<script type="module" src="admin-auth.js"></script>
+<script type="module">
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const CONF = doc(db, 'jeu-direct-config', 'eleves');
+
+let liste = [];
+
+document.getElementById('login-btn').onclick = () => {
+  signInWithEmailAndPassword(auth, email.value.trim(), pass.value)
+    .catch(() => document.getElementById('login-err').textContent = 'Connexion impossible. Vérifie courriel / mot de passe.');
+};
+onAuthStateChanged(auth, user => {
+  if (user) { document.getElementById('login').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); charger(); }
+  else { document.getElementById('login').classList.remove('hidden'); document.getElementById('app').classList.add('hidden'); }
+});
+
+async function charger() {
+  try { const d = await getDoc(CONF); liste = (d.exists() && Array.isArray(d.data().liste)) ? d.data().liste : []; }
+  catch(e) { liste = []; }
+  render();
+}
+
+function render() {
+  const c = document.getElementById('chips');
+  if (!liste.length) { c.innerHTML = '<div class="vide">Aucun élève pour l\'instant. Ajoute les initiales ci-dessus.</div>'; }
+  else {
+    c.innerHTML = liste.map((e, i) =>
+      `<span class="chip">${e}<button class="x" title="Retirer" onclick="retirer(${i})">✕</button></span>`
+    ).join('');
+  }
+  document.getElementById('compte').textContent = liste.length + ' élève' + (liste.length>1?'s':'');
+}
+
+async function sauver() {
+  try {
+    await setDoc(CONF, { liste });
+    const s = document.getElementById('etat-sauv'); s.classList.remove('hidden');
+    clearTimeout(window.__t); window.__t = setTimeout(() => s.classList.add('hidden'), 1500);
+  } catch(e) { alert('Erreur d\'enregistrement : ' + e.message); }
+}
+
+window.ajouter = async function() {
+  const inp = document.getElementById('initiale');
+  const v = inp.value.trim().replace(/\//g, '-');
+  if (!v) return;
+  if (liste.some(e => e.toLowerCase() === v.toLowerCase())) { inp.value = ''; inp.focus(); return; }
+  liste.push(v); inp.value = ''; inp.focus();
+  render(); await sauver();
+};
+window.retirer = async function(i) {
+  liste.splice(i, 1);
+  render(); await sauver();
+};
+
+document.getElementById('ajouter-btn').onclick = () => ajouter();
+document.getElementById('initiale').addEventListener('keydown', e => { if (e.key === 'Enter') ajouter(); });
+</script>
+</body>
+</html>

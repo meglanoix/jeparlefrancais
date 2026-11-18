@@ -214,7 +214,7 @@ async function ecranChoixQuiz() {
     const tn = TYPE_NOMS[q.type] || q.type;
     return `<div class="qc" onclick="choisirQuiz('${q.id}')"><span>${q.nom}</span><span class="t">${tn}</span></div>`;
   }).join('');
-  stage.innerHTML = `<h1>Choisir un quiz</h1><div class="sous">Quel quiz veux-tu lancer ?</div><div class="quiz-choix">${cartes}</div>`;
+  stage.innerHTML = `<h1>Choisir un quiz</h1><div class="sous">Quel quiz veux-tu lancer ?</div><div class="quiz-choix">${cartes}</div><div style="margin-top:1.5rem"><a href="admin-jeu-direct-eleves-vk7x9mq2.html" style="color:inherit;opacity:.7;font-size:.9rem">👥 Gérer la liste des élèves</a></div>`;
 }
 
 window.choisirQuiz = async function(id) {
@@ -231,9 +231,8 @@ window.choisirQuiz = async function(id) {
 function ecranReglageNombre() {
   stage.innerHTML = `
     <h1>${quizSel.nom}</h1>
-    <div class="sous">${questions.length} question${questions.length>1?'s':''} · Combien de tablettes participent ?</div>
-    <input class="num-input" id="nb" type="number" min="1" max="14" value="8"/>
-    <div class="sous" style="margin-top:0.5rem;font-size:0.9rem">(maximum 14)</div>
+    <div class="sous">${questions.length} question${questions.length>1?'s':''}</div>
+    <div class="sous" style="margin-top:0.4rem;font-size:0.95rem">Les élèves rejoindront avec le bouton « Rejoindre le quiz ». Pas besoin de fixer un nombre.</div>
     <div class="row-btns">
       <button class="btn btn-ghost" onclick="location.reload()">← Changer de quiz</button>
       <button class="btn btn-lg" onclick="lancerPartie()">Lancer la partie</button>
@@ -241,32 +240,26 @@ function ecranReglageNombre() {
 }
 
 window.lancerPartie = async function() {
-  let nb = parseInt(document.getElementById('nb').value) || 8;
-  nb = Math.max(1, Math.min(14, nb));
   const partieId = 'p' + Date.now();
   // effacer les anciens joueurs
   await purgerJoueurs();
   await setDoc(ETAT_DOC, {
     partieId, quizId: quizSel.id, type: quizSel.type,
-    phase: 'attente', nbJoueurs: nb, questionIndex: 0,
+    phase: 'attente', questionIndex: 0,
     nbQuestions: questions.length
   });
 };
 
 // 3) écran d'attente des inscriptions
 function ecranAttente() {
-  const nb = etat.nbJoueurs;
-  const prises = new Set(joueurs.map(j => j.numero));
-  let cases = '';
-  for (let i = 1; i <= nb; i++) cases += `<div class="insc ${prises.has(i)?'ok':''}">${i}</div>`;
-  const tous = joueurs.length >= nb;
+  const libs = joueurs.map(j => j.libelle || (j.initiales ? j.initiales.join(' · ') : ('N° ' + j.numero))).sort((a,b)=>a.localeCompare(b,'fr'));
+  const cases = libs.map(l => `<div class="insc ok">${l}</div>`).join('');
   stage.innerHTML = `
-    <h1>En attente des joueurs</h1>
-    <div class="compteur">${joueurs.length} / ${nb} inscrits</div>
-    <div class="inscrits-grille">${cases}</div>
-    <button class="btn btn-lg" onclick="premiereQuestion()" ${joueurs.length===0?'disabled':''}>
-      ${tous ? 'Tout le monde est prêt — Commencer !' : 'Commencer quand même'}
-    </button>`;
+    <h1>Les élèves rejoignent le jeu</h1>
+    <div class="compteur">${joueurs.length} inscrit${joueurs.length>1?'s':''}</div>
+    <div class="inscrits-grille">${cases || '<div class="sous">En attente des premiers élèves…</div>'}</div>
+    <button class="btn btn-lg" onclick="premiereQuestion()" ${joueurs.length===0?'disabled':''}>Commencer le jeu</button>
+    <div class="sous" style="margin-top:0.8rem;font-size:0.9rem">Les élèves peuvent rejoindre même après le début.</div>`;
 }
 
 window.premiereQuestion = async function() {
@@ -285,8 +278,8 @@ function ecranQuestion() {
   // combien ont voté à cette question ?
   const cle = 'q' + etat.questionIndex;
   const nbVotes = joueurs.filter(j => j.votes && j.votes[cle]).length;
-  const total = etat.nbJoueurs;
-  const tousVote = nbVotes >= total;
+  const total = joueurs.length;
+  const tousVote = total > 0 && nbVotes >= total;
   stage.innerHTML = `
     <div class="q-wrap">
       <div class="q-num">Question ${etat.questionIndex + 1} / ${questions.length}</div>
@@ -312,7 +305,7 @@ function ecranQuestionGrille() {
   const tour = etat.tour || 0;
   const cle = 'q' + tour;
   const nbVotes = joueurs.filter(j => j.votes && j.votes[cle] !== undefined).length;
-  const total = etat.nbJoueurs;
+  const total = joueurs.length;
   const tuiles = questions.map((c, i) => `<button class="grille-choix" onclick="designerBonne(${i})"><img src="${c.image}" alt=""/>${c.texte ? `<span>${c.texte}</span>` : ''}</button>`).join('');
   stage.innerHTML = `
     <div class="q-wrap">
@@ -420,7 +413,7 @@ function ecranFin() {
   let lignes = tri.map((o, i) => {
     const j = o.j;
     const medaille = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-    return `<div class="rang ${i===0?'top1':''}"><span class="pos">${medaille}</span><span class="qui">N° ${j.numero}</span><span class="sc">${o.s} / ${totalPts}</span></div>`;
+    return `<div class="rang ${i===0?'top1':''}"><span class="pos">${medaille}</span><span class="qui">${j.libelle || (j.initiales ? j.initiales.join(' · ') : ('N° ' + j.numero))}</span><span class="sc">${o.s} / ${totalPts}</span></div>`;
   }).join('');
   if (!tri.length) lignes = '<div class="sous">Aucun joueur.</div>';
   stage.innerHTML = `

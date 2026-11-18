@@ -27,6 +27,10 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .num-btn { aspect-ratio: 1; border: 2px solid rgba(26,58,92,0.15); background: var(--blanc); border-radius: 14px; font-size: 1.6rem; font-weight: 700; color: var(--bleu); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .num-btn:active { background: var(--bleu); color: #fff; }
 .num-btn.pris { opacity: 0.25; pointer-events: none; }
+.eleves-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; width: 100%; max-width: 480px; margin-bottom: 0.5rem; }
+.eleve-btn { padding: 1rem 0.4rem; border: 2px solid rgba(26,58,92,0.15); background: var(--blanc); border-radius: 14px; font-size: 1.15rem; font-weight: 700; color: var(--bleu); cursor: pointer; }
+.eleve-btn.sel { background: var(--bleu); color: #fff; border-color: var(--bleu); }
+.eleve-btn.pris { opacity: 0.25; pointer-events: none; }
 
 /* question */
 .q-img { width: 100%; max-width: 360px; border-radius: 16px; box-shadow: 0 4px 20px rgba(26,58,92,0.15); margin-bottom: 1rem; }
@@ -132,7 +136,7 @@ const TYPES = {
 };
 
 let etat = null;          // état courant de la partie
-let monNumero = null;     // le numéro choisi par cette tablette
+let monInitiales = null, monDocId = null;  // identité (initiales) de cette tablette
 let maPartie = null;      // partieId auquel je suis inscrit
 let questions = [];       // questions du quiz courant (chargées quand la partie démarre)
 let quizChargeId = null;
@@ -140,12 +144,13 @@ let aVote = false;        // ai-je voté à la question courante ?
 let derniereQuestionVotee = -1;
 let renduQ = -1;   // évite de réafficher la même question
 let monScore = 0, mesVotes = {};   // suivis localement -> pas de lecture réseau au vote
+let roster = [], selection = [];
 
 const zone = document.getElementById('zone');
 
 let choixPartie = null, unsubJoueurs = null, restaurePartie = null;
 const LS_KEY = 'jdirect-inscription';
-function sauverInscription(){ try { localStorage.setItem(LS_KEY, JSON.stringify({partieId: maPartie, numero: monNumero})); } catch(e){} }
+function sauverInscription(){ try { localStorage.setItem(LS_KEY, JSON.stringify({partieId: maPartie, initiales: monInitiales, docId: monDocId})); } catch(e){} }
 function lireInscription(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch(e){ return null; } }
 function effacerInscription(){ try { localStorage.removeItem(LS_KEY); } catch(e){} }
 function stopJoueursListener(){ if (unsubJoueurs){ unsubJoueurs(); unsubJoueurs = null; } }
@@ -153,7 +158,7 @@ function quitterChoix(){ choixPartie = null; stopJoueursListener(); }
 
 function setMonNum() {
   const el = document.getElementById('mon-num');
-  if (monNumero) { el.textContent = 'N° ' + monNumero; el.classList.remove('hidden'); }
+  if (monInitiales && monInitiales.length) { el.textContent = monInitiales.join(' · '); el.classList.remove('hidden'); }
   else el.classList.add('hidden');
 }
 
@@ -167,7 +172,7 @@ async function majAffichage() {
   if (!etat || !etat.partieId || etat.phase === 'fin') {
     // pas de partie active OU partie terminée
     quitterChoix();
-    monNumero = null; maPartie = null; setMonNum();
+    monInitiales = null; monDocId = null; maPartie = null; setMonNum();
     if (etat && etat.phase === 'fin') { effacerInscription(); montrerFin(); }
     else montrerPasDePartie();
     return;
@@ -176,21 +181,21 @@ async function majAffichage() {
   // nouvelle partie détectée -> réinitialiser mon inscription
   if (maPartie && maPartie !== etat.partieId) {
     quitterChoix();
-    monNumero = null; maPartie = null; setMonNum();
+    monInitiales = null; monDocId = null; maPartie = null; setMonNum();
     monScore = 0; mesVotes = {}; derniereQuestionVotee = -1;
     effacerInscription();
   }
 
-  // sorti puis revenu : tenter de rejoindre avec le numéro déjà choisi (une seule tentative par partie)
-  if (!monNumero && restaurePartie !== etat.partieId) {
+  // sorti puis revenu : rejoindre avec les initiales déjà choisies (une seule tentative par partie)
+  if (!monDocId && restaurePartie !== etat.partieId) {
     restaurePartie = etat.partieId;
     const sauv = lireInscription();
-    if (sauv && sauv.partieId === etat.partieId && sauv.numero) {
+    if (sauv && sauv.partieId === etat.partieId && sauv.docId) {
       try {
-        const d = await getDoc(doc(db, COL_JOUEURS, etat.partieId + '_' + sauv.numero));
+        const d = await getDoc(doc(db, COL_JOUEURS, sauv.docId));
         if (d.exists()) {
           const data = d.data();
-          monNumero = sauv.numero; maPartie = etat.partieId;
+          monDocId = sauv.docId; monInitiales = data.initiales || sauv.initiales || []; maPartie = etat.partieId;
           monScore = data.score || 0; mesVotes = data.votes || {};
           if (etat.phase === 'question') {
             if (etat.type === 'grille') { const t = etat.tour || 0; if (mesVotes['q'+t] !== undefined) derniereQuestionVotee = 'g'+t; }
@@ -203,7 +208,7 @@ async function majAffichage() {
   }
 
   // pas encore inscrit -> montrer le choix de numéro
-  if (!monNumero) { await montrerChoixNumero(); return; }
+  if (!monDocId) { await montrerChoixEleves(); return; }
 
   // inscrit : quitter l'écran de choix et suivre la phase
   quitterChoix();
@@ -220,53 +225,67 @@ function montrerFin() {
   zone.innerHTML = `<div class="big-ico">🎉</div><h2>C'est terminé !</h2><div class="sous">Merci d'avoir joué. Regarde les résultats à l'écran !</div>`;
 }
 
-async function montrerChoixNumero() {
+async function montrerChoixEleves() {
   if (choixPartie === etat.partieId) return;   // déjà affiché -> ne pas reconstruire (évite le gel)
   choixPartie = etat.partieId;
+  selection = [];
+  // charger la liste des élèves (configurée par l'enseignant)
+  try { const d = await getDoc(doc(db, 'jeu-direct-config', 'eleves')); roster = (d.exists() && Array.isArray(d.data().liste)) ? d.data().liste : []; }
+  catch(e) { roster = []; }
+  if (!roster.length) {
+    zone.innerHTML = `<div class="big-ico">🎮</div><h2>Jeu en direct</h2><div class="sous">Aucun élève configuré.<br>Ton enseignant doit créer la liste des élèves.</div>`;
+    choixPartie = null; return;
+  }
+  const snap = await getDocs(query(collection(db, COL_JOUEURS), where('partieId', '==', etat.partieId)));
+  const pris = new Set(); snap.docs.forEach(dd => (dd.data().initiales || []).forEach(x => pris.add(x)));
+  const boutons = roster.map(e => `<button class="eleve-btn ${pris.has(e)?'pris':''}" data-e="${encodeURIComponent(e)}" onclick="toggleEleve(this)">${e}</button>`).join('');
+  zone.innerHTML = `<h2>Qui joue sur cette tablette ?</h2><div class="sous">Touche l'initiale de chaque élève, puis Rejoindre.</div><div class="eleves-grille">${boutons}</div><button class="audio-play" id="btn-rejoindre" style="margin-top:1rem;opacity:.5" disabled onclick="rejoindre()">✋ Rejoindre le quiz</button>`;
+  // mise à jour en direct des initiales déjà prises par d'autres tablettes
   stopJoueursListener();
-  zone.innerHTML = `<div class="big-ico">🎮</div><h2>Jeu en direct</h2><div class="sous">Touche le bouton pour entrer dans le quiz.</div><button class="audio-play" id="btn-rejoindre" style="font-size:1.25rem;padding:1rem 2.2rem" onclick="rejoindre()">✋ Rejoindre le quiz</button>`;
+  unsubJoueurs = onSnapshot(query(collection(db, COL_JOUEURS), where('partieId', '==', etat.partieId)), (snp) => {
+    const p = new Set(); snp.docs.forEach(dd => (dd.data().initiales || []).forEach(x => p.add(x)));
+    document.querySelectorAll('.eleve-btn').forEach(b => {
+      const e = decodeURIComponent(b.dataset.e);
+      b.classList.toggle('pris', p.has(e) && !selection.includes(e));
+    });
+  });
 }
 
+window.toggleEleve = function(btn) {
+  if (btn.classList.contains('pris')) return;
+  const e = decodeURIComponent(btn.dataset.e);
+  const i = selection.indexOf(e);
+  if (i >= 0) { selection.splice(i, 1); btn.classList.remove('sel'); }
+  else { selection.push(e); btn.classList.add('sel'); }
+  const rb = document.getElementById('btn-rejoindre');
+  if (rb) { rb.disabled = selection.length === 0; rb.style.opacity = selection.length ? '1' : '.5'; }
+};
+
 window.rejoindre = async function() {
-  if (!etat || !etat.partieId) return;
+  if (!etat || !etat.partieId || !selection.length) return;
   const btn = document.getElementById('btn-rejoindre');
   if (btn) { btn.disabled = true; btn.textContent = 'Connexion…'; }
-  const n = etat.nbJoueurs || 14;
+  const ini = selection.slice();
+  const docId = etat.partieId + '_' + ini.slice().sort().join('~');
+  const ref = doc(db, COL_JOUEURS, docId);
   try {
-    // numéros déjà pris
-    const snap = await getDocs(query(collection(db, COL_JOUEURS), where('partieId', '==', etat.partieId)));
-    const pris = new Set(snap.docs.map(d => d.data().numero));
-    const libres = [];
-    for (let i = 1; i <= n; i++) if (!pris.has(i)) libres.push(i);
-    if (!libres.length) {
-      zone.innerHTML = `<div class="big-ico">🙅</div><h2>Classe complète</h2><div class="sous">Toutes les places sont prises. Demande à ton enseignant.</div>`;
-      choixPartie = null; return;
+    const d = await getDoc(ref);
+    if (d.exists()) {                      // déjà là (rejoin) -> récupérer score/votes
+      const data = d.data();
+      monScore = data.score || 0; mesVotes = data.votes || {};
+    } else {
+      await setDoc(ref, { partieId: etat.partieId, initiales: ini, libelle: ini.join(' · '), score: 0, votes: {} });
+      monScore = 0; mesVotes = {};
     }
-    // réserver le 1er numéro libre de façon atomique (transaction) ; passer au suivant s'il est pris entre-temps
-    for (const num of libres) {
-      const ref = doc(db, COL_JOUEURS, etat.partieId + '_' + num);
-      try {
-        await runTransaction(db, async (tx) => {
-          const d = await tx.get(ref);
-          if (d.exists()) throw new Error('pris');
-          tx.set(ref, { partieId: etat.partieId, numero: num, score: 0, votes: {} });
-        });
-        monNumero = num; maPartie = etat.partieId;
-        monScore = 0; mesVotes = {}; derniereQuestionVotee = -1;
-        sauverInscription(); setMonNum();
-        await majAffichage();
-        return;
-      } catch(e) { /* numéro pris entre-temps -> essayer le suivant */ }
-    }
-    // tout a été pris pendant la tentative
-    choixPartie = null;
-    if (btn) { btn.disabled = false; btn.textContent = '✋ Rejoindre le quiz'; }
+    monInitiales = ini; monDocId = docId; maPartie = etat.partieId;
+    derniereQuestionVotee = -1;
+    sauverInscription(); setMonNum();
+    await majAffichage();
   } catch(e) {
     choixPartie = null;
     if (btn) { btn.disabled = false; btn.textContent = '✋ Rejoindre le quiz'; }
   }
 };
-
 async function chargerQuestions() {
   if (quizChargeId === etat.quizId && questions.length) return;
   const snap = await getDocs(query(collection(db, COL_Q), where('quizId', '==', etat.quizId)));
@@ -317,7 +336,7 @@ window.voterGrille = function(i) {
   mesVotes['q' + tour] = i;              // on enregistre seulement le choix
   derniereQuestionVotee = 'g' + tour;
   montrerReponseRecue();
-  const ref = doc(db, COL_JOUEURS, etat.partieId + '_' + monNumero);
+  const ref = doc(db, COL_JOUEURS, monDocId);
   const payload = { votes: mesVotes };
   updateDoc(ref, payload).catch(() => { updateDoc(ref, payload).catch(()=>{}); });
 };
@@ -344,7 +363,7 @@ window.voter = function(v) {
   montrerReponseRecue();
 
   // 2) enregistrer en arrière-plan (ne bloque pas l'écran) ; 1 réessai si échec
-  const ref = doc(db, COL_JOUEURS, etat.partieId + '_' + monNumero);
+  const ref = doc(db, COL_JOUEURS, monDocId);
   const payload = { votes: mesVotes, score: monScore };
   updateDoc(ref, payload).catch(() => { updateDoc(ref, payload).catch(()=>{}); });
 };
