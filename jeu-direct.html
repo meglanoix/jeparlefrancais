@@ -96,7 +96,7 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, query, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, query, where, runTransaction } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const firebaseConfig = {
   apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
   authDomain: "audio-francisation.firebaseapp.com",
@@ -143,6 +143,14 @@ let monScore = 0, mesVotes = {};   // suivis localement -> pas de lecture résea
 
 const zone = document.getElementById('zone');
 
+let choixPartie = null, unsubJoueurs = null, restaurePartie = null;
+const LS_KEY = 'jdirect-inscription';
+function sauverInscription(){ try { localStorage.setItem(LS_KEY, JSON.stringify({partieId: maPartie, numero: monNumero})); } catch(e){} }
+function lireInscription(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch(e){ return null; } }
+function effacerInscription(){ try { localStorage.removeItem(LS_KEY); } catch(e){} }
+function stopJoueursListener(){ if (unsubJoueurs){ unsubJoueurs(); unsubJoueurs = null; } }
+function quitterChoix(){ choixPartie = null; stopJoueursListener(); }
+
 function setMonNum() {
   const el = document.getElementById('mon-num');
   if (monNumero) { el.textContent = 'N° ' + monNumero; el.classList.remove('hidden'); }
@@ -158,22 +166,47 @@ onSnapshot(ETAT_DOC, async (snap) => {
 async function majAffichage() {
   if (!etat || !etat.partieId || etat.phase === 'fin') {
     // pas de partie active OU partie terminée
+    quitterChoix();
     monNumero = null; maPartie = null; setMonNum();
-    if (etat && etat.phase === 'fin') montrerFin();
+    if (etat && etat.phase === 'fin') { effacerInscription(); montrerFin(); }
     else montrerPasDePartie();
     return;
   }
 
   // nouvelle partie détectée -> réinitialiser mon inscription
   if (maPartie && maPartie !== etat.partieId) {
+    quitterChoix();
     monNumero = null; maPartie = null; setMonNum();
     monScore = 0; mesVotes = {}; derniereQuestionVotee = -1;
+    effacerInscription();
+  }
+
+  // sorti puis revenu : tenter de rejoindre avec le numéro déjà choisi (une seule tentative par partie)
+  if (!monNumero && restaurePartie !== etat.partieId) {
+    restaurePartie = etat.partieId;
+    const sauv = lireInscription();
+    if (sauv && sauv.partieId === etat.partieId && sauv.numero) {
+      try {
+        const d = await getDoc(doc(db, COL_JOUEURS, etat.partieId + '_' + sauv.numero));
+        if (d.exists()) {
+          const data = d.data();
+          monNumero = sauv.numero; maPartie = etat.partieId;
+          monScore = data.score || 0; mesVotes = data.votes || {};
+          if (etat.phase === 'question') {
+            if (etat.type === 'grille') { const t = etat.tour || 0; if (mesVotes['q'+t] !== undefined) derniereQuestionVotee = 'g'+t; }
+            else if (mesVotes['q' + etat.questionIndex] !== undefined) derniereQuestionVotee = etat.questionIndex;
+          }
+          setMonNum();
+        }
+      } catch(e){}
+    }
   }
 
   // pas encore inscrit -> montrer le choix de numéro
   if (!monNumero) { await montrerChoixNumero(); return; }
 
-  // inscrit : suivre la phase
+  // inscrit : quitter l'écran de choix et suivre la phase
+  quitterChoix();
   if (etat.phase === 'attente') { montrerAttente('En attente du début du jeu'); return; }
   if (etat.phase === 'question') { await montrerQuestion(); return; }
   if (etat.phase === 'resultats') { montrerAttente('Regarde l\'écran !'); return; }
@@ -188,29 +221,50 @@ function montrerFin() {
 }
 
 async function montrerChoixNumero() {
-  const n = etat.nbJoueurs || 14;
-  // récupérer les numéros déjà pris pour cette partie
-  const snap = await getDocs(query(collection(db, COL_JOUEURS), where('partieId', '==', etat.partieId)));
-  const pris = new Set(snap.docs.map(d => d.data().numero));
-  let boutons = '';
-  for (let i = 1; i <= n; i++) {
-    boutons += `<button class="num-btn ${pris.has(i) ? 'pris' : ''}" onclick="choisirNumero(${i})">${i}</button>`;
-  }
-  zone.innerHTML = `<h2>Choisis ton numéro</h2><div class="sous">Touche un numéro libre.</div><div class="grille-num">${boutons}</div>`;
+  if (choixPartie === etat.partieId) return;   // déjà affiché -> ne pas reconstruire (évite le gel)
+  choixPartie = etat.partieId;
+  stopJoueursListener();
+  zone.innerHTML = `<div class="big-ico">🎮</div><h2>Jeu en direct</h2><div class="sous">Touche le bouton pour entrer dans le quiz.</div><button class="audio-play" id="btn-rejoindre" style="font-size:1.25rem;padding:1rem 2.2rem" onclick="rejoindre()">✋ Rejoindre le quiz</button>`;
 }
 
-window.choisirNumero = async function(num) {
+window.rejoindre = async function() {
   if (!etat || !etat.partieId) return;
-  const id = etat.partieId + '_' + num;
-  const ref = doc(db, COL_JOUEURS, id);
-  // vérifier qu'il n'est pas déjà pris (au cas où deux tablettes tapent en même temps)
-  const existant = await getDoc(ref);
-  if (existant.exists()) { await montrerChoixNumero(); return; }  // déjà pris, on rafraîchit
-  await setDoc(ref, { partieId: etat.partieId, numero: num, score: 0, votes: {} });
-  monNumero = num; maPartie = etat.partieId;
-  monScore = 0; mesVotes = {}; derniereQuestionVotee = -1;
-  setMonNum();
-  await majAffichage();
+  const btn = document.getElementById('btn-rejoindre');
+  if (btn) { btn.disabled = true; btn.textContent = 'Connexion…'; }
+  const n = etat.nbJoueurs || 14;
+  try {
+    // numéros déjà pris
+    const snap = await getDocs(query(collection(db, COL_JOUEURS), where('partieId', '==', etat.partieId)));
+    const pris = new Set(snap.docs.map(d => d.data().numero));
+    const libres = [];
+    for (let i = 1; i <= n; i++) if (!pris.has(i)) libres.push(i);
+    if (!libres.length) {
+      zone.innerHTML = `<div class="big-ico">🙅</div><h2>Classe complète</h2><div class="sous">Toutes les places sont prises. Demande à ton enseignant.</div>`;
+      choixPartie = null; return;
+    }
+    // réserver le 1er numéro libre de façon atomique (transaction) ; passer au suivant s'il est pris entre-temps
+    for (const num of libres) {
+      const ref = doc(db, COL_JOUEURS, etat.partieId + '_' + num);
+      try {
+        await runTransaction(db, async (tx) => {
+          const d = await tx.get(ref);
+          if (d.exists()) throw new Error('pris');
+          tx.set(ref, { partieId: etat.partieId, numero: num, score: 0, votes: {} });
+        });
+        monNumero = num; maPartie = etat.partieId;
+        monScore = 0; mesVotes = {}; derniereQuestionVotee = -1;
+        sauverInscription(); setMonNum();
+        await majAffichage();
+        return;
+      } catch(e) { /* numéro pris entre-temps -> essayer le suivant */ }
+    }
+    // tout a été pris pendant la tentative
+    choixPartie = null;
+    if (btn) { btn.disabled = false; btn.textContent = '✋ Rejoindre le quiz'; }
+  } catch(e) {
+    choixPartie = null;
+    if (btn) { btn.disabled = false; btn.textContent = '✋ Rejoindre le quiz'; }
+  }
 };
 
 async function chargerQuestions() {
