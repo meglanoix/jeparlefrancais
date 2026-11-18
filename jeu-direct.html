@@ -14,7 +14,8 @@ body { font-family: 'DM Sans', sans-serif; color: var(--texte); background: var(
 .bar .logo { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
 .bar-droite { display: flex; align-items: center; gap: 12px; }
 .bar .logo span { color: #ff9d8a; }
-.bar .mon-num { font-size: 0.85rem; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+.bar .mon-num { font-size: 0.85rem; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; cursor: pointer; }
+.bar .mon-num:hover { background: rgba(255,255,255,0.28); }
 .bar .retour-accueil { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
 .bar .retour-accueil:hover { color: #fff; }
 .zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; text-align: center; }
@@ -48,6 +49,8 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.obligatoire { background: var(--orange); }
 .rep.ponctuelle { background: var(--bleu-clair); }
 .rep.habituelle { background: var(--orange); }
+.rep.formel { background: var(--bleu-clair); }
+.rep.informel { background: var(--orange); }
 .rep.present { background: var(--bleu-clair); }
 .rep.futur { background: var(--orange); }
 .rep.reponse1 { background: var(--bleu-clair); }
@@ -100,7 +103,7 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, onSnapshot, query, where, runTransaction } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, runTransaction } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const firebaseConfig = {
   apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o",
   authDomain: "audio-francisation.firebaseapp.com",
@@ -158,9 +161,25 @@ function quitterChoix(){ choixPartie = null; stopJoueursListener(); }
 
 function setMonNum() {
   const el = document.getElementById('mon-num');
-  if (monInitiales && monInitiales.length) { el.textContent = monInitiales.join(' · '); el.classList.remove('hidden'); }
-  else el.classList.add('hidden');
+  if (monInitiales && monInitiales.length) {
+    el.textContent = monInitiales.join(' · ') + ' ✎';
+    el.title = 'Changer d\'équipe';
+    el.onclick = window.changerEquipe;
+    el.classList.remove('hidden');
+  } else { el.onclick = null; el.classList.add('hidden'); }
 }
+
+// permet de corriger si un élève s'est trompé d'équipe
+window.changerEquipe = async function() {
+  if (!monInitiales || !monInitiales.length) return;
+  if (!confirm('Changer les élèves de cette tablette ?')) return;
+  try { if (monDocId) await deleteDoc(doc(db, COL_JOUEURS, monDocId)); } catch(e){}
+  monInitiales = null; monDocId = null; maPartie = null;
+  monScore = 0; mesVotes = {}; derniereQuestionVotee = -1;
+  choixPartie = null; restaurePartie = null;
+  effacerInscription(); setMonNum();
+  await majAffichage();
+};
 
 // écoute l'état de la partie en temps réel
 onSnapshot(ETAT_DOC, async (snap) => {
