@@ -36,6 +36,8 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
 .rep-btn[data-v="permis"].sel, .rep-btn[data-v="vrai"].sel { border-color: var(--vert); background: #eef7f1; color: var(--vert); }
 .rep-btn[data-v="ponctuelle"].sel { border-color: var(--bleu-clair); background: #e8eef6; color: var(--bleu-clair); }
 .rep-btn[data-v="habituelle"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
+.rep-btn[data-v="formel"].sel { border-color: var(--bleu-clair); background: #e8eef6; color: var(--bleu-clair); }
+.rep-btn[data-v="informel"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
 .rep-btn[data-v="present"].sel { border-color: var(--bleu-clair); background: #e8eef6; color: var(--bleu-clair); }
 .rep-btn[data-v="futur"].sel { border-color: var(--orange); background: #fdf2e6; color: var(--orange); }
 .rep-btn[data-v="reponse1"].sel { border-color: var(--bleu-clair); background: #e8eef6; color: var(--bleu-clair); }
@@ -60,6 +62,8 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
 .pill.permis, .pill.vrai { background:#eef7f1; color:var(--vert); }
 .pill.ponctuelle { background:#e8eef6; color:var(--bleu-clair); }
 .pill.habituelle { background:#fdf2e6; color:var(--orange); }
+.pill.formel { background:#e8eef6; color:var(--bleu-clair); }
+.pill.informel { background:#fdf2e6; color:var(--orange); }
 .pill.present { background:#e8eef6; color:var(--bleu-clair); }
 .pill.futur { background:#fdf2e6; color:var(--orange); }
 .pill.reponse1 { background:#e8eef6; color:var(--bleu-clair); }
@@ -152,6 +156,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <button class="btn" id="rec-btn" onclick="toggleRecord()">▶ Enregistrer</button>
         <span class="msg" id="audio-status"></span>
         <span class="msg" id="rec-timer" style="display:none;color:var(--rouge)">0:00</span>
+        <button class="btn" id="audio-preview" onclick="ecouterPending()" style="display:none">🔊 Réécouter</button>
         <button class="btn" id="audio-clear" onclick="effacerAudio()" style="display:none">Retirer l'audio</button>
       </div>
       <div id="rep-zone">
@@ -284,6 +289,13 @@ function blobToDataUrl(blob) {
     r.readAsDataURL(blob);
   });
 }
+// --- réécoute des audios ---
+let apAudio = null;
+function jouerSrc(src){ try { if(!apAudio){ apAudio = new Audio(); apAudio.setAttribute('playsinline',''); } apAudio.src = src; apAudio.play().catch(()=>{}); } catch(e){} }
+window.jouerAudioItem = function(id){ const it = items.find(x=>x.id===id); if(it && it.audio) jouerSrc(it.audio); };
+window.ecouterPending = function(){ if(pendingAudio) jouerSrc(URL.createObjectURL(pendingAudio)); };
+window.ecouterEditActuel = function(){ const it = items.find(x=>x.id===editId); if(editAudio) jouerSrc(URL.createObjectURL(editAudio)); else if(it && it.audio) jouerSrc(it.audio); };
+
 window.toggleRecord = function() { recording ? stopRecord() : startRecord(); };
 function startRecord() {
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
@@ -295,6 +307,7 @@ function startRecord() {
       document.getElementById('audio-status').textContent = '✓ Audio enregistré';
       document.getElementById('audio-status').className = 'msg ok';
       document.getElementById('audio-clear').style.display = 'inline-block';
+      document.getElementById('audio-preview').style.display = 'inline-block';
     };
     mediaRecorder.start();
     recording = true; seconds = 0;
@@ -315,6 +328,7 @@ window.effacerAudio = function() {
   pendingAudio = null;
   document.getElementById('audio-status').textContent = '';
   document.getElementById('audio-clear').style.display = 'none';
+  document.getElementById('audio-preview').style.display = 'none';
 };
 
 window.creerQuiz = async function() {
@@ -538,6 +552,7 @@ function render() {
       <div class="txt"><div class="q">${it.texte || (it.image || it.audio ? '' : '<span style=\'color:var(--gris);font-style:italic\'>Question orale ' + (i+1) + '</span>')} ${it.audio ? '🔊' : ''}</div>${estGrille() ? `<div class="r"><span style="color:var(--gris);font-size:0.82rem">🖼️ image ${i+1}${it.texte ? ' · ' + it.texte : ''}</span></div>` : `<div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div>`}</div>
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
+      ${it.audio ? `<button class="mini" title="Écouter l'audio" onclick="jouerAudioItem('${it.id}')">🔊</button>` : ''}
       <button class="mini" onclick="modifierQ('${it.id}')">✎</button>
       <button class="mini del" onclick="supprimer('${it.id}')">🗑</button>`;
     liste.appendChild(div);
@@ -578,6 +593,7 @@ window.modifierQ = function(id) {
   const st = document.getElementById('edit-audio-status');
   st.textContent = it.audio ? '🔊 Audio actuel' : ''; st.className = 'msg';
   document.getElementById('edit-audio-clear').style.display = it.audio ? 'inline-block' : 'none';
+  document.getElementById('edit-audio-preview').style.display = it.audio ? 'inline-block' : 'none';
   document.getElementById('edit-msg').textContent = '';
   document.getElementById('edit-rep-zone').style.display = estGrille() ? 'none' : '';
   const box = document.getElementById('edit-rep-choix');
@@ -631,6 +647,7 @@ function startEditRecord() {
       const s = document.getElementById('edit-audio-status');
       s.textContent = '✓ Nouvel audio'; s.className = 'msg ok';
       document.getElementById('edit-audio-clear').style.display = 'inline-block';
+      document.getElementById('edit-audio-preview').style.display = 'inline-block';
     };
     editRecorder.start();
     editRecording = true; editSeconds = 0;
@@ -652,6 +669,7 @@ window.effacerEditAudio = function() {
   document.getElementById('edit-audio-status').textContent = '(audio retiré)';
   document.getElementById('edit-audio-status').className = 'msg';
   document.getElementById('edit-audio-clear').style.display = 'none';
+  document.getElementById('edit-audio-preview').style.display = 'none';
 };
 
 window.enregistrerModifQ = async function() {
@@ -691,6 +709,7 @@ loadQuiz();
       <button class="btn" id="edit-rec-btn" onclick="toggleEditRecord()">▶ Enregistrer</button>
       <span class="msg" id="edit-audio-status"></span>
       <span class="msg" id="edit-rec-timer" style="display:none;color:var(--rouge)">0:00</span>
+      <button class="btn" id="edit-audio-preview" onclick="ecouterEditActuel()" style="display:none">🔊 Réécouter</button>
       <button class="btn" id="edit-audio-clear" onclick="effacerEditAudio()" style="display:none">Retirer l'audio</button>
     </div>
     <div id="edit-rep-zone">
