@@ -63,6 +63,8 @@ h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem
 .res-col.obligatoire { color: var(--orange); }
 .res-col.ponctuelle { color: var(--bleu-clair); }
 .res-col.habituelle { color: var(--orange); }
+.res-col.formel { color: var(--bleu-clair); }
+.res-col.informel { color: var(--orange); }
 .res-col.present { color: var(--bleu-clair); }
 .res-col.futur { color: var(--orange); }
 .res-col.reponse1 { color: var(--bleu-clair); }
@@ -158,6 +160,7 @@ const TYPES = {
 };
 const TYPE_NOMS = { ipo:'Interdit / Permis / Obligatoire', vf:'Vrai / Faux', fi:'Formel / Informel', ph:'Ponctuelle / Habituelle', pf:'Présent / Futur', r12:'Réponse 1 / 2', dd:'Demander / Donner', rp:'Réceptionniste / Patient', cv:'Client / Vendeur', an:"Aime / N'aime pas", cp:'Présent / Passé composé', ppf:'Passé / Présent / Futur', lp:'Locataire / Propriétaire', pi:"Présent / Imparfait", mp:"Météo présente / Prévision", pron:"Pronom : je / tu / il / elle", ligne:"Ligne du temps (année)", grille:"Grille d'images" };
 function estGrille() { return etat && etat.type === 'grille'; }
+function estHeure() { return etat && etat.type === 'heure'; }
 function melanger(arr) { const a = arr.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
 let quizzes = [];
@@ -341,6 +344,7 @@ window.jouerAudioQ = function() {
 // 5) résultats d'une question
 function ecranResultats() {
   if (estGrille()) { ecranResultatsGrille(); return; }
+  if (estHeure()) { ecranResultatsHeure(); return; }
   const q = questions[etat.questionIndex];
   if (!q) return;
   const reps = TYPES[etat.type] || TYPES.ipo;
@@ -361,6 +365,32 @@ function ecranResultats() {
       <button class="btn btn-lg" onclick="${dernier ? 'finPartie()' : 'questionSuivante()'}">
         ${dernier ? 'Voir le classement final 🏆' : 'Question suivante →'}
       </button>
+    </div>`;
+}
+
+function ecranResultatsHeure() {
+  const q = questions[etat.questionIndex];
+  if (!q) return;
+  const cle = 'q' + etat.questionIndex;
+  const parts = String(q.reponse || '').split(':');
+  const ch = parseInt(parts[0], 10), cm = parseInt(parts[1], 10);
+  let repondu = 0, bons = 0;
+  joueurs.forEach(j => {
+    const v = j.votes && j.votes[cle];
+    if (v === undefined || v === null || v === '') return;
+    repondu++;
+    const p = String(v).split(':');
+    if (parseInt(p[0], 10) === ch && parseInt(p[1], 10) === cm) bons++;
+  });
+  const dernier = etat.questionIndex >= questions.length - 1;
+  const repAff = ch + ' h ' + String(cm).padStart(2, '0');
+  stage.innerHTML = `
+    <div class="q-wrap">
+      <div class="q-num">Question ${etat.questionIndex + 1} / ${questions.length} — Résultats</div>
+      <div class="q-texte" style="font-size:1.5rem">${q.texte || 'L\'heure'}</div>
+      <div class="bonne-label">Bonne réponse : ${repAff}</div>
+      <div class="votes-compteur" style="font-size:1.7rem">✅ ${bons} / ${repondu} ont la bonne réponse</div>
+      <button class="btn btn-lg" style="margin-top:1rem" onclick="${dernier ? 'finPartie()' : 'questionSuivante()'}">${dernier ? 'Voir le classement final 🏆' : 'Question suivante →'}</button>
     </div>`;
 }
 

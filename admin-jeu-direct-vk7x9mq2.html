@@ -118,6 +118,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="pron">🙋 Je / 👉 Tu / 👨 Il / 👩 Elle</option>
         <option value="ligne">📅 Ligne du temps (choisir l'année)</option>
         <option value="grille">🖼️ Grille d'images (dire le mot, choisir l'image)</option>
+        <option value="heure">🕐 L'heure (écouter et écrire l'heure)</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="creerQuiz()">Créer le quiz</button>
@@ -162,6 +163,15 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
       <div id="rep-zone">
       <label>Bonne réponse</label>
       <div class="rep-choix" id="rep-choix"></div>
+      </div>
+      <div id="heure-zone" style="display:none">
+      <label>Bonne réponse — l'heure</label>
+      <div class="row" style="align-items:center;gap:8px">
+        <input type="number" id="rep-h" min="0" max="23" placeholder="HH" style="width:90px;padding:10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:1.1rem;text-align:center"/>
+        <span style="font-size:1.4rem;font-weight:700;color:var(--bleu)">:</span>
+        <input type="number" id="rep-m" min="0" max="59" placeholder="MM" style="width:90px;padding:10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:1.1rem;text-align:center"/>
+      </div>
+      <div style="font-size:0.82rem;color:var(--gris);margin-top:6px">L'élève écoute l'audio puis tape l'heure (2 cases) et les minutes (2 cases).</div>
       </div>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="saveq()">Ajouter la question</button>
@@ -270,7 +280,8 @@ const TYPES = {
     { v: 'an2016', ico: '', lib: '2016' },
     { v: 'an2025', ico: '', lib: '2025' }
   ]},
-  grille: { nom: 'Grille d\'images (dire le mot)', reps: [], grille: true }
+  grille: { nom: 'Grille d\'images (dire le mot)', reps: [], grille: true },
+  heure: { nom: 'L\'heure (écouter et écrire)', reps: [], heure: true }
 };
 function libRep(type, v) {
   const t = TYPES[type]; if (!t) return v;
@@ -427,10 +438,13 @@ window.retourQuiz = function() {
 };
 
 function estGrille() { return (TYPES[quizCourant.type] || {}).grille === true; }
+function estHeure() { return (TYPES[quizCourant.type] || {}).heure === true; }
 function renderRepChoix() {
   const grille = estGrille();
+  const heure = estHeure();
   document.getElementById('import-zone').style.display = grille ? '' : 'none';
-  document.getElementById('rep-zone').style.display = grille ? 'none' : '';
+  document.getElementById('rep-zone').style.display = (grille || heure) ? 'none' : '';
+  document.getElementById('heure-zone').style.display = heure ? '' : 'none';
   document.getElementById('texte-label').textContent = grille ? 'Mot (ex. : lavable) — optionnel, non montré à l\'élève' : 'Texte de la question (ex. : Stationner ici)';
   document.getElementById('texte').placeholder = grille ? 'lavable' : 'Stationner ici';
   document.getElementById('image-label').textContent = grille ? 'Image (obligatoire)' : 'Image';
@@ -502,9 +516,16 @@ window.handleImage = function(e) {
 window.saveq = async function() {
   const texte = document.getElementById('texte').value.trim();
   const msg = document.getElementById('save-msg');
-  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf', 'lp', 'pi', 'mp', 'pron', 'ligne'];
+  const typesSansContenu = ['ph', 'pf', 'vf', 'r12', 'dd', 'rp', 'cv', 'an', 'cp', 'ppf', 'lp', 'pi', 'mp', 'pron', 'ligne', 'heure'];
+  let repHeure = null;
   if (estGrille()) {
     if (!pendingImage) { msg.textContent = 'Ajoutez une image.'; msg.className = 'msg err'; return; }
+  } else if (estHeure()) {
+    if (!texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez l\'audio (ou un texte) de la question.'; msg.className = 'msg err'; return; }
+    const h = document.getElementById('rep-h').value, m = document.getElementById('rep-m').value;
+    const H = parseInt(h, 10), M = parseInt(m, 10);
+    if (h === '' || m === '' || isNaN(H) || isNaN(M) || H < 0 || H > 23 || M < 0 || M > 59) { msg.textContent = 'Entrez une heure valide (0-23) et des minutes (0-59).'; msg.className = 'msg err'; return; }
+    repHeure = H + ':' + String(M).padStart(2, '0');
   } else {
     if (!typesSansContenu.includes(quizCourant.type) && !texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
     if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
@@ -512,7 +533,7 @@ window.saveq = async function() {
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
     const donnees = {
-      quizId: quizCourant.id, texte, image: pendingImage || null, reponse: repChoisie,
+      quizId: quizCourant.id, texte, image: pendingImage || null, reponse: estHeure() ? repHeure : repChoisie,
       ordre: items.length, date: new Date().toLocaleDateString('fr-CA')
     };
     if (pendingAudio) donnees.audio = await blobToDataUrl(pendingAudio);
@@ -526,6 +547,7 @@ window.saveq = async function() {
     document.querySelectorAll('#rep-choix .rep-btn').forEach(b => b.classList.remove('sel'));
     effacerAudio();
     pendingImage = null; repChoisie = null;
+    const rh=document.getElementById('rep-h'); if(rh) rh.value=''; const rm=document.getElementById('rep-m'); if(rm) rm.value='';
     setTimeout(() => msg.textContent = '', 2500);
   } catch(e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
 };
@@ -595,7 +617,13 @@ window.modifierQ = function(id) {
   document.getElementById('edit-audio-clear').style.display = it.audio ? 'inline-block' : 'none';
   document.getElementById('edit-audio-preview').style.display = it.audio ? 'inline-block' : 'none';
   document.getElementById('edit-msg').textContent = '';
-  document.getElementById('edit-rep-zone').style.display = estGrille() ? 'none' : '';
+  document.getElementById('edit-rep-zone').style.display = (estGrille() || estHeure()) ? 'none' : '';
+  document.getElementById('edit-heure-zone').style.display = estHeure() ? '' : 'none';
+  if (estHeure()) {
+    const parts = String(it.reponse || '').split(':');
+    document.getElementById('edit-rep-h').value = parts[0] !== undefined && parts[0] !== '' ? parseInt(parts[0], 10) : '';
+    document.getElementById('edit-rep-m').value = parts[1] !== undefined && parts[1] !== '' ? parseInt(parts[1], 10) : '';
+  }
   const box = document.getElementById('edit-rep-choix');
   box.innerHTML = '';
   (TYPES[quizCourant.type] || TYPES.ipo).reps.forEach(r => {
@@ -677,11 +705,19 @@ window.enregistrerModifQ = async function() {
   const texte = document.getElementById('edit-texte').value.trim();
   const msg = document.getElementById('edit-msg');
   const grille = estGrille();
-  if (!grille && !texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
-  if (!grille && !editRep) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  const heure = estHeure();
+  if (!grille && !heure && !texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
+  if (!grille && !heure && !editRep) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  let repHeureEdit = null;
+  if (heure) {
+    const h = document.getElementById('edit-rep-h').value, m = document.getElementById('edit-rep-m').value;
+    const H = parseInt(h, 10), M = parseInt(m, 10);
+    if (h === '' || m === '' || isNaN(H) || isNaN(M) || H < 0 || H > 23 || M < 0 || M > 59) { msg.textContent = 'Entrez une heure valide.'; msg.className = 'msg err'; return; }
+    repHeureEdit = H + ':' + String(M).padStart(2, '0');
+  }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
-    const maj = grille ? { texte } : { texte, reponse: editRep };
+    const maj = grille ? { texte } : (heure ? { texte, reponse: repHeureEdit } : { texte, reponse: editRep });
     if (editImage) maj.image = editImage;
     if (editAudio) maj.audio = await blobToDataUrl(editAudio);
     else if (editAudioSupprime) maj.audio = null;
@@ -715,6 +751,14 @@ loadQuiz();
     <div id="edit-rep-zone">
     <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Bonne réponse</label>
     <div class="rep-choix" id="edit-rep-choix"></div>
+    </div>
+    <div id="edit-heure-zone" style="display:none">
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Bonne réponse — l'heure</label>
+    <div class="row" style="align-items:center;gap:8px">
+      <input type="number" id="edit-rep-h" min="0" max="23" placeholder="HH" style="width:80px;padding:9px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;text-align:center"/>
+      <span style="font-weight:700">:</span>
+      <input type="number" id="edit-rep-m" min="0" max="59" placeholder="MM" style="width:80px;padding:9px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;text-align:center"/>
+    </div>
     </div>
     <div class="row" style="margin-top:1.5rem;justify-content:flex-end">
       <button class="btn" onclick="fermerModalQ()">Annuler</button>

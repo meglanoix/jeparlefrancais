@@ -76,6 +76,12 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.an2016 { background: var(--bleu-clair); }
 .rep.an2025 { background: var(--violet); }
 
+/* type "heure" : saisie HH:MM */
+.heure-saisie { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 1.5rem 0; }
+.heure-box { width: 60px; height: 76px; border: 2px solid rgba(26,58,92,0.2); border-radius: 14px; text-align: center; font-size: 2.2rem; font-weight: 700; color: var(--bleu); font-family: inherit; background: #fff; }
+.heure-box:focus { outline: none; border-color: var(--bleu); box-shadow: 0 0 0 3px rgba(42,82,152,0.15); }
+.heure-sep { font-size: 2.4rem; font-weight: 700; color: var(--bleu); }
+
 /* grille d'images (type grille) */
 .grille-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 680px; }
 .grille-img { border: 2px solid rgba(26,58,92,0.15); background: #fff; border-radius: 12px; padding: 0; overflow: hidden; cursor: pointer; aspect-ratio: 1; }
@@ -324,6 +330,8 @@ async function montrerQuestion() {
   if (renduQ === etat.questionIndex) return;
   renduQ = etat.questionIndex;
 
+  if (etat.type === 'heure') { montrerHeure(q); return; }
+
   const reps = TYPES[etat.type] || TYPES.ipo;
   let boutons = reps.map(r => `<button class="rep ${r.v}" onclick="voter('${r.v}')"><span class="ico">${r.ico}</span>${r.lib}</button>`).join('');
   const imgHtml = q.image ? `<img class="q-img" src="${q.image}" decoding="async"/>` : '';
@@ -357,6 +365,49 @@ window.voterGrille = function(i) {
   montrerReponseRecue();
   const ref = doc(db, COL_JOUEURS, monDocId);
   const payload = { votes: mesVotes };
+  updateDoc(ref, payload).catch(() => { updateDoc(ref, payload).catch(()=>{}); });
+};
+
+// --- type "heure" : l'élève écoute et écrit l'heure dans 4 cases (HH:MM) ---
+function montrerHeure(q) {
+  const audioHtml = q.audio ? `<button class="audio-play" onclick="jouerAudioQ()">🔊 Écouter</button>` : '';
+  const texteHtml = q.texte ? `<div class="q-texte">${q.texte}</div>` : `<div class="q-texte" style="color:var(--gris)">👂 Écoute et écris l'heure</div>`;
+  zone.innerHTML = `${audioHtml}${texteHtml}<div class="heure-saisie"><input class="heure-box" id="hb-h1" inputmode="numeric" maxlength="1"/><input class="heure-box" id="hb-h2" inputmode="numeric" maxlength="1"/><span class="heure-sep">:</span><input class="heure-box" id="hb-m1" inputmode="numeric" maxlength="1"/><input class="heure-box" id="hb-m2" inputmode="numeric" maxlength="1"/></div><button class="rep" style="background:var(--bleu);max-width:260px;margin:0 auto" onclick="voterHeure()">Valider</button>`;
+  const ids = ['hb-h1','hb-h2','hb-m1','hb-m2'];
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/[^0-9]/g, '');
+      if (el.value && i < ids.length - 1) document.getElementById(ids[i+1]).focus();
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !el.value && i > 0) document.getElementById(ids[i-1]).focus();
+    });
+  });
+  document.getElementById('hb-h1').focus();
+}
+
+window.voterHeure = function() {
+  if (aVote) return;
+  const g = id => document.getElementById(id).value;
+  const h = g('hb-h1') + g('hb-h2');
+  const m = g('hb-m1') + g('hb-m2');
+  if (h === '' || m === '') return;   // rien saisi -> ne pas valider
+  aVote = true;
+  const q = questions[etat.questionIndex];
+  const H = parseInt(h, 10), M = parseInt(m, 10);
+  const rep = H + ':' + String(M).padStart(2, '0');
+  let bon = false;
+  if (q && q.reponse) {
+    const parts = String(q.reponse).split(':');
+    bon = (parseInt(parts[0], 10) === H && parseInt(parts[1], 10) === M);
+  }
+  mesVotes['q' + etat.questionIndex] = rep;
+  if (bon) monScore++;
+  derniereQuestionVotee = etat.questionIndex;
+  montrerReponseRecue();
+  const ref = doc(db, COL_JOUEURS, monDocId);
+  const payload = { votes: mesVotes, score: monScore };
   updateDoc(ref, payload).catch(() => { updateDoc(ref, payload).catch(()=>{}); });
 };
 
