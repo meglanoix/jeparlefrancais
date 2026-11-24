@@ -653,6 +653,25 @@ function updatePrintBar() {
   bar.classList.toggle('visible', selectedCards.size > 0);
 }
 
+function imageToDataUrl(url) {
+  return new Promise(resolve => {
+    if (!url) { resolve({ data: '', fmt: 'JPEG' }); return; }
+    if (url.startsWith('data:')) { resolve({ data: url, fmt: url.slice(5, url.indexOf(';')).includes('png') ? 'PNG' : 'JPEG' }); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const cv = document.createElement('canvas');
+        cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+        cv.getContext('2d').drawImage(img, 0, 0);
+        resolve({ data: cv.toDataURL('image/jpeg', 0.85), fmt: 'JPEG' });
+      } catch(e) { resolve({ data: '', fmt: 'JPEG', err: true }); }
+    };
+    img.onerror = () => resolve({ data: '', fmt: 'JPEG', err: true });
+    img.src = url;
+  });
+}
+
 window.printSelected = function() {
   const selected = [...window.selectedCards].map(i => cartes[i]);
   if (!selected.length) return;
@@ -675,7 +694,15 @@ window.printSelected = function() {
     });
   });
 
-  Promise.all(qrPromises).then(items => {
+  Promise.all(qrPromises).then(async items => {
+    // précharger les images en dataURL : jsPDF ne charge pas les URLs distantes (Firebase Storage)
+    const imgMap = {}; let imgFails = 0;
+    await Promise.all(items.map(async it => {
+      const r = await imageToDataUrl(it.carte.image);
+      imgMap[it.carte.id] = r;
+      if (r.err) imgFails++;
+    }));
+    if (imgFails > 0) alert(imgFails + ' image(s) n\'ont pas pu être chargées pour l\'impression (réglage CORS requis).');
     document.body.removeChild(tempDiv);
     const { jsPDF } = window.jspdf;
     const W = 279, H = 216, pad = 6, gap = 3, cols = 3, rows = 2;
@@ -698,8 +725,9 @@ window.printSelected = function() {
         doc.setDrawColor(220); doc.setLineWidth(0.3);
         doc.roundedRect(x, y, cellW, cellH, 2, 2);
         if (group[i]) {
-          if (group[i].carte.image) {
-            try { doc.addImage(group[i].carte.image, 'JPEG', x, y, cellW, imgH, '', 'FAST'); } catch(e) {}
+          const im = imgMap[group[i].carte.id];
+          if (im && im.data) {
+            try { doc.addImage(im.data, im.fmt, x, y, cellW, imgH, '', 'FAST'); } catch(e) {}
           }
           const mots = group[i].carte.mot.split('/').map(s => s.trim());
           doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(26, 58, 92);
