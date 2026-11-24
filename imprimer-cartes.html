@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Imprimer les cartes | JeParle Français</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root { --bleu:#1a3a5c; --bleu-clair:#2a5298; --rouge:#c0392b; --creme:#f9f5ef; --texte:#2c2c2c; --gris:#6b6b6b; --blanc:#fff; --vert:#1a7a4a; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;color:var(--texte);background:var(--creme);}
+nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;height:60px;background:var(--bleu);color:#fff;}
+nav .logo{font-family:'Playfair Display',serif;font-size:1.1rem;} nav .logo span{color:#ff9d8a;}
+nav a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.85rem;}
+.wrap{max-width:1100px;margin:0 auto;padding:1.5rem 5vw 5rem;}
+h1{font-family:'Playfair Display',serif;color:var(--bleu);font-size:1.7rem;margin-bottom:.3rem;}
+.sub{color:var(--gris);font-size:.95rem;margin-bottom:1.3rem;line-height:1.5;}
+.barre{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:1.3rem;}
+.barre select{flex:1;min-width:220px;padding:.7rem 1rem;border:1.5px solid rgba(26,58,92,0.2);border-radius:12px;font-family:inherit;font-size:1rem;background:#fff;}
+.btn{border:none;border-radius:12px;padding:.75rem 1.3rem;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;}
+.btn-print{background:var(--vert);color:#fff;} .btn-print:disabled{opacity:.45;cursor:default;}
+.btn-ghost{background:#fff;color:var(--bleu);border:1.5px solid rgba(26,58,92,0.2);}
+.compte{color:var(--gris);font-size:.85rem;margin-left:auto;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;}
+.card{position:relative;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(26,58,92,0.08);cursor:pointer;border:2px solid transparent;}
+.card.selected{border-color:var(--bleu);}
+.card img{width:100%;height:135px;object-fit:cover;display:block;background:#eee;}
+.card .mot{padding:.6rem .7rem;font-weight:600;color:var(--bleu);font-size:.92rem;}
+.card-checkbox{position:absolute;top:8px;left:8px;width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,0.9);border:2px solid var(--bleu);display:flex;align-items:center;justify-content:center;}
+.card.selected .card-checkbox{background:var(--bleu);}
+.card-checkbox::after{content:'\2713';color:#fff;font-size:13px;font-weight:700;opacity:0;}
+.card.selected .card-checkbox::after{opacity:1;}
+.msg{color:var(--gris);padding:2rem 0;text-align:center;}
+@media(max-width:600px){.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}}
+</style>
+</head>
+<body>
+<nav><span class="logo">JeParle<span>Français</span> · Impression</span><a href="index.html">Accueil ›</a></nav>
+<div class="wrap">
+  <h1>Imprimer les cartes</h1>
+  <p class="sub">Choisis un thème, coche les images à imprimer, puis clique « Imprimer (PDF) ». Le PDF a l'image au recto et le QR code au verso (impression recto-verso).</p>
+  <div class="barre">
+    <select id="theme" onchange="chargerTheme()"><option value="">— Choisir un thème —</option></select>
+    <button class="btn btn-ghost" onclick="toutSel(true)">Tout cocher</button>
+    <button class="btn btn-ghost" onclick="toutSel(false)">Tout décocher</button>
+    <button class="btn btn-print" id="btn-print" disabled onclick="printSelected()">🖨 Imprimer (PDF)</button>
+    <span class="compte" id="compte"></span>
+  </div>
+  <div class="grid" id="grid"><div class="msg">Choisis un thème ci-dessus pour afficher les images.</div></div>
+</div>
+
+<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = { apiKey: "AIzaSyCdBoJMNk7brcdc8lGktN0AFbVJ1Dj_r8o", authDomain: "audio-francisation.firebaseapp.com", projectId: "audio-francisation", storageBucket: "audio-francisation.firebasestorage.app", messagingSenderId: "840403407027", appId: "1:840403407027:web:46b370498fde6374aaa0c6" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const THEMES = [["acheter-objet-maison", "Acheter un objet pour la maison"], ["decrire-changement-habitude", "Comparer avant et maintenant"], ["demander-donner-directions", "Demander des informations et donner des directions"], ["demander-service-restaurant", "Demander un service au restaurant"], ["decrire-conditions-meteo", "Décrire une condition météorologique"], ["exprimer-gouts", "Exprimer ses goûts"], ["exprimer-quantite", "Exprimer une quantité"], ["entretien-vetements", "L'entretien des vêtements"], ["l-invitation", "L'invitation"], ["la-circulation", "La circulation"], ["conversation-informelle", "La conversation informelle"], ["famille", "La famille rapprochée"], ["meteo-hasardeuse", "La météo hasardeuse"], ["restauration-rapide", "La restauration rapide"], ["routine", "La routine"], ["bureau-poste", "Le bureau de poste"], ["le-couvert", "Le couvert"], ["materiel-equipement", "Le matériel et l'équipement"], ["verbe-aller", "Le verbe aller"], ["verbe-faire", "Le verbe faire"], ["verbe-prendre", "Le verbe prendre"], ["actes-medicaux", "Les actes médicaux"], ["activites-habituelles", "Les activités habituelles au présent"], ["adjectifs-logement", "Les adjectifs du logement et du quartier"], ["adjectifs-able", "Les adjectifs en -able"], ["conditions-meteorologiques", "Les conditions météorologiques"], ["les-consignes-de-la-classe", "Les consignes de la classe"], ["consignes-loisirs", "Les consignes des loisirs"], ["consignes-docteur", "Les consignes du docteur"], ["departements-magasin", "Les départements d'un magasin grande surface"], ["maladies-courantes", "Les maladies courantes"], ["mets-plats-restaurant", "Les mets et plats au restaurant"], ["les-meubles", "Les meubles et objets de la maison"], ["moments-importants", "Les moments importants de sa vie"], ["les-objets-de-la-classe", "Les objets de la classe"], ["outils", "Les outils"], ["participes-passes-3e-groupe", "Les participes passés des verbes du 3e groupe"], ["problemes-domestiques", "Les problèmes domestiques"], ["les-professionnels", "Les professionnels"], ["professionnels-renovation", "Les professionnels"], ["les-professions", "Les professions"], ["les-qualites-professionnelles", "Les qualités professionnelles"], ["questions-docteur", "Les questions du docteur"], ["renovations-reparations", "Les rénovations et les réparations"], ["solutions-rapides", "Les solutions rapides"], ["specialites-quebec", "Les spécialités du Québec"], ["les-symptomes", "Les symptômes"], ["symptomes-maladies-graves", "Les symptômes et maladies graves"], ["types-habitations", "Les types d'habitations"], ["types-emissions", "Les types d'émissions"], ["types-films", "Les types de films"], ["types-medicaments", "Les types de médicaments"], ["les-taches-directives", "Les tâches et les directives au travail"], ["verbes-etre-passe", "Les verbes avec le participe passé être"], ["verbes-2e-groupe", "Les verbes du 2e groupe"], ["verbes-3e-groupe", "Les verbes du 3e groupe"], ["poser-questions-bien-durable", "Poser des questions sur un bien durable"], ["raconter-fin-semaine", "Raconter sa fin de semaine"], ["les-pieces", "Raconter sa jeunesse"], ["regles-activites", "Règles et règlements des activités"], ["s-informer-logement", "S'informer sur un logement"], ["regions-quebec", "Visiter les régions du Québec"]];
+let cartes = [], col = '';
+window.selectedCards = new Set();
+
+const sel = document.getElementById('theme');
+THEMES.forEach(([c, t]) => { const o = document.createElement('option'); o.value = c; o.textContent = t; sel.appendChild(o); });
+const pcol = new URLSearchParams(location.search).get('col');
+if (pcol && THEMES.some(([c]) => c === pcol)) { sel.value = pcol; }
+
+function majCompte() {
+  document.getElementById('compte').textContent = window.selectedCards.size + ' / ' + cartes.length + ' sélectionnée(s)';
+  document.getElementById('btn-print').disabled = window.selectedCards.size === 0;
+}
+
+window.chargerTheme = async function() {
+  col = sel.value;
+  cartes = []; window.selectedCards = new Set();
+  const grid = document.getElementById('grid');
+  if (!col) { grid.innerHTML = '<div class="msg">Choisis un thème ci-dessus pour afficher les images.</div>'; majCompte(); return; }
+  grid.innerHTML = '<div class="msg">Chargement…</div>';
+  try {
+    const snap = await getDocs(collection(db, col));
+    cartes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.image);
+  } catch(e) { cartes = []; }
+  if (!cartes.length) { grid.innerHTML = '<div class="msg">Aucune image dans ce thème.</div>'; majCompte(); return; }
+  render();
+};
+
+function render() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = cartes.map((c, i) => {
+    const mot = (c.mot || c.nom || '').split('/').map(s => s.trim()).join(' / ');
+    return '<div class="card ' + (window.selectedCards.has(i) ? 'selected' : '') + '" onclick="toggleSelect(' + i + ')"><div class="card-checkbox"></div><img src="' + c.image + '" alt=""/><div class="mot">' + mot + '</div></div>';
+  }).join('');
+  majCompte();
+}
+
+window.toggleSelect = function(i) {
+  if (window.selectedCards.has(i)) window.selectedCards.delete(i); else window.selectedCards.add(i);
+  render();
+};
+window.toutSel = function(tout) {
+  window.selectedCards = new Set(tout ? cartes.map((_, i) => i) : []);
+  render();
+};
+if (sel.value) chargerTheme();
+
+function imageToDataUrl(url) {
+  return new Promise(resolve => {
+    if (!url) { resolve({ data: '', fmt: 'JPEG' }); return; }
+    if (url.startsWith('data:')) { resolve({ data: url, fmt: url.slice(5, url.indexOf(';')).includes('png') ? 'PNG' : 'JPEG' }); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const cv = document.createElement('canvas');
+        cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+        cv.getContext('2d').drawImage(img, 0, 0);
+        resolve({ data: cv.toDataURL('image/jpeg', 0.85), fmt: 'JPEG' });
+      } catch(e) { resolve({ data: '', fmt: 'JPEG', err: true }); }
+    };
+    img.onerror = () => resolve({ data: '', fmt: 'JPEG', err: true });
+    img.src = url;
+  });
+}
+
+window.printSelected = function() {
+  const selected = [...window.selectedCards].map(i => cartes[i]);
+  if (!selected.length) return;
+  const base = window.location.origin;
+  const tempDiv = document.createElement('div');
+  tempDiv.style.cssText = 'position:fixed;left:-9999px;top:0;';
+  document.body.appendChild(tempDiv);
+
+  const qrPromises = selected.map((c) => new Promise(resolve => {
+    const url = base + '/carte.html?id=' + c.id + '&col=' + col;
+    const div = document.createElement('div');
+    tempDiv.appendChild(div);
+    new QRCode(div, { text: url, width: 300, height: 300, colorDark: '#1a3a5c', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+    setTimeout(() => { const cv = div.querySelector('canvas'); resolve({ carte: c, qrDataUrl: cv ? cv.toDataURL('image/png') : '' }); }, 600);
+  }));
+
+  Promise.all(qrPromises).then(async items => {
+    const imgMap = {}; let imgFails = 0;
+    await Promise.all(items.map(async it => { const r = await imageToDataUrl(it.carte.image); imgMap[it.carte.id] = r; if (r.err) imgFails++; }));
+    document.body.removeChild(tempDiv);
+    const { jsPDF } = window.jspdf;
+    const W = 279, H = 216, pad = 6, gap = 3, cols = 3, rows = 2;
+    const cellW = (W - pad*2 - gap*(cols-1)) / cols;
+    const cellH = (H - pad*2 - gap*(rows-1)) / rows;
+    const imgH = cellH * 0.62;
+    const pages = [];
+    for (let i = 0; i < items.length; i += 6) pages.push(items.slice(i, i + 6));
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
+    pages.forEach((group, pi) => {
+      if (pi > 0) doc.addPage();
+      for (let i = 0; i < 6; i++) {
+        const c0 = i % cols, r0 = Math.floor(i / cols);
+        const x = pad + c0 * (cellW + gap), y = pad + r0 * (cellH + gap);
+        doc.setDrawColor(220); doc.setLineWidth(0.3); doc.roundedRect(x, y, cellW, cellH, 2, 2);
+        if (group[i]) {
+          const im = imgMap[group[i].carte.id];
+          if (im && im.data) { try { doc.addImage(im.data, im.fmt, x, y, cellW, imgH, '', 'FAST'); } catch(e) {} }
+          const mots = ((group[i].carte.mot || group[i].carte.nom || '')).split('/').map(s => s.trim());
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(26, 58, 92);
+          const lineH = 6, totalH = mots.length * lineH;
+          const startY = y + imgH + (cellH - imgH - totalH) / 2 + 5;
+          mots.forEach((m, mi) => doc.text(m, x + cellW/2, startY + mi * lineH, { align: 'center' }));
+        }
+      }
+      doc.addPage();
+      const mirror = [3,4,5,0,1,2];
+      const qrSize = Math.min(cellW, cellH) * 0.85;
+      for (let i = 0; i < 6; i++) {
+        const mi = mirror[i];
+        const c0 = i % cols, r0 = Math.floor(i / cols);
+        const x = pad + c0 * (cellW + gap), y = pad + r0 * (cellH + gap);
+        doc.setDrawColor(220); doc.setLineWidth(0.3); doc.setFillColor(249, 245, 239);
+        doc.roundedRect(x, y, cellW, cellH, 2, 2, 'FD');
+        if (group[mi] && group[mi].qrDataUrl) {
+          try { const qrX = x + (cellW - qrSize) / 2, qrY = y + (cellH - qrSize) / 2; doc.addImage(group[mi].qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize); } catch(e) {}
+        }
+      }
+    });
+    const dataUri = doc.output('datauristring');
+    const a = document.createElement('a'); a.href = dataUri; a.download = 'cartes-' + col + '.pdf'; a.style.display = 'none';
+    document.body.appendChild(a); a.click();
+    setTimeout(() => document.body.removeChild(a), 1000);
+    if (imgFails > 0) alert(imgFails + " image(s) n'ont pas pu être chargées pour l'impression.");
+  });
+};
+</script>
+</body>
+</html>
