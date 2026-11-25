@@ -59,11 +59,12 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; a
 // Pour ajouter une catégorie plus tard : ajoute une ligne ici { col, titre, emoji, sous }
 const CATEGORIES = [
   { col: 'fc-informel', titre: 'Les questions pour faire connaissance', emoji: '💬', sous: 'Poser des questions (informel)' },
-  { col: 'demander-infos-personnelles', titre: 'Demander les infos personnelles', emoji: '🗣️', sous: 'Les questions à poser' }
+  { col: 'demander-infos-personnelles', titre: 'Demander les infos personnelles', emoji: '🗣️', sous: 'Les questions à poser' },
+  { href: 'quelle-heure-est-il.html', titre: "L'heure", emoji: '🕐', sous: 'Quelle heure est-il ?' }
 ];
 const grid = document.getElementById('cat-grid');
 grid.innerHTML = CATEGORIES.map(c =>
-  `<a class="cat-card" href="image-hasard.html?col=${encodeURIComponent(c.col)}&t=${encodeURIComponent(c.titre)}">
+  `<a class="cat-card" href="${c.href ? c.href : 'image-hasard.html?col=' + encodeURIComponent(c.col) + '&t=' + encodeURIComponent(c.titre)}">
     <div class="cat-emoji">${c.emoji}</div>
     <div class="cat-body"><div class="cat-title">${c.titre}</div><div class="cat-sub">${c.sous}</div></div>
     <div class="cat-arrow">→</div>
