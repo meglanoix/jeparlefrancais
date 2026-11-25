@@ -348,6 +348,7 @@ window.jouerAudioQ = function() {
 function ecranResultats() {
   if (estGrille()) { ecranResultatsGrille(); return; }
   if (estHeure()) { ecranResultatsHeure(); return; }
+  if (etat.type === 'pres') { ecranResultatsPres(); return; }
   const q = questions[etat.questionIndex];
   if (!q) return;
   const esc = x => String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -372,6 +373,31 @@ function ecranResultats() {
       <button class="btn btn-lg" onclick="${dernier ? 'finPartie()' : 'questionSuivante()'}">
         ${dernier ? 'Voir le classement final 🏆' : 'Question suivante →'}
       </button>
+    </div>`;
+}
+
+function ecranResultatsPres() {
+  const q = questions[etat.questionIndex];
+  if (!q) return;
+  const esc = x => String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const cle = 'q' + etat.questionIndex;
+  let repondu = 0, bons = 0;
+  joueurs.forEach(j => {
+    const v = j.votes && j.votes[cle];
+    if (!v) return;
+    repondu++;
+    const parts = String(v).split('§');
+    if (parts[0] === q.nom && parts[1] === q.id) bons++;
+  });
+  const dernier = etat.questionIndex >= questions.length - 1;
+  stage.innerHTML = `
+    <div class="q-wrap">
+      <div class="q-num">Question ${etat.questionIndex + 1} / ${questions.length} — Résultats</div>
+      <div class="q-texte" style="font-size:1.5rem">${esc(q.texte || '')}</div>
+      <div class="bonne-label" style="font-size:1.25rem">Réponse : <b>${esc(q.nom || '')}</b></div>
+      ${q.image ? `<img src="${q.image}" style="max-width:170px;border-radius:14px;border:3px solid var(--vert);margin:0.6rem auto 0;display:block"/>` : ''}
+      <div class="votes-compteur" style="font-size:1.7rem">✅ ${bons} / ${repondu} ont la bonne réponse</div>
+      <button class="btn btn-lg" style="margin-top:1rem" onclick="${dernier ? 'finPartie()' : 'questionSuivante()'}">${dernier ? 'Voir le classement final 🏆' : 'Question suivante →'}</button>
     </div>`;
 }
 

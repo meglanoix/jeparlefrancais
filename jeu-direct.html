@@ -90,6 +90,11 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .grille-img { border: 2px solid rgba(26,58,92,0.15); background: #fff; border-radius: 12px; padding: 0; overflow: hidden; cursor: pointer; aspect-ratio: 1; }
 .grille-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .grille-img:active { border-color: var(--bleu); transform: scale(0.97); }
+.grille-img.sel { border-color: var(--bleu); box-shadow: 0 0 0 3px rgba(42,82,152,0.3); }
+.pres-label { font-weight: 700; color: var(--bleu); margin: 0.9rem 0 0.4rem; }
+.pres-noms { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 0.3rem; }
+.pres-nom { padding: 0.6rem 1.05rem; border: 2px solid rgba(26,58,92,0.15); background: #fff; border-radius: 22px; font-family: inherit; font-size: 1rem; font-weight: 600; color: var(--bleu); cursor: pointer; }
+.pres-nom.sel { background: var(--bleu); color: #fff; border-color: var(--bleu); }
 @media (max-width: 520px) { .grille-board { grid-template-columns: repeat(3, 1fr); } }
 .big-ico { font-size: 4rem; margin-bottom: 1rem; }
 .attente-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gris); margin:0 3px; animation: blink 1.4s infinite both; }
@@ -151,6 +156,7 @@ let etat = null;          // état courant de la partie
 let monInitiales = null, monDocId = null;  // identité (initiales) de cette tablette
 let maPartie = null;      // partieId auquel je suis inscrit
 let questions = [];       // questions du quiz courant (chargées quand la partie démarre)
+let selPresNom = null, selPresImg = null;
 let quizChargeId = null;
 let aVote = false;        // ai-je voté à la question courante ?
 let derniereQuestionVotee = -1;
@@ -335,6 +341,7 @@ async function montrerQuestion() {
   renduQ = etat.questionIndex;
 
   if (etat.type === 'heure') { montrerHeure(q); return; }
+  if (etat.type === 'pres') { montrerPres(q); return; }
 
   let reps = TYPES[etat.type] || TYPES.ipo;
   if (etat.type === 'choix3' && Array.isArray(q.options)) {
@@ -440,6 +447,34 @@ window.voter = function(v) {
   montrerReponseRecue();
 
   // 2) enregistrer en arrière-plan (ne bloque pas l'écran) ; 1 réessai si échec
+  const ref = doc(db, COL_JOUEURS, monDocId);
+  const payload = { votes: mesVotes, score: monScore };
+  updateDoc(ref, payload).catch(() => { updateDoc(ref, payload).catch(()=>{}); });
+};
+
+// --- type "pres" : l'élève choisit le bon nom ET le bon objet pour le jour/heure affichés ---
+function montrerPres(q) {
+  const noms = [];
+  questions.forEach(x => { if (x.nom && !noms.includes(x.nom)) noms.push(x.nom); });
+  const objets = questions.filter(x => x.image);
+  selPresNom = null; selPresImg = null;
+  const nomBtns = noms.map(n => `<button class="pres-nom" data-n="${esc(n)}" onclick="choisirPresNom(this)">${esc(n)}</button>`).join('');
+  const imgTuiles = objets.map(o => `<button class="grille-img" data-id="${o.id}" onclick="choisirPresImg(this)"><img src="${o.image}" decoding="async" alt=""/></button>`).join('');
+  const audioHtml = q.audio ? `<button class="audio-play" onclick="jouerAudioQ()">🔊 Écouter</button>` : '';
+  zone.innerHTML = `${audioHtml}<div class="q-texte">${esc(q.texte || '')}</div><div class="pres-label">Qui présente ?</div><div class="pres-noms">${nomBtns}</div><div class="pres-label">Quel objet ?</div><div class="grille-board">${imgTuiles}</div><button class="rep" id="btn-valider-pres" style="background:var(--bleu);max-width:280px;margin:1.1rem auto 0;opacity:.5" disabled onclick="voterPres()">Valider</button>`;
+}
+window.choisirPresNom = function(btn) { selPresNom = btn.dataset.n; document.querySelectorAll('.pres-nom').forEach(b => b.classList.toggle('sel', b === btn)); majValiderPres(); };
+window.choisirPresImg = function(btn) { selPresImg = btn.dataset.id; document.querySelectorAll('.grille-board .grille-img').forEach(b => b.classList.toggle('sel', b === btn)); majValiderPres(); };
+function majValiderPres() { const b = document.getElementById('btn-valider-pres'); if (b) { const ok = selPresNom && selPresImg; b.disabled = !ok; b.style.opacity = ok ? '1' : '.5'; } }
+window.voterPres = function() {
+  if (aVote || !selPresNom || !selPresImg) return;
+  aVote = true;
+  const q = questions[etat.questionIndex];
+  const bon = (selPresNom === q.nom) && (selPresImg === q.id);
+  mesVotes['q' + etat.questionIndex] = selPresNom + '§' + selPresImg;
+  if (bon) monScore++;
+  derniereQuestionVotee = etat.questionIndex;
+  montrerReponseRecue();
   const ref = doc(db, COL_JOUEURS, monDocId);
   const payload = { votes: mesVotes, score: monScore };
   updateDoc(ref, payload).catch(() => { updateDoc(ref, payload).catch(()=>{}); });

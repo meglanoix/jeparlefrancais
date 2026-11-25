@@ -120,6 +120,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="grille">🖼️ Grille d'images (dire le mot, choisir l'image)</option>
         <option value="heure">🕐 L'heure (écouter et écrire l'heure)</option>
         <option value="choix3">✏️ 3 choix de réponse (tu écris les réponses)</option>
+        <option value="pres">🗣️ Présentations orales (choisir le nom + l'objet)</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="creerQuiz()">Créer le quiz</button>
@@ -182,6 +183,11 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <div style="display:flex;align-items:center;gap:10px"><input type="radio" name="correct3" value="2" id="c3r2" style="width:20px;height:20px;flex-shrink:0;cursor:pointer"/><input type="text" id="opt2" placeholder="Réponse 3" style="flex:1;padding:10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/></div>
       </div>
       <div style="font-size:0.82rem;color:var(--gris);margin-top:6px">Écris les 3 réponses et coche le cercle de la bonne réponse.</div>
+      </div>
+      <div id="pres-zone" style="display:none">
+      <label>Nom de la personne qui présente</label>
+      <input type="text" id="pres-nom" placeholder="Ex : Alison" style="width:100%;padding:10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/>
+      <div style="font-size:0.82rem;color:var(--gris);margin-top:6px">Le <strong>texte</strong> = le jour et l'heure (ex. « Lundi 25 mars — 11 h 00 »). L'<strong>image</strong> = l'objet présenté. Tous les noms et objets du quiz apparaissent à l'élève.</div>
       </div>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="saveq()">Ajouter la question</button>
@@ -292,7 +298,8 @@ const TYPES = {
   ]},
   grille: { nom: 'Grille d\'images (dire le mot)', reps: [], grille: true },
   heure: { nom: 'L\'heure (écouter et écrire)', reps: [], heure: true },
-  choix3: { nom: '3 choix de réponse', reps: [], choix3: true }
+  choix3: { nom: '3 choix de réponse', reps: [], choix3: true },
+  pres: { nom: 'Présentations orales', reps: [], pres: true }
 };
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function libRep(type, v) {
@@ -452,17 +459,20 @@ window.retourQuiz = function() {
 function estGrille() { return (TYPES[quizCourant.type] || {}).grille === true; }
 function estHeure() { return (TYPES[quizCourant.type] || {}).heure === true; }
 function estChoix3() { return (TYPES[quizCourant.type] || {}).choix3 === true; }
+function estPres() { return (TYPES[quizCourant.type] || {}).pres === true; }
 function renderRepChoix() {
   const grille = estGrille();
   const heure = estHeure();
   const choix3 = estChoix3();
+  const pres = estPres();
   document.getElementById('import-zone').style.display = grille ? '' : 'none';
-  document.getElementById('rep-zone').style.display = (grille || heure || choix3) ? 'none' : '';
+  document.getElementById('rep-zone').style.display = (grille || heure || choix3 || pres) ? 'none' : '';
   document.getElementById('heure-zone').style.display = heure ? '' : 'none';
   document.getElementById('choix3-zone').style.display = choix3 ? '' : 'none';
-  document.getElementById('texte-label').textContent = grille ? 'Mot (ex. : lavable) — optionnel, non montré à l\'élève' : 'Texte de la question (ex. : Stationner ici)';
-  document.getElementById('texte').placeholder = grille ? 'lavable' : 'Stationner ici';
-  document.getElementById('image-label').textContent = grille ? 'Image (obligatoire)' : 'Image';
+  document.getElementById('pres-zone').style.display = pres ? '' : 'none';
+  document.getElementById('texte-label').textContent = grille ? 'Mot (ex. : lavable) — optionnel, non montré à l\'élève' : (pres ? 'Texte — le jour et l\'heure (ex. : Lundi 25 mars — 11 h 00)' : 'Texte de la question (ex. : Stationner ici)');
+  document.getElementById('texte').placeholder = grille ? 'lavable' : (pres ? 'Lundi 25 mars — 11 h 00' : 'Stationner ici');
+  document.getElementById('image-label').textContent = (grille || pres) ? 'Image de l\'objet (obligatoire)' : 'Image';
   const box = document.getElementById('rep-choix');
   box.innerHTML = ''; repChoisie = null;
   (TYPES[quizCourant.type] || TYPES.ipo).reps.forEach(r => {
@@ -548,6 +558,10 @@ window.saveq = async function() {
     const sel = document.querySelector('input[name="correct3"]:checked');
     if (!sel) { msg.textContent = 'Cochez la bonne réponse.'; msg.className = 'msg err'; return; }
     repChoix3 = { options: opts, reponse: sel.value };
+  } else if (estPres()) {
+    if (!texte) { msg.textContent = 'Écrivez le texte (le jour et l\'heure).'; msg.className = 'msg err'; return; }
+    if (!pendingImage) { msg.textContent = 'Ajoutez l\'image de l\'objet.'; msg.className = 'msg err'; return; }
+    if (!document.getElementById('pres-nom').value.trim()) { msg.textContent = 'Écrivez le nom de la personne.'; msg.className = 'msg err'; return; }
   } else {
     if (!typesSansContenu.includes(quizCourant.type) && !texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
     if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
@@ -559,6 +573,7 @@ window.saveq = async function() {
       ordre: items.length, date: new Date().toLocaleDateString('fr-CA')
     };
     if (estChoix3()) donnees.options = repChoix3.options;
+    if (estPres()) donnees.nom = document.getElementById('pres-nom').value.trim();
     if (pendingAudio) donnees.audio = await blobToDataUrl(pendingAudio);
     await addDoc(collection(db, COL_Q), donnees);
     await loadCards();
@@ -572,6 +587,7 @@ window.saveq = async function() {
     pendingImage = null; repChoisie = null; repChoix3 = null;
     const rh=document.getElementById('rep-h'); if(rh) rh.value=''; const rm=document.getElementById('rep-m'); if(rm) rm.value='';
     [0,1,2].forEach(i => { const o=document.getElementById('opt'+i); if(o) o.value=''; const r=document.getElementById('c3r'+i); if(r) r.checked=false; });
+    const pn=document.getElementById('pres-nom'); if(pn) pn.value='';
     setTimeout(() => msg.textContent = '', 2500);
   } catch(e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
 };
@@ -595,7 +611,7 @@ function render() {
     div.innerHTML = `
       <span class="pos">${i + 1}</span>
       ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
-      <div class="txt"><div class="q">${it.texte || (it.image || it.audio ? '' : '<span style=\'color:var(--gris);font-style:italic\'>Question orale ' + (i+1) + '</span>')} ${it.audio ? '🔊' : ''}</div>${estGrille() ? `<div class="r"><span style="color:var(--gris);font-size:0.82rem">🖼️ image ${i+1}${it.texte ? ' · ' + it.texte : ''}</span></div>` : (estChoix3() ? `<div class="r"><span class="pill" style="background:#e8eef6;color:var(--bleu)">✓ ${esc((it.options||[])[parseInt(it.reponse,10)]||'')}</span></div>` : `<div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div>`)}</div>
+      <div class="txt"><div class="q">${it.texte || (it.image || it.audio ? '' : '<span style=\'color:var(--gris);font-style:italic\'>Question orale ' + (i+1) + '</span>')} ${it.audio ? '🔊' : ''}</div>${estGrille() ? `<div class="r"><span style="color:var(--gris);font-size:0.82rem">🖼️ image ${i+1}${it.texte ? ' · ' + it.texte : ''}</span></div>` : (estPres() ? `<div class="r"><span class="pill" style="background:#e8eef6;color:var(--bleu)">🗣️ ${esc(it.nom||'')}${it.image?' · 🖼️':''}</span></div>` : (estChoix3() ? `<div class="r"><span class="pill" style="background:#e8eef6;color:var(--bleu)">✓ ${esc((it.options||[])[parseInt(it.reponse,10)]||'')}</span></div>` : `<div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div>`))}</div>
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
       ${it.audio ? `<button class="mini" title="Écouter l'audio" onclick="jouerAudioItem('${it.id}')">🔊</button>` : ''}
@@ -641,9 +657,11 @@ window.modifierQ = function(id) {
   document.getElementById('edit-audio-clear').style.display = it.audio ? 'inline-block' : 'none';
   document.getElementById('edit-audio-preview').style.display = it.audio ? 'inline-block' : 'none';
   document.getElementById('edit-msg').textContent = '';
-  document.getElementById('edit-rep-zone').style.display = (estGrille() || estHeure() || estChoix3()) ? 'none' : '';
+  document.getElementById('edit-rep-zone').style.display = (estGrille() || estHeure() || estChoix3() || estPres()) ? 'none' : '';
   document.getElementById('edit-heure-zone').style.display = estHeure() ? '' : 'none';
   document.getElementById('edit-choix3-zone').style.display = estChoix3() ? '' : 'none';
+  document.getElementById('edit-pres-zone').style.display = estPres() ? '' : 'none';
+  if (estPres()) document.getElementById('edit-pres-nom').value = it.nom || '';
   if (estChoix3()) {
     const opts = it.options || [];
     [0,1,2].forEach(i => { document.getElementById('edit-opt'+i).value = opts[i] || ''; document.getElementById('ec3r'+i).checked = (String(it.reponse) === String(i)); });
@@ -736,8 +754,15 @@ window.enregistrerModifQ = async function() {
   const grille = estGrille();
   const heure = estHeure();
   const choix3 = estChoix3();
-  if (!grille && !heure && !choix3 && !texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
-  if (!grille && !heure && !choix3 && !editRep) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  const pres = estPres();
+  if (!grille && !heure && !choix3 && !pres && !texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
+  if (!grille && !heure && !choix3 && !pres && !editRep) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  let presNomEdit = null;
+  if (pres) {
+    if (!texte) { msg.textContent = 'Écrivez le jour et l\'heure.'; msg.className = 'msg err'; return; }
+    presNomEdit = document.getElementById('edit-pres-nom').value.trim();
+    if (!presNomEdit) { msg.textContent = 'Écrivez le nom.'; msg.className = 'msg err'; return; }
+  }
   let repChoix3Edit = null;
   if (choix3) {
     const opts = [0,1,2].map(i => document.getElementById('edit-opt'+i).value.trim());
@@ -755,7 +780,7 @@ window.enregistrerModifQ = async function() {
   }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
-    const maj = grille ? { texte } : (heure ? { texte, reponse: repHeureEdit } : (choix3 ? { texte, reponse: repChoix3Edit.reponse, options: repChoix3Edit.options } : { texte, reponse: editRep }));
+    const maj = grille ? { texte } : (heure ? { texte, reponse: repHeureEdit } : (choix3 ? { texte, reponse: repChoix3Edit.reponse, options: repChoix3Edit.options } : (pres ? { texte, nom: presNomEdit } : { texte, reponse: editRep })));
     if (editImage) maj.image = editImage;
     if (editAudio) maj.audio = await blobToDataUrl(editAudio);
     else if (editAudioSupprime) maj.audio = null;
@@ -797,6 +822,10 @@ loadQuiz();
       <span style="font-weight:700">:</span>
       <input type="number" id="edit-rep-m" min="0" max="59" placeholder="MM" style="width:80px;padding:9px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;text-align:center"/>
     </div>
+    </div>
+    <div id="edit-pres-zone" style="display:none">
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Nom de la personne qui présente</label>
+    <input type="text" id="edit-pres-nom" placeholder="Ex : Alison" style="width:100%;padding:9px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit"/>
     </div>
     <div id="edit-choix3-zone" style="display:none">
     <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Les 3 choix — coche la bonne</label>
