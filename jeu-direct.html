@@ -51,6 +51,9 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.habituelle { background: var(--orange); }
 .rep.formel { background: var(--bleu-clair); }
 .rep.informel { background: var(--orange); }
+.rep.c0 { background: var(--bleu-clair); }
+.rep.c1 { background: var(--orange); }
+.rep.c2 { background: var(--vert); }
 .rep.present { background: var(--bleu-clair); }
 .rep.futur { background: var(--orange); }
 .rep.reponse1 { background: var(--bleu-clair); }
@@ -318,6 +321,7 @@ async function chargerQuestions() {
   quizChargeId = etat.quizId;
 }
 
+function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 async function montrerQuestion() {
   await chargerQuestions();
   if (etat.type === 'grille') { montrerGrille(); return; }
@@ -332,8 +336,11 @@ async function montrerQuestion() {
 
   if (etat.type === 'heure') { montrerHeure(q); return; }
 
-  const reps = TYPES[etat.type] || TYPES.ipo;
-  let boutons = reps.map(r => `<button class="rep ${r.v}" onclick="voter('${r.v}')"><span class="ico">${r.ico}</span>${r.lib}</button>`).join('');
+  let reps = TYPES[etat.type] || TYPES.ipo;
+  if (etat.type === 'choix3' && Array.isArray(q.options)) {
+    reps = q.options.map((o, i) => ({ v: String(i), ico: '', lib: esc(o), cls: 'c' + i }));
+  }
+  let boutons = reps.map(r => `<button class="rep ${r.cls || r.v}" onclick="voter('${r.v}')"><span class="ico">${r.ico}</span>${r.lib}</button>`).join('');
   const imgHtml = q.image ? `<img class="q-img" src="${q.image}" decoding="async"/>` : '';
   const audioHtml = q.audio ? `<button class="audio-play" onclick="jouerAudioQ()">🔊 Écouter</button>` : '';
   const vide = !q.image && !q.audio && !q.texte;

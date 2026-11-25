@@ -119,6 +119,7 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <option value="ligne">📅 Ligne du temps (choisir l'année)</option>
         <option value="grille">🖼️ Grille d'images (dire le mot, choisir l'image)</option>
         <option value="heure">🕐 L'heure (écouter et écrire l'heure)</option>
+        <option value="choix3">✏️ 3 choix de réponse (tu écris les réponses)</option>
       </select>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="creerQuiz()">Créer le quiz</button>
@@ -172,6 +173,15 @@ select { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(26,58,92,0.15
         <input type="number" id="rep-m" min="0" max="59" placeholder="MM" style="width:90px;padding:10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:1.1rem;text-align:center"/>
       </div>
       <div style="font-size:0.82rem;color:var(--gris);margin-top:6px">L'élève écoute l'audio puis tape l'heure (2 cases) et les minutes (2 cases).</div>
+      </div>
+      <div id="choix3-zone" style="display:none">
+      <label>Les 3 choix de réponse — coche la bonne</label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px"><input type="radio" name="correct3" value="0" id="c3r0" style="width:20px;height:20px;flex-shrink:0;cursor:pointer"/><input type="text" id="opt0" placeholder="Réponse 1" style="flex:1;padding:10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/></div>
+        <div style="display:flex;align-items:center;gap:10px"><input type="radio" name="correct3" value="1" id="c3r1" style="width:20px;height:20px;flex-shrink:0;cursor:pointer"/><input type="text" id="opt1" placeholder="Réponse 2" style="flex:1;padding:10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/></div>
+        <div style="display:flex;align-items:center;gap:10px"><input type="radio" name="correct3" value="2" id="c3r2" style="width:20px;height:20px;flex-shrink:0;cursor:pointer"/><input type="text" id="opt2" placeholder="Réponse 3" style="flex:1;padding:10px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem"/></div>
+      </div>
+      <div style="font-size:0.82rem;color:var(--gris);margin-top:6px">Écris les 3 réponses et coche le cercle de la bonne réponse.</div>
       </div>
       <div class="row" style="margin-top:1.25rem">
         <button class="btn btn-primary" onclick="saveq()">Ajouter la question</button>
@@ -281,14 +291,16 @@ const TYPES = {
     { v: 'an2025', ico: '', lib: '2025' }
   ]},
   grille: { nom: 'Grille d\'images (dire le mot)', reps: [], grille: true },
-  heure: { nom: 'L\'heure (écouter et écrire)', reps: [], heure: true }
+  heure: { nom: 'L\'heure (écouter et écrire)', reps: [], heure: true },
+  choix3: { nom: '3 choix de réponse', reps: [], choix3: true }
 };
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function libRep(type, v) {
   const t = TYPES[type]; if (!t) return v;
   const r = t.reps.find(x => x.v === v); return r ? (r.ico + ' ' + r.lib) : v;
 }
 
-let quizzes = [], quizCourant = null, items = [], pendingImage = null, repChoisie = null;
+let quizzes = [], quizCourant = null, items = [], pendingImage = null, repChoisie = null, repChoix3 = null;
 let pendingAudio = null;
 let mediaRecorder = null, chunks = [], recording = false, seconds = 0, timerInterval = null;
 
@@ -439,12 +451,15 @@ window.retourQuiz = function() {
 
 function estGrille() { return (TYPES[quizCourant.type] || {}).grille === true; }
 function estHeure() { return (TYPES[quizCourant.type] || {}).heure === true; }
+function estChoix3() { return (TYPES[quizCourant.type] || {}).choix3 === true; }
 function renderRepChoix() {
   const grille = estGrille();
   const heure = estHeure();
+  const choix3 = estChoix3();
   document.getElementById('import-zone').style.display = grille ? '' : 'none';
-  document.getElementById('rep-zone').style.display = (grille || heure) ? 'none' : '';
+  document.getElementById('rep-zone').style.display = (grille || heure || choix3) ? 'none' : '';
   document.getElementById('heure-zone').style.display = heure ? '' : 'none';
+  document.getElementById('choix3-zone').style.display = choix3 ? '' : 'none';
   document.getElementById('texte-label').textContent = grille ? 'Mot (ex. : lavable) — optionnel, non montré à l\'élève' : 'Texte de la question (ex. : Stationner ici)';
   document.getElementById('texte').placeholder = grille ? 'lavable' : 'Stationner ici';
   document.getElementById('image-label').textContent = grille ? 'Image (obligatoire)' : 'Image';
@@ -526,6 +541,13 @@ window.saveq = async function() {
     const H = parseInt(h, 10), M = parseInt(m, 10);
     if (h === '' || m === '' || isNaN(H) || isNaN(M) || H < 0 || H > 23 || M < 0 || M > 59) { msg.textContent = 'Entrez une heure valide (0-23) et des minutes (0-59).'; msg.className = 'msg err'; return; }
     repHeure = H + ':' + String(M).padStart(2, '0');
+  } else if (estChoix3()) {
+    if (!texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez un texte, une image ou un audio pour la question.'; msg.className = 'msg err'; return; }
+    const opts = [0,1,2].map(i => document.getElementById('opt'+i).value.trim());
+    if (opts.some(o => !o)) { msg.textContent = 'Écrivez les 3 réponses.'; msg.className = 'msg err'; return; }
+    const sel = document.querySelector('input[name="correct3"]:checked');
+    if (!sel) { msg.textContent = 'Cochez la bonne réponse.'; msg.className = 'msg err'; return; }
+    repChoix3 = { options: opts, reponse: sel.value };
   } else {
     if (!typesSansContenu.includes(quizCourant.type) && !texte && !pendingImage && !pendingAudio) { msg.textContent = 'Ajoutez au moins un texte, une image ou un audio.'; msg.className = 'msg err'; return; }
     if (!repChoisie) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
@@ -533,9 +555,10 @@ window.saveq = async function() {
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
     const donnees = {
-      quizId: quizCourant.id, texte, image: pendingImage || null, reponse: estHeure() ? repHeure : repChoisie,
+      quizId: quizCourant.id, texte, image: pendingImage || null, reponse: estChoix3() ? repChoix3.reponse : (estHeure() ? repHeure : repChoisie),
       ordre: items.length, date: new Date().toLocaleDateString('fr-CA')
     };
+    if (estChoix3()) donnees.options = repChoix3.options;
     if (pendingAudio) donnees.audio = await blobToDataUrl(pendingAudio);
     await addDoc(collection(db, COL_Q), donnees);
     await loadCards();
@@ -546,8 +569,9 @@ window.saveq = async function() {
     z.classList.remove('has-file');
     document.querySelectorAll('#rep-choix .rep-btn').forEach(b => b.classList.remove('sel'));
     effacerAudio();
-    pendingImage = null; repChoisie = null;
+    pendingImage = null; repChoisie = null; repChoix3 = null;
     const rh=document.getElementById('rep-h'); if(rh) rh.value=''; const rm=document.getElementById('rep-m'); if(rm) rm.value='';
+    [0,1,2].forEach(i => { const o=document.getElementById('opt'+i); if(o) o.value=''; const r=document.getElementById('c3r'+i); if(r) r.checked=false; });
     setTimeout(() => msg.textContent = '', 2500);
   } catch(e) { msg.textContent = 'Erreur : ' + e.message; msg.className = 'msg err'; }
 };
@@ -571,7 +595,7 @@ function render() {
     div.innerHTML = `
       <span class="pos">${i + 1}</span>
       ${it.image ? `<img src="${it.image}"/>` : '<div style="width:54px;height:54px"></div>'}
-      <div class="txt"><div class="q">${it.texte || (it.image || it.audio ? '' : '<span style=\'color:var(--gris);font-style:italic\'>Question orale ' + (i+1) + '</span>')} ${it.audio ? '🔊' : ''}</div>${estGrille() ? `<div class="r"><span style="color:var(--gris);font-size:0.82rem">🖼️ image ${i+1}${it.texte ? ' · ' + it.texte : ''}</span></div>` : `<div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div>`}</div>
+      <div class="txt"><div class="q">${it.texte || (it.image || it.audio ? '' : '<span style=\'color:var(--gris);font-style:italic\'>Question orale ' + (i+1) + '</span>')} ${it.audio ? '🔊' : ''}</div>${estGrille() ? `<div class="r"><span style="color:var(--gris);font-size:0.82rem">🖼️ image ${i+1}${it.texte ? ' · ' + it.texte : ''}</span></div>` : (estChoix3() ? `<div class="r"><span class="pill" style="background:#e8eef6;color:var(--bleu)">✓ ${esc((it.options||[])[parseInt(it.reponse,10)]||'')}</span></div>` : `<div class="r"><span class="pill ${it.reponse}">${libRep(quizCourant.type, it.reponse)}</span></div>`)}</div>
       <button class="mini" ${i === 0 ? 'disabled' : ''} onclick="monter('${it.id}')">↑</button>
       <button class="mini" ${i === items.length - 1 ? 'disabled' : ''} onclick="descendre('${it.id}')">↓</button>
       ${it.audio ? `<button class="mini" title="Écouter l'audio" onclick="jouerAudioItem('${it.id}')">🔊</button>` : ''}
@@ -617,8 +641,13 @@ window.modifierQ = function(id) {
   document.getElementById('edit-audio-clear').style.display = it.audio ? 'inline-block' : 'none';
   document.getElementById('edit-audio-preview').style.display = it.audio ? 'inline-block' : 'none';
   document.getElementById('edit-msg').textContent = '';
-  document.getElementById('edit-rep-zone').style.display = (estGrille() || estHeure()) ? 'none' : '';
+  document.getElementById('edit-rep-zone').style.display = (estGrille() || estHeure() || estChoix3()) ? 'none' : '';
   document.getElementById('edit-heure-zone').style.display = estHeure() ? '' : 'none';
+  document.getElementById('edit-choix3-zone').style.display = estChoix3() ? '' : 'none';
+  if (estChoix3()) {
+    const opts = it.options || [];
+    [0,1,2].forEach(i => { document.getElementById('edit-opt'+i).value = opts[i] || ''; document.getElementById('ec3r'+i).checked = (String(it.reponse) === String(i)); });
+  }
   if (estHeure()) {
     const parts = String(it.reponse || '').split(':');
     document.getElementById('edit-rep-h').value = parts[0] !== undefined && parts[0] !== '' ? parseInt(parts[0], 10) : '';
@@ -706,8 +735,17 @@ window.enregistrerModifQ = async function() {
   const msg = document.getElementById('edit-msg');
   const grille = estGrille();
   const heure = estHeure();
-  if (!grille && !heure && !texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
-  if (!grille && !heure && !editRep) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  const choix3 = estChoix3();
+  if (!grille && !heure && !choix3 && !texte) { msg.textContent = 'Entrez un texte.'; msg.className = 'msg err'; return; }
+  if (!grille && !heure && !choix3 && !editRep) { msg.textContent = 'Choisissez la bonne réponse.'; msg.className = 'msg err'; return; }
+  let repChoix3Edit = null;
+  if (choix3) {
+    const opts = [0,1,2].map(i => document.getElementById('edit-opt'+i).value.trim());
+    if (opts.some(o => !o)) { msg.textContent = 'Écrivez les 3 réponses.'; msg.className = 'msg err'; return; }
+    const sel = document.querySelector('input[name="edit-correct3"]:checked');
+    if (!sel) { msg.textContent = 'Cochez la bonne réponse.'; msg.className = 'msg err'; return; }
+    repChoix3Edit = { options: opts, reponse: sel.value };
+  }
   let repHeureEdit = null;
   if (heure) {
     const h = document.getElementById('edit-rep-h').value, m = document.getElementById('edit-rep-m').value;
@@ -717,7 +755,7 @@ window.enregistrerModifQ = async function() {
   }
   msg.textContent = 'Sauvegarde...'; msg.className = 'msg';
   try {
-    const maj = grille ? { texte } : (heure ? { texte, reponse: repHeureEdit } : { texte, reponse: editRep });
+    const maj = grille ? { texte } : (heure ? { texte, reponse: repHeureEdit } : (choix3 ? { texte, reponse: repChoix3Edit.reponse, options: repChoix3Edit.options } : { texte, reponse: editRep }));
     if (editImage) maj.image = editImage;
     if (editAudio) maj.audio = await blobToDataUrl(editAudio);
     else if (editAudioSupprime) maj.audio = null;
@@ -758,6 +796,14 @@ loadQuiz();
       <input type="number" id="edit-rep-h" min="0" max="23" placeholder="HH" style="width:80px;padding:9px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;text-align:center"/>
       <span style="font-weight:700">:</span>
       <input type="number" id="edit-rep-m" min="0" max="59" placeholder="MM" style="width:80px;padding:9px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit;text-align:center"/>
+    </div>
+    </div>
+    <div id="edit-choix3-zone" style="display:none">
+    <label style="display:block;font-size:0.85rem;color:var(--gris);margin:0.75rem 0 4px">Les 3 choix — coche la bonne</label>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px"><input type="radio" name="edit-correct3" value="0" id="ec3r0" style="width:20px;height:20px;flex-shrink:0;cursor:pointer"/><input type="text" id="edit-opt0" placeholder="Réponse 1" style="flex:1;padding:9px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit"/></div>
+      <div style="display:flex;align-items:center;gap:10px"><input type="radio" name="edit-correct3" value="1" id="ec3r1" style="width:20px;height:20px;flex-shrink:0;cursor:pointer"/><input type="text" id="edit-opt1" placeholder="Réponse 2" style="flex:1;padding:9px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit"/></div>
+      <div style="display:flex;align-items:center;gap:10px"><input type="radio" name="edit-correct3" value="2" id="ec3r2" style="width:20px;height:20px;flex-shrink:0;cursor:pointer"/><input type="text" id="edit-opt2" placeholder="Réponse 3" style="flex:1;padding:9px;border:1.5px solid rgba(26,58,92,0.15);border-radius:8px;font-family:inherit"/></div>
     </div>
     </div>
     <div class="row" style="margin-top:1.5rem;justify-content:flex-end">

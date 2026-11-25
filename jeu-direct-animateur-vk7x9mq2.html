@@ -65,6 +65,9 @@ h1 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 2rem
 .res-col.habituelle { color: var(--orange); }
 .res-col.formel { color: var(--bleu-clair); }
 .res-col.informel { color: var(--orange); }
+.res-col.c0 { color: var(--bleu-clair); }
+.res-col.c1 { color: var(--orange); }
+.res-col.c2 { color: var(--vert); }
 .res-col.present { color: var(--bleu-clair); }
 .res-col.futur { color: var(--orange); }
 .res-col.reponse1 { color: var(--bleu-clair); }
@@ -347,14 +350,18 @@ function ecranResultats() {
   if (estHeure()) { ecranResultatsHeure(); return; }
   const q = questions[etat.questionIndex];
   if (!q) return;
-  const reps = TYPES[etat.type] || TYPES.ipo;
+  const esc = x => String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let reps = TYPES[etat.type] || TYPES.ipo;
+  if (etat.type === 'choix3' && Array.isArray(q.options)) {
+    reps = q.options.map((o, i) => ({ v: String(i), ico: '', lib: esc(o), cls: 'c' + i }));
+  }
   const cle = 'q' + etat.questionIndex;
   const compte = {};
   reps.forEach(r => compte[r.v] = 0);
   joueurs.forEach(j => { const v = j.votes && j.votes[cle]; if (v && compte[v] !== undefined) compte[v]++; });
   let cols = reps.map(r => {
     const bonne = q.reponse === r.v;
-    return `<div class="res-col ${r.v} ${bonne?'bonne':''}"><div class="ico">${r.ico}</div><div class="lib">${r.lib}</div><div class="nb">${compte[r.v]}</div></div>`;
+    return `<div class="res-col ${r.cls || r.v} ${bonne?'bonne':''}"><div class="ico">${r.ico}</div><div class="lib">${r.lib}</div><div class="nb">${compte[r.v]}</div></div>`;
   }).join('');
   const dernier = etat.questionIndex >= questions.length - 1;
   stage.innerHTML = `
