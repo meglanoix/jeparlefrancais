@@ -95,6 +95,8 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .pres-noms { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 0.3rem; }
 .pres-nom { padding: 0.6rem 1.05rem; border: 2px solid rgba(26,58,92,0.15); background: #fff; border-radius: 22px; font-family: inherit; font-size: 1rem; font-weight: 600; color: var(--bleu); cursor: pointer; }
 .pres-nom.sel { background: var(--bleu); color: #fff; border-color: var(--bleu); }
+.grille-img.pres-obj { padding: 10px; background: #fff; }
+.grille-img.pres-obj img { object-fit: contain; }
 @media (max-width: 520px) { .grille-board { grid-template-columns: repeat(3, 1fr); } }
 .big-ico { font-size: 4rem; margin-bottom: 1rem; }
 .attente-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gris); margin:0 3px; animation: blink 1.4s infinite both; }
@@ -156,7 +158,8 @@ let etat = null;          // état courant de la partie
 let monInitiales = null, monDocId = null;  // identité (initiales) de cette tablette
 let maPartie = null;      // partieId auquel je suis inscrit
 let questions = [];       // questions du quiz courant (chargées quand la partie démarre)
-let selPresNom = null, selPresImg = null;
+let selPresNom = null, selPresImg = null, presNoms = null, presObjets = null;
+function melangerTab(a){ const r=a.slice(); for(let i=r.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]]; } return r; }
 let quizChargeId = null;
 let aVote = false;        // ai-je voté à la question courante ?
 let derniereQuestionVotee = -1;
@@ -325,6 +328,7 @@ async function chargerQuestions() {
   const snap = await getDocs(query(collection(db, COL_Q), where('quizId', '==', etat.quizId)));
   questions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(a.ordre??99)-(b.ordre??99));
   quizChargeId = etat.quizId;
+  presNoms = null; presObjets = null;   // re-mélanger pour ce quiz
 }
 
 function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -454,12 +458,15 @@ window.voter = function(v) {
 
 // --- type "pres" : l'élève choisit le bon nom ET le bon objet pour le jour/heure affichés ---
 function montrerPres(q) {
-  const noms = [];
-  questions.forEach(x => { if (x.nom && !noms.includes(x.nom)) noms.push(x.nom); });
-  const objets = questions.filter(x => x.image);
+  if (!presNoms || !presObjets) {
+    const noms = [];
+    questions.forEach(x => { if (x.nom && !noms.includes(x.nom)) noms.push(x.nom); });
+    presNoms = melangerTab(noms);
+    presObjets = melangerTab(questions.filter(x => x.image));
+  }
   selPresNom = null; selPresImg = null;
-  const nomBtns = noms.map(n => `<button class="pres-nom" data-n="${esc(n)}" onclick="choisirPresNom(this)">${esc(n)}</button>`).join('');
-  const imgTuiles = objets.map(o => `<button class="grille-img" data-id="${o.id}" onclick="choisirPresImg(this)"><img src="${o.image}" decoding="async" alt=""/></button>`).join('');
+  const nomBtns = presNoms.map(n => `<button class="pres-nom" data-n="${esc(n)}" onclick="choisirPresNom(this)">${esc(n)}</button>`).join('');
+  const imgTuiles = presObjets.map(o => `<button class="grille-img pres-obj" data-id="${o.id}" onclick="choisirPresImg(this)"><img src="${o.image}" decoding="async" alt=""/></button>`).join('');
   const audioHtml = q.audio ? `<button class="audio-play" onclick="jouerAudioQ()">🔊 Écouter</button>` : '';
   zone.innerHTML = `${audioHtml}<div class="q-texte">${esc(q.texte || '')}</div><div class="pres-label">Qui présente ?</div><div class="pres-noms">${nomBtns}</div><div class="pres-label">Quel objet ?</div><div class="grille-board">${imgTuiles}</div><button class="rep" id="btn-valider-pres" style="background:var(--bleu);max-width:280px;margin:1.1rem auto 0;opacity:.5" disabled onclick="voterPres()">Valider</button>`;
 }
