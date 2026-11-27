@@ -51,6 +51,8 @@ h2 { font-family: 'Playfair Display', serif; color: var(--bleu); font-size: 1.5r
 .rep.habituelle { background: var(--orange); }
 .rep.formel { background: var(--bleu-clair); }
 .rep.informel { background: var(--orange); }
+.rep.une { background: var(--bleu-clair); }
+.rep.plusieurs { background: var(--vert); }
 .rep.c0 { background: var(--bleu-clair); }
 .rep.c1 { background: var(--orange); }
 .rep.c2 { background: var(--vert); }
@@ -138,6 +140,7 @@ const TYPES = {
   ipo: [ {v:'interdit',ico:'❌',lib:'Interdit'}, {v:'permis',ico:'✅',lib:'Permis'}, {v:'obligatoire',ico:'❗',lib:'Obligatoire'} ],
   vf:  [ {v:'vrai',ico:'✅',lib:'Vrai'}, {v:'faux',ico:'❌',lib:'Faux'} ],
   fi:  [ {v:'formel',ico:'🎩',lib:'Formel'}, {v:'informel',ico:'💬',lib:'Informel'} ],
+  np:  [ {v:'une',ico:'🧍',lib:'Une personne'}, {v:'plusieurs',ico:'👥',lib:'Plusieurs personnes'} ],
   ph:  [ {v:'ponctuelle',ico:'1️⃣',lib:'Ponctuelle'}, {v:'habituelle',ico:'🔁',lib:'Habituelle'} ],
   pf:  [ {v:'present',ico:'⏱️',lib:'Présent'}, {v:'futur',ico:'⏩',lib:'Futur'} ],
   r12: [ {v:'reponse1',ico:'1️⃣',lib:'Réponse 1'}, {v:'reponse2',ico:'2️⃣',lib:'Réponse 2'} ],
